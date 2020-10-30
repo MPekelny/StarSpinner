@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22ef5716f07815844a784da575e5e332, type: 3}
+  m_Name: GameData
+  m_EditorClassIdentifier: 
+  _spinnerColors:
+  - {r: 0.8117648, g: 0.043137256, b: 0.043137256, a: 1}
+  - {r: 0.654902, g: 0.65882355, b: 0.06666667, a: 1}
+  - {r: 0.18649878, g: 0.31132078, b: 0.19079375, a: 1}
+  - {r: 0.54901963, g: 0.0627451, b: 0.5294118, a: 1}
+  - {r: 1, g: 0.48627454, b: 0.48627454, a: 1}
+  - {r: 0.8431373, g: 0.21960786, b: 0.9058824, a: 1}
+  - {r: 0.91372555, g: 0.91372555, b: 0.6431373, a: 1}
+  _puzzleDatas:
+  - {fileID: 11400000, guid: e32f869119474074cbe1e72b05df0415, type: 2}
+  - {fileID: 11400000, guid: 3d03f698998343a4f8b19c5bf3a429c8, type: 2}
+  - {fileID: 11400000, guid: ccb1c77db4bed76449d58a2152faa312, type: 2}
+  _spinnerPrefab: {fileID: 2479325615937351756, guid: e5ef2cb150b40994ea3055dd79cec6fb,
+    type: 3}
+  _starPrefab: {fileID: 4540626280132475772, guid: fbfc4d83ef5d93e4dbabc7e57b2498fc,
+    type: 3}
