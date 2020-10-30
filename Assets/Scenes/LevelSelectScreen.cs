@@ -27,7 +27,7 @@ public class LevelSelectScreen : MonoBehaviour
 		CleanUp();
 
 		GameManager.Instance.ActivePuzzle = _gameData.PuzzleDatas[index];
-		SceneManager.LoadScene(PuzzleScreen.SCREEN_NAME);
+		GameManager.Instance.ScreenTransitionManager.TransitionScreen(PuzzleScreen.SCREEN_NAME);
 	}
 
 	private void CleanUp()

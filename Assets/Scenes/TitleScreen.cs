@@ -8,6 +8,6 @@ public class TitleScreen : MonoBehaviour
 
 	public void OnTappedScreen()
 	{
-		SceneManager.LoadScene(LevelSelectScreen.SCREEN_NAME);
+		GameManager.Instance.ScreenTransitionManager.TransitionScreen(LevelSelectScreen.SCREEN_NAME);
 	}
 }

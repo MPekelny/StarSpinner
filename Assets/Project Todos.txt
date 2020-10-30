@@ -1,6 +1,5 @@
 Things left to do for the game:
 
--- Screen transitions between screens.
 -- Determine a more full sequence for when a level is won.
 --- Currently thinking once a level is determined to be won, play a short particle effect burst along with tweening things into a final state (all spinners rotation be 0 and their spinner objects set not visible, the star's colours to their final color, the puzzle name set and faded in, the back button not visible, and a level end menu showing, allowing the player to return to the level selection or just go to the next level).
 -- Add more to the level selection screen. Namely, the screen is set up to allow for 20 levels to be shown at once, so need a previous and next button to go through pages of levels. Also, need to determine how to show that levels have been completed (minimum some sort of highlighting to mark it, maybe something like showing a miniature version of the solved puzzle on the button).

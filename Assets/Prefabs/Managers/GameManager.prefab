@@ -45,3 +45,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _objectPoolManagerPrefab: {fileID: 1920088150974245133, guid: 8370c6e708694344abfd4d0f4979059b,
     type: 3}
+  _screenTransitionManagerPrefab: {fileID: 2689515130996856589, guid: 80c919eacba1dd64dbdaf2de3f61624d,
+    type: 3}

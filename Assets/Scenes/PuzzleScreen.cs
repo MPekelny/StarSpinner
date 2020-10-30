@@ -46,7 +46,7 @@ public class PuzzleScreen : MonoBehaviour
 	public void BackButtonPressed()
 	{
 		Cleanup();
-		SceneManager.LoadScene(LevelSelectScreen.SCREEN_NAME);
+		GameManager.Instance.ScreenTransitionManager.TransitionScreen(LevelSelectScreen.SCREEN_NAME);
 	}
 
 	/// <summary>
