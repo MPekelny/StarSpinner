@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class PuzzleScreen : MonoBehaviour
 {
@@ -12,6 +10,10 @@ public class PuzzleScreen : MonoBehaviour
 
 	[SerializeField] private GameData _gameData = null;
 	[SerializeField] private TMPro.TextMeshProUGUI _puzzleNameText = null;
+	[SerializeField] private GameObject _uiParticleObject = null;
+	[SerializeField] private GameObject _backButton = null;
+	[SerializeField] private GameObject _levelEndButtonsContainer = null;
+	[SerializeField] private GameObject _levelEndNextLevelButton = null;
 
 	private List<PuzzleSpinner> _testSpinners = new List<PuzzleSpinner>();
 	private List<Star> _stars = new List<Star>();
@@ -29,14 +31,22 @@ public class PuzzleScreen : MonoBehaviour
 
 	public void Start()
 	{
-		_activePuzzle = GameManager.Instance.ActivePuzzle;
+		_backButton.SetActive(true);
+		_uiParticleObject.SetActive(false);
+		_puzzleNameText.gameObject.SetActive(false);
+		_puzzleNameText.alpha = 0f;
+		_levelEndButtonsContainer.SetActive(false);
+
+		SetupPuzzle();
+	}
+
+	private void SetupPuzzle()
+	{
+		_activePuzzle = GameManager.Instance.GetActivePuzzle();
 		if (_activePuzzle == null)
 		{
 			_activePuzzle = _gameData.PuzzleDatas[0];
 		}
-
-		_puzzleNameText.gameObject.SetActive(false);
-		_puzzleNameText.alpha = 0f;
 
 		CreateSpinners();
 		CreateStars();
@@ -47,6 +57,17 @@ public class PuzzleScreen : MonoBehaviour
 	{
 		Cleanup();
 		GameManager.Instance.ScreenTransitionManager.TransitionScreen(LevelSelectScreen.SCREEN_NAME);
+	}
+
+	public void NextLevelButtonPressed()
+	{
+		GameManager.Instance.ScreenTransitionManager.FadeOut(() => 
+		{
+			GameManager.Instance.SetPuzzleIndexToNext();
+			Cleanup();
+			SetupPuzzle();
+			GameManager.Instance.ScreenTransitionManager.FadeIn();
+		});
 	}
 
 	/// <summary>
@@ -148,6 +169,9 @@ public class PuzzleScreen : MonoBehaviour
 
 	private void PlaySolved()
 	{
+		_backButton.SetActive(false);
+		_uiParticleObject.SetActive(true);
+
 		int neededSpinCount = _testSpinners.Count;
 		foreach (PuzzleSpinner t in _testSpinners)
 		{
@@ -164,19 +188,22 @@ public class PuzzleScreen : MonoBehaviour
 					_puzzleNameText.text = _activePuzzle.PuzzleName;
 					_puzzleNameText.gameObject.SetActive(true);
 					_puzzleNameText.DOFade(1f, 0.5f).OnComplete(() =>
-					{ 
-						
+					{
+						_levelEndButtonsContainer.SetActive(true);
+						_levelEndNextLevelButton.SetActive(GameManager.Instance.IsThereANextPuzzle());
 					});
 				}
 			});
 		}
-
-
-		Debug.Log("Puzzle was solved.");
 	}
 
 	private void Cleanup()
 	{
+		_backButton.SetActive(true);
+		_uiParticleObject.SetActive(false);
+		_levelEndButtonsContainer.SetActive(false);
+		_puzzleNameText.gameObject.SetActive(false);
+
 		foreach (Star star in _stars)
 		{
 			star.ReturnToPool();

@@ -1,4 +1,5 @@
 ﻿using DG.Tweening;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -31,6 +32,31 @@ public class ScreenTransitionManager : MonoBehaviour
 		SceneManager.sceneLoaded -= OnSceneLoaded;
 		_screenOverlay.DOFade(0f, _transitionFadeTime).OnComplete(() => 
 		{
+			gameObject.SetActive(false);
+		});
+	}
+
+	public void FadeOut(Action onComplete = null, bool turnOffAfter = false)
+	{
+		gameObject.SetActive(true);
+		_screenOverlay.color = new Color(0f, 0f, 0f, 0f);
+		_screenOverlay.DOFade(1f, _transitionFadeTime).OnComplete(() =>
+		{
+			onComplete?.Invoke();
+			if (turnOffAfter)
+			{
+				gameObject.SetActive(false);
+			}
+		});
+	}
+
+	public void FadeIn(Action onComplete = null)
+	{
+		gameObject.SetActive(true);
+		_screenOverlay.color = new Color(0f, 0f, 0f, 1f);
+		_screenOverlay.DOFade(0f, _transitionFadeTime).OnComplete(() =>
+		{
+			onComplete?.Invoke();
 			gameObject.SetActive(false);
 		});
 	}
