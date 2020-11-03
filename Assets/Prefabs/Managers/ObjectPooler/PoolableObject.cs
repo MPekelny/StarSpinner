@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,35 +8,37 @@ public abstract class PoolableObject : MonoBehaviour
 	private ObjectPool _owner = null;
 	public ObjectPool Owner => _owner;
 
+	Action<PoolableObject> _poolReturnCb = null;
+
 	/// <summary>
-	/// Sets the owner of this poolableObject. This is meant to be only called by ObjectPool, but can't restrict what classes call a method.
-	/// So, having this in a specific Set method instead of just the setter so it is more explicit that it is being called on purpose instead of something like using the setter by accident.
+	/// Sets the owner of this poolable object as well as the method for returning this object to the pool (this way, only this object can call the return method directly).
+	/// This method should only be called by ObjectPool.
 	/// </summary>
-	/// <param name="ownerNew"></param>
-	public void SetOwner(ObjectPool ownerNew)
+	/// <param name="ownerRef">The reference to the ObjectPool that owns this object, so that when it is returned to its pool, the pool can double check that it actually owns this object.</param>
+	/// <param name="poolReturnCb">The method to be called when this object is to be returned to the object pool.</param>
+	public void SetOwner(ObjectPool ownerRef, Action<PoolableObject> poolReturnCb)
 	{
-		if (ownerNew != null)
+		if (ownerRef == null || poolReturnCb == null)
 		{
-			_owner = ownerNew;
+			throw new ArgumentException($"Called SetOwner on a {name} object with a null ownerRef or poolReturnCb.");
 		}
-		else
-		{
-			Debug.LogWarning("Attempted to set a PoolableObject's owner to null.");
-		}
+
+		_owner = ownerRef;
+		_poolReturnCb = poolReturnCb;
 	}
 
 	public void ReturnToPool()
 	{
 		// In the case that the owner is not set, this object would not get put back into a pool and the code calling this would probably not handle that, so this object would be orphaned.
 		// So if this is called without an owner being set, just destroy it.
-		if (_owner == null)
+		if (_poolReturnCb == null)
 		{
-			Debug.LogWarning($"Tried to return a PoolableObject {name} to its pool without an owner being set.");
+			Debug.LogWarning($"Tried to return a PoolableObject {name} to its pool without a return to pool callback being set. Destroying object so it does not hang around.");
 			Destroy(gameObject);
 		}
 		else 
 		{
-			_owner.ReturnObjectToPool(this);
+			_poolReturnCb(this);
 		}
 	}
 }

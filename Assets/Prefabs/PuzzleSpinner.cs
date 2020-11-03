@@ -14,7 +14,7 @@ public class PuzzleSpinner : PoolableObject
 	private PuzzleScreen _parentRef = null;
 	private EventTrigger _trigger = null;
 
-	public void Init(PuzzleScreen parent, Color spinnerColor)
+	public void Init(PuzzleScreen parent, Color spinnerColor, Sprite spinnerSprite)
 	{
 		_parentRef = parent;
 		_trigger = _spinnerObject.GetComponent<EventTrigger>();
@@ -22,6 +22,7 @@ public class PuzzleSpinner : PoolableObject
 		_touchablePart.interactable = true;
 
 		_spinnerObject.color = spinnerColor;
+		_spinnerObject.sprite = spinnerSprite;
 		_spinnerObject.transform.localEulerAngles = new Vector3(0f, 0f, UnityEngine.Random.Range(0f, 359f));
 
 		SetupTouchEvents();

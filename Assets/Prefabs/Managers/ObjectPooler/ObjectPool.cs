@@ -16,9 +16,18 @@ public class ObjectPool : MonoBehaviour
 		}
 
 		_objectPrefab = prefab;
-		CreateInitialPool(initialCount);
+
+		if (initialCount > 0)
+		{
+			CreateInitialPool(initialCount);
+		}
 	}
 
+	/// <summary>
+	/// Fetches an object from this pool. If there is an object available in the pool, it just returns one. Otherwise creates a new one and returns that.
+	/// </summary>
+	/// <param name="parentNew">The transform of the object that is to be the parent of the pooled object.</param>
+	/// <returns></returns>
 	public PoolableObject GetObjectFromPool(Transform parentNew)
 	{
 		if (_objectPrefab == null)
@@ -30,8 +39,7 @@ public class ObjectPool : MonoBehaviour
 		PoolableObject item = null;
 		if (_pool.Count == 0)
 		{
-			item = Instantiate(_objectPrefab);
-			item.SetOwner(this);
+			item = CreateObject();
 		}
 		else
 		{
@@ -45,9 +53,9 @@ public class ObjectPool : MonoBehaviour
 	}
 
 	/// <summary>
-	/// This method is meant to only be called by PoolableObject, but there is not a way to restrict methods to being called by specific classes.
+	/// This method gets passed to a poolable object so that it can be called by that object without having to make this method public. Makes it rather less likely that other code will try to return an object to the wrong pool.
 	/// </summary>
-	public void ReturnObjectToPool(PoolableObject obj)
+	private void ReturnObjectToPool(PoolableObject obj)
 	{
 		if (obj == null) return;
 
@@ -71,11 +79,17 @@ public class ObjectPool : MonoBehaviour
 	{
 		for (int i = 0; i < count; i++)
 		{
-			PoolableObject obj = Instantiate(_objectPrefab);
-			obj.SetOwner(this);
-
+			PoolableObject obj = CreateObject();
 			PutObjectIntoPool(obj);
 		}
+	}
+
+	private PoolableObject CreateObject()
+	{
+		PoolableObject obj = Instantiate(_objectPrefab);
+		obj.SetOwner(this, ReturnObjectToPool);
+
+		return obj;
 	}
 
 	private void PutObjectIntoPool(PoolableObject obj)

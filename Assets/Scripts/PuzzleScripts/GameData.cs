@@ -1,13 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
 [CreateAssetMenu(menuName = "Star Spinner/Create Game Data")]
 public class GameData : ScriptableObject
 {
 	[SerializeField] private Color[] _spinnerColors = null;
 	public Color[] SpinnerColors => _spinnerColors;
+
+	[SerializeField] private Sprite[] _spinnerShapes = null;
+	public Sprite[] SpinnerShapes => _spinnerShapes;
 
 	[SerializeField] private PuzzleData[] _puzzleDatas = null;
 	public PuzzleData[] PuzzleDatas => _puzzleDatas;

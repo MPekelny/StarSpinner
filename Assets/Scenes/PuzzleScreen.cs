@@ -106,6 +106,7 @@ public class PuzzleScreen : MonoBehaviour
 			spinner.transform.localPosition = Vector3.zero;
 
 			Color c;
+			Sprite shape = null;
 			if (i < _gameData.SpinnerColors.Length)
 			{
 				c = _gameData.SpinnerColors[i];
@@ -117,7 +118,12 @@ public class PuzzleScreen : MonoBehaviour
 				c = HelperMethods.MakeRandomColor();
 			}
 
-			spinner.Init(this, c);
+			if (i < _gameData.SpinnerShapes.Length)
+			{
+				shape = _gameData.SpinnerShapes[i];
+			}
+
+			spinner.Init(this, c, shape);
 
 			_testSpinners.Add(spinner);
 		}
