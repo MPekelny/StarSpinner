@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PuzzleBox
   m_EditorClassIdentifier: 
   _dataGrabber: {fileID: 0}
+  _puzzleUniqueId: puzzlebox_0
   _puzzleName: Puzzle Box
   _numSpinners: 4
   _starDatas:

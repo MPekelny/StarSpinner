@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Dragon
   m_EditorClassIdentifier: 
   _dataGrabber: {fileID: 0}
+  _puzzleUniqueId: dragon_0
   _puzzleName: Dragon
   _numSpinners: 4
   _starDatas:

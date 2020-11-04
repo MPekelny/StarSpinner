@@ -30,7 +30,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: bfb3a7a696745684182de652c6ba5d0b, type: 3}
   _puzzleDatas:
   - {fileID: 11400000, guid: e32f869119474074cbe1e72b05df0415, type: 2}
-  - {fileID: 11400000, guid: 3d03f698998343a4f8b19c5bf3a429c8, type: 2}
-  - {fileID: 11400000, guid: ccb1c77db4bed76449d58a2152faa312, type: 2}
+  - {fileID: 11400000, guid: 126d18e7be4a1ca409fb4feb9b93449c, type: 2}
+  - {fileID: 11400000, guid: 6ec086ace1e40654591308a0968fb49c, type: 2}
+  - {fileID: 11400000, guid: bf64d2220b65596408ad72f6e051c587, type: 2}
+  - {fileID: 11400000, guid: db9974474c2459a4486b886594511183, type: 2}
   _overlapTolerance: 5
   _solutionTolerance: 10
