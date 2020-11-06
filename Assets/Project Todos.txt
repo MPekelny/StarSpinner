@@ -1,6 +1,5 @@
 Things left to do for the game:
 
--- Add more to the level selection screen. Namely, the screen is set up to allow for 20 levels to be shown at once, so need a previous and next button to go through pages of levels. Also, need to determine how to show that levels have been completed (minimum some sort of highlighting to mark it, maybe something like showing a miniature version of the solved puzzle on the button).
 -- Add in save data so that completed levels are still marked as complete on returning to the game and can resume levels that were backed out while in progress in the exact state they were left in.
 --- On that note, add in functionality to resume levels.
 -- Add in functionality to get hints (which in a final version, players would watch an RV to get that hint, probably once per level). Currently thinking that the hint will be locking one of the spinners into the correct position and visually marking all the stars that are attached to that spinner in some way.
