@@ -7,11 +7,15 @@ public class GameManager : MonoBehaviour
 	public static GameManager Instance => _instance;
 
 	[SerializeField] private GameData _gameDataReference = null;
+	[SerializeField] private SaveDataManager _saveDataManagerPrefab = null;
 	[SerializeField] private ObjectPoolManager _objectPoolManagerPrefab = null;
 	[SerializeField] private ScreenTransitionManager _screenTransitionManagerPrefab = null;
 
 	public GameData GameDataReference => _gameDataReference;
 	private int _activePuzzleIndex = 0;
+
+	private SaveDataManager _saveDataManager = null;
+	public SaveDataManager SaveDataManager => _saveDataManager;
 
 	private ObjectPoolManager _objectPoolManager = null;
 	public ObjectPoolManager ObjectPoolManager => _objectPoolManager;
@@ -69,6 +73,7 @@ public class GameManager : MonoBehaviour
 
 	private void CreateManagers()
 	{
+		_saveDataManager = Instantiate(_saveDataManagerPrefab, transform);
 		_objectPoolManager = Instantiate(_objectPoolManagerPrefab, transform);
 		_screenTransitionManager = Instantiate(_screenTransitionManagerPrefab, transform);
 	}

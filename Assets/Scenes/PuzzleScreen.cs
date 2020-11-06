@@ -177,6 +177,7 @@ public class PuzzleScreen : MonoBehaviour
 	{
 		_backButton.SetActive(false);
 		_uiParticleObject.SetActive(true);
+		GameManager.Instance.SaveDataManager.SaveLevelCompleted(_activePuzzle.PuzzleUniqueId);
 
 		int neededSpinCount = _testSpinners.Count;
 		foreach (PuzzleSpinner t in _testSpinners)
