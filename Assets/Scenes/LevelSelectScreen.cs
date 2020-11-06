@@ -31,6 +31,13 @@ public class LevelSelectScreen : MonoBehaviour
 		GameManager.Instance.ScreenTransitionManager.TransitionScreen(PuzzleScreen.SCREEN_NAME);
 	}
 
+	public void ClearSaveDataButtonPressed()
+	{
+		// One of the next things to add should be a basic popup system and have a popup appear for confirmation before actually clearing the save data.
+		GameManager.Instance.SaveDataManager.ClearSaveData();
+		ReloadPage();
+	}
+
 	public void PreviousPageButtonPressed()
 	{
 		// Just in case, don't let the start number go below 0.
@@ -59,8 +66,9 @@ public class LevelSelectScreen : MonoBehaviour
 
 		for (int i = _currentPageStartNumber; i < _currentPageStartNumber + _numLevelsPerPage && i < _allPuzzleDataReference.Length; i++)
 		{
+			bool isSolved = GameManager.Instance.SaveDataManager.IsLevelCompleted(_allPuzzleDataReference[i].PuzzleUniqueId);
 			LevelSelectButton button = GameManager.Instance.ObjectPoolManager.GetObjectFromPool("LevelSelectButton", _levelSelectGrid.transform).GetComponent<LevelSelectButton>();
-			button.Init(this, i);
+			button.Init(this, i, isSolved);
 			_buttons.Add(button);
 		}
 
