@@ -12,22 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22ef5716f07815844a784da575e5e332, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  _spinnerColors:
-  - {r: 0.8117648, g: 0.043137256, b: 0.043137256, a: 1}
-  - {r: 0.654902, g: 0.65882355, b: 0.06666667, a: 1}
-  - {r: 0.18649878, g: 0.31132078, b: 0.19079375, a: 1}
-  - {r: 0.54901963, g: 0.0627451, b: 0.5294118, a: 1}
-  - {r: 1, g: 0.48627454, b: 0.48627454, a: 1}
-  - {r: 0.8431373, g: 0.21960786, b: 0.9058824, a: 1}
-  - {r: 0.91372555, g: 0.91372555, b: 0.6431373, a: 1}
-  _spinnerShapes:
-  - {fileID: 21300000, guid: 9d4a662f816b03f418d891f462bbc271, type: 3}
-  - {fileID: 21300000, guid: b3ff1ef7c6851ea44b41794050a87df4, type: 3}
-  - {fileID: 21300000, guid: bd187e643cbb4bf4caa93849a2cb081f, type: 3}
-  - {fileID: 21300000, guid: 961d7cf17ce21d34b9f75facf7a77525, type: 3}
-  - {fileID: 21300000, guid: 0fc06dc5f5ffdaa4bbb47365934bcb70, type: 3}
-  - {fileID: 21300000, guid: 916eb453dc54d0b4ea02d05df07600c1, type: 3}
-  - {fileID: 21300000, guid: bfb3a7a696745684182de652c6ba5d0b, type: 3}
+  _spinnerVisualDatas:
+  - _color: {r: 0.8117647, g: 0.043137256, b: 0.043137256, a: 1}
+    _shape: {fileID: 21300000, guid: 9d4a662f816b03f418d891f462bbc271, type: 3}
+  - _color: {r: 0.654902, g: 0.65882355, b: 0.06666667, a: 1}
+    _shape: {fileID: 21300000, guid: b3ff1ef7c6851ea44b41794050a87df4, type: 3}
+  - _color: {r: 0.1882353, g: 0.30980393, b: 0.19215687, a: 1}
+    _shape: {fileID: 21300000, guid: bd187e643cbb4bf4caa93849a2cb081f, type: 3}
+  - _color: {r: 0.54901963, g: 0.0627451, b: 0.5294118, a: 1}
+    _shape: {fileID: 21300000, guid: 961d7cf17ce21d34b9f75facf7a77525, type: 3}
+  - _color: {r: 1, g: 0.4862745, b: 0.4862745, a: 1}
+    _shape: {fileID: 21300000, guid: 0fc06dc5f5ffdaa4bbb47365934bcb70, type: 3}
+  - _color: {r: 0.84313726, g: 0.21960784, b: 0.90588236, a: 1}
+    _shape: {fileID: 21300000, guid: 916eb453dc54d0b4ea02d05df07600c1, type: 3}
+  - _color: {r: 0.9137255, g: 0.9137255, b: 0.6431373, a: 1}
+    _shape: {fileID: 21300000, guid: bfb3a7a696745684182de652c6ba5d0b, type: 3}
   _puzzleDatas:
   - {fileID: 11400000, guid: e32f869119474074cbe1e72b05df0415, type: 2}
   - {fileID: 11400000, guid: 126d18e7be4a1ca409fb4feb9b93449c, type: 2}
