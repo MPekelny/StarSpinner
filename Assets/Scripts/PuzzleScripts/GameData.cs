@@ -3,11 +3,18 @@
 [CreateAssetMenu(menuName = "Star Spinner/Create Game Data")]
 public class GameData : ScriptableObject
 {
-	[SerializeField] private Color[] _spinnerColors = null;
-	public Color[] SpinnerColors => _spinnerColors;
+	[System.Serializable]
+	public class SpinnerVisualData
+	{
+		[SerializeField] private Color _color;
+		[SerializeField] private Sprite _shape;
 
-	[SerializeField] private Sprite[] _spinnerShapes = null;
-	public Sprite[] SpinnerShapes => _spinnerShapes;
+		public Color Color => _color;
+		public Sprite Shape => _shape;
+	}
+
+	[SerializeField] private SpinnerVisualData[] _spinnerVisualDatas = null;
+	public SpinnerVisualData[] SpinnerVisualDatas => _spinnerVisualDatas;
 
 	[SerializeField] private PuzzleData[] _puzzleDatas = null;
 	public PuzzleData[] PuzzleDatas => _puzzleDatas;
