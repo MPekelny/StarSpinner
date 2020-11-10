@@ -1,22 +1,26 @@
 ﻿using NUnit.Framework;
 
-public class HelperMethodTests
+namespace Tests.UtilityTests
 {
-	[Test]
-	public void TestEpsilonCheckReturnsTrue()
+	public class HelperMethodTests
 	{
-		float testValueA = 15f;
-		float testValueB = 15.000001f;
+		[Test]
+		public void TestEpsilonCheckReturnsTrue()
+		{
+			float testValueA = 15f;
+			float testValueB = 15.000001f;
 
-		Assert.IsTrue(HelperMethods.EpsilonCheck(testValueA, testValueB));
-	}
+			Assert.IsTrue(HelperMethods.EpsilonCheck(testValueA, testValueB));
+		}
 
-	[Test]
-	public void TestEpsilonCheckReturnsFalse()
-	{
-		float testValueA = 15f;
-		float testValueB = 15.01f;
+		[Test]
+		public void TestEpsilonCheckReturnsFalse()
+		{
+			float testValueA = 15f;
+			float testValueB = 15.01f;
 
-		Assert.IsFalse(HelperMethods.EpsilonCheck(testValueA, testValueB));
+			Assert.IsFalse(HelperMethods.EpsilonCheck(testValueA, testValueB));
+		}
 	}
 }
+

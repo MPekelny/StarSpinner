@@ -65,7 +65,7 @@ public class GameManager : MonoBehaviour
 	{
 		if (index < 0 || index >= _gameDataReference.PuzzleDatas.Length)
 		{
-			throw new InvalidOperationException($"Tried to set the active puzzle to an index beyond the range of the puzzle list. Index attempted: {index}");
+			throw new ArgumentException($"Tried to set the active puzzle to an index beyond the range of the puzzle list. Index attempted: {index}");
 		}
 
 		_activePuzzleIndex = index;
