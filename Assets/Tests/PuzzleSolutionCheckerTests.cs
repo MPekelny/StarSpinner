@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace Tests
+namespace Tests.PuzzleTests
 {
 	public class PuzzleSolutionCheckerTests
 	{

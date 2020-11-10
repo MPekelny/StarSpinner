@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace Tests
+namespace Tests.UtilityTests
 {
 	public class TupleExtensionTests
 	{

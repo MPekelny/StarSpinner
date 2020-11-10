@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Tests
+namespace Tests.PuzzleTests
 {
 	public class PuzzleOverlapResolverTests
 	{
