@@ -26,8 +26,23 @@ public class PuzzleSpinnersHelper
 
 	public Transform GetRandomSpinnerTransform()
 	{
+		if (_puzzleSpinners.Count == 0)
+		{
+			return null;
+		}
+
 		int rNum = UnityEngine.Random.Range(0, _puzzleSpinners.Count);
 		return _puzzleSpinners[rNum].transform;
+	}
+
+	public float GetSpinnerTransitionTime()
+	{
+		if (_puzzleSpinners.Count == 0)
+		{
+			return 0f;
+		}
+
+		return _puzzleSpinners[0].TransitionDuration;
 	}
 
 	public void CreateSpinners(PuzzleScreen spinnerParent, GameData.SpinnerVisualData[] availableVisualDatas, int numSpinnersToCreate)
@@ -68,7 +83,8 @@ public class PuzzleSpinnersHelper
 			float rangeMin = 360f / numSpinners * i;
 			float rangeMax = 360f / numSpinners * (i + 1);
 
-			randomRanges.Add(new Tuple<float, float>(rangeMin, rangeMax));
+			// Add a very slight offset to the min and max, so that each spinner stays in the intended initial section even after any potential overlap resolving.
+			randomRanges.Add(new Tuple<float, float>(rangeMin + 0.01f, rangeMax - 0.01f));
 		}
 
 		for (int i = 0; i < numSpinners; i++)

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class HelperMethods
 {
-	private const float EPSILON_FLOAT = 0.00001f;
+	private const float EPSILON_FLOAT = 0.0001f;
 
 	/// <summary>
 	/// Makes a Color with its red, green and blue components a random value between 0 and 1.

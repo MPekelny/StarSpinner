@@ -6,8 +6,8 @@ public class GameData : ScriptableObject
 	[System.Serializable]
 	public class SpinnerVisualData
 	{
-		[SerializeField] private Color _color;
-		[SerializeField] private Sprite _shape;
+		[SerializeField] private Color _color = Color.white;
+		[SerializeField] private Sprite _shape = null;
 
 		public Color Color => _color;
 		public Sprite Shape => _shape;

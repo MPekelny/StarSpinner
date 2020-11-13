@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SaveDataManager : MonoBehaviour
 {
@@ -20,7 +18,17 @@ public class SaveDataManager : MonoBehaviour
 		PlayerPrefs.Save();
 	}
 
-	public void ClearSaveData()
+	public void RemoveLevelCompled(string levelId)
+	{
+		string key = $"{levelId}{LEVEL_COMPLETED_SUFFIX}";
+		if (PlayerPrefs.HasKey(key))
+		{
+			PlayerPrefs.DeleteKey(key);
+			PlayerPrefs.Save();
+		}
+	}
+
+	public void ClearAllSaveData()
 	{
 		PlayerPrefs.DeleteAll();
 	}
