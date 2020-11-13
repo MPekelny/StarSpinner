@@ -14,13 +14,12 @@ public class PuzzleScreen : MonoBehaviour
 	[SerializeField] private GameObject _levelEndButtonsContainer = null;
 	[SerializeField] private GameObject _levelEndNextLevelButton = null;
 
-	private List<Star> _stars = new List<Star>();
+	protected List<Star> _stars = new List<Star>();
+	protected PuzzleData _activePuzzle = null;
 
-	private PuzzleData _activePuzzle = null;
-
-	private PuzzleSpinnersHelper _puzzleSpinnersHelper = null;
-	private PuzzleSolutionChecker _solutionChecker = null;
-	private PuzzleOverlapResolver _overlapResolver = null;
+	protected PuzzleSpinnersHelper _puzzleSpinnersHelper = null;
+	protected PuzzleSolutionChecker _solutionChecker = null;
+	protected PuzzleOverlapResolver _overlapResolver = null;
 
 	public void Awake()
 	{
@@ -40,7 +39,7 @@ public class PuzzleScreen : MonoBehaviour
 		SetupPuzzle();
 	}
 
-	private void SetupPuzzle()
+	protected void SetupPuzzle()
 	{
 		_activePuzzle = GameManager.Instance.GetActivePuzzle();
 		if (_activePuzzle == null)
@@ -139,7 +138,7 @@ public class PuzzleScreen : MonoBehaviour
 		});
 	}
 
-	private void Cleanup()
+	protected void Cleanup()
 	{
 		_backButton.SetActive(true);
 		_uiParticleObject.SetActive(false);

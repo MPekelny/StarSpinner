@@ -8,6 +8,8 @@ public class ObjectPool : MonoBehaviour
 	private Queue<PoolableObject> _pool = new Queue<PoolableObject>();
 	private PoolableObject _objectPrefab = null;
 
+	public int PoolCount => _pool.Count;
+
 	public void Init(PoolableObject prefab, int initialCount)
 	{
 		if (prefab == null)

@@ -1,7 +1,0 @@
-Things left to do for the game:
-
--- Add in functionality to save incompleted levels and resume incompleted levels. Also, a popup system for confirming clearing save data before actually clearing save data (also for eventually the information and confirmation of hints).
--- Add in functionality to get hints (which in a final version, players would watch an RV to get that hint, probably once per level). Currently thinking that the hint will be locking one of the spinners into the correct position and visually marking all the stars that are attached to that spinner in some way.
--- The way I have levels being made at the moment is not too bad, but I want to figure out how to make some sort of tool to make it even simpler.
--- Once most or all the other things above are done, make any tweaks to optimize for mobile (namely, making sure all touching feels right and handling multi touching).
--- Do a pass to increase testing coverage.

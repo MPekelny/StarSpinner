@@ -10,6 +10,7 @@ public class PuzzleSpinner : PoolableObject
 	[SerializeField] private Selectable _touchablePart = null;
 	[SerializeField] private Image _spinnerObject = null;
 	public Image SpinnerObject => _spinnerObject;
+	public float TransitionDuration => _transitionDuration;
 
 	private PuzzleScreen _parentRef = null;
 	private EventTrigger _trigger = null;

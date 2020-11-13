@@ -21,9 +21,25 @@ public class ObjectPoolManager : MonoBehaviour
 
 	private Dictionary<string, ObjectPool> _objectPools = new Dictionary<string, ObjectPool>();
 
-	public void Start()
+	public void Awake()
 	{
 		CreatePools();
+	}
+
+	public int GetCountInPool(string poolName)
+	{
+		if (string.IsNullOrEmpty(poolName))
+		{
+			Debug.LogError($"Attempted to get a count for a pool using a blank poolName.");
+			return 0;
+		}
+		else if (!_objectPools.ContainsKey(poolName))
+		{
+			Debug.LogError($"Attempted to get a count for pool {poolName}, but a pool of that name does not exist.");
+			return 0;
+		}
+
+		return _objectPools[poolName].PoolCount;
 	}
 
 	public PoolableObject GetObjectFromPool(string poolName, Transform parentNew)

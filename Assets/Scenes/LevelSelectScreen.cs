@@ -34,7 +34,7 @@ public class LevelSelectScreen : MonoBehaviour
 	public void ClearSaveDataButtonPressed()
 	{
 		// One of the next things to add should be a basic popup system and have a popup appear for confirmation before actually clearing the save data.
-		GameManager.Instance.SaveDataManager.ClearSaveData();
+		GameManager.Instance.SaveDataManager.ClearAllSaveData();
 		ReloadPage();
 	}
 
