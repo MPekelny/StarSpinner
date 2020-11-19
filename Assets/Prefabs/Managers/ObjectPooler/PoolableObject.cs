@@ -38,7 +38,10 @@ public abstract class PoolableObject : MonoBehaviour
 		}
 		else 
 		{
+			ReturnToPoolCleanup();
 			_poolReturnCb(this);
 		}
 	}
+
+	public virtual void ReturnToPoolCleanup() { }
 }

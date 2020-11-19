@@ -11,6 +11,7 @@ public class PuzzleScreen : MonoBehaviour
 	[SerializeField] private TMPro.TextMeshProUGUI _puzzleNameText = null;
 	[SerializeField] private GameObject _uiParticleObject = null;
 	[SerializeField] private GameObject _backButton = null;
+	[SerializeField] private GameObject _hintButton = null;
 	[SerializeField] private GameObject _levelEndButtonsContainer = null;
 	[SerializeField] private GameObject _levelEndNextLevelButton = null;
 
@@ -76,6 +77,23 @@ public class PuzzleScreen : MonoBehaviour
 		});
 	}
 
+	public void HintButtonPressed()
+	{
+		PopupData data = GameManager.Instance.PopupManager.MakePopupData("Get A Hint?", "Once per puzzle, you can lock one of the spinners into the correct position (In a full mobile version of this game, you'd watch a video to get this hint, but for now, just hint yes to get it). Do you want to get the hint?");
+		data.AddButtonData("Yes", () =>
+		{
+			if (_puzzleSpinnersHelper.HintLockRandomSpinner())
+			{
+				_hintButton.gameObject.SetActive(false);
+				_overlapResolver.ResolveOverlaps(_puzzleSpinnersHelper.GetSpinnerTransforms());
+			}
+		});
+
+		data.AddButtonData("No");
+
+		GameManager.Instance.PopupManager.AddPopup(data);
+	}
+
 	/// <summary>
 	/// Called by a spinner when it stops being dragged, so that if the position it was dropped on overlaps with another spinner, it will be adjusted so it no longer overlaps.
 	/// </summary>
@@ -110,6 +128,8 @@ public class PuzzleScreen : MonoBehaviour
 			star.Init(_activePuzzle.StarDatas[i].FinalColor, _activePuzzle.StarDatas[i].Position);
 			_stars.Add(star);
 		}
+
+		_puzzleSpinnersHelper.HaveSpinnersFindStarChildren();
 	}
 
 	/// <summary>
@@ -144,6 +164,7 @@ public class PuzzleScreen : MonoBehaviour
 		_uiParticleObject.SetActive(false);
 		_levelEndButtonsContainer.SetActive(false);
 		_puzzleNameText.gameObject.SetActive(false);
+		_hintButton.gameObject.SetActive(true);
 
 		foreach (Star star in _stars)
 		{

@@ -50,5 +50,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f177737c9694d8f42b8393d923a519fd, type: 2}
   - {fileID: 11400000, guid: 4b90dd4ac6a57904dab078f7c9f24263, type: 2}
   - {fileID: 11400000, guid: a2258cfa991de8446ae662dab8a10d1e, type: 2}
-  _overlapTolerance: 5
+  _overlapTolerance: 7.5
   _solutionTolerance: 10

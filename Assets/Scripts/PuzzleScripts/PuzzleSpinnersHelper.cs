@@ -9,6 +9,7 @@ using UnityEngine;
 public class PuzzleSpinnersHelper
 {
 	private List<PuzzleSpinner> _puzzleSpinners = new List<PuzzleSpinner>();
+	private int _hintLockedSpinner = -1;
 
 	public List<Transform> GetSpinnerTransforms()
 	{
@@ -95,6 +96,26 @@ public class PuzzleSpinnersHelper
 		}
 	}
 
+	public void HaveSpinnersFindStarChildren()
+	{
+		foreach (PuzzleSpinner spinner in _puzzleSpinners)
+		{
+			spinner.FindStarChildren();
+		}
+	}
+
+	public bool HintLockRandomSpinner()
+	{
+		if (_hintLockedSpinner == -1 && _puzzleSpinners.Count > 0)
+		{
+			int rNum = UnityEngine.Random.Range(0, _puzzleSpinners.Count);
+			_puzzleSpinners[rNum].SetToHintState();
+			_hintLockedSpinner = rNum;
+		}
+
+		return false;
+	}
+
 	/// <summary>
 	/// Tells each of the spinners to transition to their end state, and then once each of them have, calls the complete callback so the puzzle can move on to the next step of the puzzle complete.
 	/// </summary>
@@ -123,5 +144,6 @@ public class PuzzleSpinnersHelper
 		}
 
 		_puzzleSpinners.Clear();
+		_hintLockedSpinner = -1;
 	}
 }
