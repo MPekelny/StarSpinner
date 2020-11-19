@@ -14,6 +14,8 @@ public class PuzzleSpinner : PoolableObject
 
 	private PuzzleScreen _parentRef = null;
 	private EventTrigger _trigger = null;
+	private Star[] _referenceStars = null;
+	private bool _locked = false;
 
 	public void Init(PuzzleScreen parent, Color spinnerColor, Sprite spinnerSprite)
 	{
@@ -34,6 +36,24 @@ public class PuzzleSpinner : PoolableObject
 		transform.eulerAngles = new Vector3(0f, 0f, UnityEngine.Random.Range(rangeMin, rangeMax));
 	}
 
+	public void FindStarChildren()
+	{
+		_referenceStars = GetComponentsInChildren<Star>();
+	}
+
+	public void SetToHintState()
+	{
+		transform.localEulerAngles = transform.localEulerAngles.With(nZ: 0f);
+		_spinnerObject.color = _spinnerObject.color.With(nA: 0.4f);
+		_touchablePart.interactable = false;
+		_locked = true;
+
+		foreach (Star star in _referenceStars)
+		{
+			star.SetAsLockedColor();
+		}
+	}
+
 	public void TransitionToEndState(Action transitionComplete)
 	{
 		_touchablePart.interactable = false;
@@ -42,6 +62,13 @@ public class PuzzleSpinner : PoolableObject
 		transitionSequence.Insert(0f, _spinnerObject.DOFade(0f, _transitionDuration));
 		transitionSequence.Insert(0f, transform.DORotate(Vector3.zero, _transitionDuration));
 		transitionSequence.OnComplete(() => { transitionComplete?.Invoke(); });
+	}
+
+	public override void ReturnToPoolCleanup()
+	{
+		_touchablePart.interactable = true;
+		_referenceStars = null;
+		_locked = false;
 	}
 
 	private void SetupTouchEvents()
@@ -69,23 +96,29 @@ public class PuzzleSpinner : PoolableObject
 
 	private void OnDrag(PointerEventData data)
 	{
-		Vector2 fromLine = data.position - (Vector2)transform.position;
-		Vector2 toLine = new Vector2(0, 1);
-
-		float angle = Vector2.Angle(fromLine, toLine);
-
-		Vector3 cross = Vector3.Cross(fromLine, toLine);
-		if (cross.z > 0f)
+		if (!_locked)
 		{
-			angle = 360f - angle;
-		}
+			Vector2 fromLine = data.position - (Vector2)transform.position;
+			Vector2 toLine = new Vector2(0, 1);
 
-		transform.eulerAngles = new Vector3(0f, 0f, angle - _spinnerObject.transform.localEulerAngles.z);
+			float angle = Vector2.Angle(fromLine, toLine);
+
+			Vector3 cross = Vector3.Cross(fromLine, toLine);
+			if (cross.z > 0f)
+			{
+				angle = 360f - angle;
+			}
+
+			transform.eulerAngles = new Vector3(0f, 0f, angle - _spinnerObject.transform.localEulerAngles.z);
+		}
 	}
 
 	private void OnDragEnd(PointerEventData data)
 	{
-		_parentRef.CheckSpinnerOverlap(this);
-		_parentRef.CheckIfSolved();
+		if (!_locked)
+		{
+			_parentRef.CheckSpinnerOverlap(this);
+			_parentRef.CheckIfSolved();
+		}
 	}
 }

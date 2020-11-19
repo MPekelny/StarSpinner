@@ -12,19 +12,6 @@ public class BasicPopup : PopupBase
 
 	public string TitleString => _titleText.text;
 	public string BodyString => _bodyText.text;
-	public int NumButtonsActive()
-	{
-		int numActive = 0;
-		foreach (Button button in _popupButtons)
-		{
-			if (button.gameObject.activeSelf)
-			{
-				numActive++;
-			}
-		}
-
-		return numActive;
-	}
 
 	public override void Initialize(PopupData popupData)
 	{
@@ -52,6 +39,20 @@ public class BasicPopup : PopupBase
 		{
 			button.onClick.RemoveAllListeners();
 		}
+	}
+
+	public int NumButtonsActive()
+	{
+		int numActive = 0;
+		foreach (Button button in _popupButtons)
+		{
+			if (button.gameObject.activeSelf)
+			{
+				numActive++;
+			}
+		}
+
+		return numActive;
 	}
 
 	private void SetupDefaultButton()
