@@ -89,6 +89,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _startColor: {r: 1, g: 1, b: 1, a: 1}
-  _lockedColor: {r: 0.754717, g: 0.72979707, b: 0.72979707, a: 1}
+  _lockedColor: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 1}
   _endTransitionDuration: 0.5
   _starImage: {fileID: 4540626280132475772}

@@ -19,6 +19,7 @@ public abstract class PopupBase : MonoBehaviour
 	private IEnumerator DelayForceRebuild()
 	{
 		yield return new WaitForEndOfFrame();
+		yield return new WaitForEndOfFrame();
 
 		// If the popup was left alone, its shape would be based on how it is in the prefab, which would probably not fit the specific items in the popup.
 		// So, after a frame (so the elements in the popup have had the chance to have their sizes updated), force the layout to rebuild so the popup is correctly sized.

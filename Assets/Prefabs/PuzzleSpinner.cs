@@ -36,6 +36,14 @@ public class PuzzleSpinner : PoolableObject
 		transform.eulerAngles = new Vector3(0f, 0f, UnityEngine.Random.Range(rangeMin, rangeMax));
 	}
 
+	public void SetRotations(float mainRotation, float objectRotation)
+	{
+		transform.eulerAngles = new Vector3(0f, 0f, mainRotation);
+		_spinnerObject.transform.localEulerAngles = new Vector3(0f, 0f, objectRotation);
+	}
+
+	public float GetSpinnerObjectRotation() => _spinnerObject.transform.localEulerAngles.z;
+
 	public void FindStarChildren()
 	{
 		_referenceStars = GetComponentsInChildren<Star>();

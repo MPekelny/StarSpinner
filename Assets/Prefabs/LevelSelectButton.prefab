@@ -594,7 +594,7 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
@@ -644,6 +644,7 @@ MonoBehaviour:
   _buttonBacking: {fileID: 5307806729883009256}
   _unsolvedColor: {r: 1, g: 1, b: 1, a: 1}
   _solvedColor: {r: 0, g: 1, b: 0, a: 1}
+  _inProgressColor: {r: 0.4470588, g: 0.69433004, b: 1, a: 1}
 --- !u!1 &6591712032238713762
 GameObject:
   m_ObjectHideFlags: 0
