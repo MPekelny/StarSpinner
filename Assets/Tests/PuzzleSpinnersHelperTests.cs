@@ -83,7 +83,7 @@ namespace Tests.PuzzleTests
 			PuzzleData testPuzzleData = GameManager.Instance.GetActivePuzzle();
 			Assert.IsTrue(testPuzzleData.NumSpinners == _screen.PuzzleSpinnerHelper.GetSpinnerTransforms().Count);
 			Assert.IsTrue(testPuzzleData.NumSpinners == _screen.PuzzleSpinnerHelper.GetSpinnerRotations().Count);
-			Assert.IsNotNull(_screen.PuzzleSpinnerHelper.GetRandomSpinnerTransform());
+			Assert.IsNotNull(_screen.PuzzleSpinnerHelper.GetRandomSpinnerTransform(out int index));
 		}
 
 		/// <summary>

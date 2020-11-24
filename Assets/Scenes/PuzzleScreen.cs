@@ -21,6 +21,7 @@ public class PuzzleScreen : MonoBehaviour
 	protected PuzzleSpinnersHelper _puzzleSpinnersHelper = null;
 	protected PuzzleSolutionChecker _solutionChecker = null;
 	protected PuzzleOverlapResolver _overlapResolver = null;
+	private PuzzleSaveData _saveDataHolder = new PuzzleSaveData();
 
 	public void Awake()
 	{
@@ -49,9 +50,68 @@ public class PuzzleScreen : MonoBehaviour
 		}
 
 		_puzzleSpinnersHelper.CreateSpinners(this, _gameData.SpinnerVisualDatas, _activePuzzle.NumSpinners);
-		CreateStars();
-		_puzzleSpinnersHelper.RandomSpinSpinners();
-		CheckSpinnerOverlap();
+
+		bool gotValidStaticData = TryLoadStaticSaveDataAndPlaceStars();
+		if (!gotValidStaticData)
+		{
+			CreateStars();
+		}
+
+		if (!gotValidStaticData || !TryLoadDynamicSaveDataAndSetRotations())
+		{
+			_puzzleSpinnersHelper.RandomSpinSpinners();
+			CheckSpinnerOverlap();
+
+			UpdateDynamicSaveData();
+		}
+	}
+
+	/// <summary>
+	/// Loads the static save data if it exists and then tries to create the stars for the level based on that data.
+	/// </summary>
+	/// <returns>True if there is save data and it successfully creates the stars using that data, false if either does not happen.</returns>
+	private bool TryLoadStaticSaveDataAndPlaceStars()
+	{
+		if (GameManager.Instance.SaveDataManager.PuzzleStaticDataExistsForLevel(_activePuzzle.PuzzleUniqueId))
+		{
+			string staticSaveData = GameManager.Instance.SaveDataManager.GetPuzzleStaticDataForLevel(_activePuzzle.PuzzleUniqueId);
+			_saveDataHolder.StaticData.ReadFromJsonString(staticSaveData);
+			if (_saveDataHolder.StaticData.NumSpinnersInPuzzle == _activePuzzle.NumSpinners && _saveDataHolder.StaticData.NumStarsInPuzzle == _activePuzzle.StarDatas.Length)
+			{
+				if (CreateStarsFromSaveData())
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/// <summary>
+	/// Loads the dynamic save data if it exists and then tries to set the rotations and hint locked state for the spinners from that data.
+	/// </summary>
+	/// <returns>True if the is save data and it successfully sets the rotations using that data, false if either does not happen.</returns>
+	private bool TryLoadDynamicSaveDataAndSetRotations()
+	{
+		if (GameManager.Instance.SaveDataManager.PuzzleDynamicDataExistsForLevel(_activePuzzle.PuzzleUniqueId))
+		{
+			string dynamicSaveData = GameManager.Instance.SaveDataManager.GetPuzzleDynamicDataForLevel(_activePuzzle.PuzzleUniqueId);
+			_saveDataHolder.DynamicData.ReadFromJsonString(dynamicSaveData);
+
+			if (_saveDataHolder.DynamicData.HintLockedSpinner > -1)
+			{
+				_puzzleSpinnersHelper.HintLockSpinner(_saveDataHolder.DynamicData.HintLockedSpinner);
+				_hintButton.gameObject.SetActive(false);
+			}
+
+			if (_puzzleSpinnersHelper.SetRotationsForSpinners(_saveDataHolder.DynamicData.SpinnerRotations, _saveDataHolder.DynamicData.SpinnerTouchObjectRotations))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/// <summary>
@@ -86,6 +146,7 @@ public class PuzzleScreen : MonoBehaviour
 			{
 				_hintButton.gameObject.SetActive(false);
 				_overlapResolver.ResolveOverlaps(_puzzleSpinnersHelper.GetSpinnerTransforms());
+				UpdateDynamicSaveData();
 			}
 		});
 
@@ -114,6 +175,10 @@ public class PuzzleScreen : MonoBehaviour
 		{
 			PlaySolved();
 		}
+		else
+		{
+			UpdateDynamicSaveData();
+		}
 	}
 
 	/// <summary>
@@ -123,13 +188,51 @@ public class PuzzleScreen : MonoBehaviour
 	{
 		for (int i = 0; i < _activePuzzle.StarDatas.Length; i++)
 		{
-			Transform spinnerTransform = _puzzleSpinnersHelper.GetRandomSpinnerTransform();
-			Star star = GameManager.Instance.ObjectPoolManager.GetObjectFromPool("Star", spinnerTransform).GetComponent<Star>();
-			star.Init(_activePuzzle.StarDatas[i].FinalColor, _activePuzzle.StarDatas[i].Position);
-			_stars.Add(star);
+			Transform spinnerTransform = _puzzleSpinnersHelper.GetRandomSpinnerTransform(out int transformIndex);
+			_saveDataHolder.StaticData.AddSpinnerForStarItem(transformIndex);
+			PlaceStar(spinnerTransform, _activePuzzle.StarDatas[i]);
+		}
+
+		_saveDataHolder.StaticData.NumSpinnersInPuzzle = _activePuzzle.NumSpinners;
+		_saveDataHolder.StaticData.NumStarsInPuzzle = _activePuzzle.StarDatas.Length;
+		GameManager.Instance.SaveDataManager.SavePuzzleStaticDataForLevel(_activePuzzle.PuzzleUniqueId, _saveDataHolder.StaticData.WriteToJsonString());
+
+		_puzzleSpinnersHelper.HaveSpinnersFindStarChildren();
+	}
+
+	/// <summary>
+	/// Creates the stars for the puzzle and attaches them to a spinner based on save data instead of randomly.
+	/// As a back up in case the save data does not have the right number of items, it will fall back to placing them randomly.
+	/// </summary>
+	/// <returns>True if the stars were placed based on save data and false if it fell back on the random placement.</returns>
+	private bool CreateStarsFromSaveData()
+	{
+		// Just in case.
+		if (_activePuzzle.StarDatas.Length != _saveDataHolder.StaticData.SpinnersForStarsList.Count)
+		{
+			CreateStars();
+			return false;
+		}
+
+		List<int> spinnerStarList = _saveDataHolder.StaticData.SpinnersForStarsList;
+		for (int i = 0; i < _activePuzzle.StarDatas.Length; i++)
+		{
+			Transform spinnerTransform = _puzzleSpinnersHelper.GetSpinnerTransformByIndex(spinnerStarList[i]);
+			PlaceStar(spinnerTransform, _activePuzzle.StarDatas[i]);
 		}
 
 		_puzzleSpinnersHelper.HaveSpinnersFindStarChildren();
+		return true;
+	}
+
+	/// <summary>
+	/// Grabs a star from the star pool, attaches it to the specified spinner transform and then sets it up with the matching data.
+	/// </summary>
+	private void PlaceStar(Transform spinnerToPlaceOn, PuzzleData.StarData dataForStar)
+	{
+		Star star = GameManager.Instance.ObjectPoolManager.GetObjectFromPool("Star", spinnerToPlaceOn).GetComponent<Star>();
+		star.Init(dataForStar.FinalColor, dataForStar.Position);
+		_stars.Add(star);
 	}
 
 	/// <summary>
@@ -140,6 +243,7 @@ public class PuzzleScreen : MonoBehaviour
 		_backButton.SetActive(false);
 		_uiParticleObject.SetActive(true);
 		GameManager.Instance.SaveDataManager.SaveLevelCompleted(_activePuzzle.PuzzleUniqueId);
+		GameManager.Instance.SaveDataManager.RemovePuzzleSaveDataForLevel(_activePuzzle.PuzzleUniqueId);
 
 		_puzzleSpinnersHelper.TransitionSpinnersToEndState(() =>
 		{
@@ -158,6 +262,21 @@ public class PuzzleScreen : MonoBehaviour
 		});
 	}
 
+	/// <summary>
+	/// Updates the values of the Dynamic save data in the save data holder and then writes that data to the save manager.
+	/// </summary>
+	private void UpdateDynamicSaveData()
+	{
+		List<float> transRotations = _puzzleSpinnersHelper.GetSpinnerRotations();
+		List<float> objectRotations = _puzzleSpinnersHelper.GetSpinnerObjectRotations();
+
+		_saveDataHolder.DynamicData.SpinnerRotations = transRotations;
+		_saveDataHolder.DynamicData.SpinnerTouchObjectRotations = objectRotations;
+		_saveDataHolder.DynamicData.HintLockedSpinner = _puzzleSpinnersHelper.HintLockedSpinner;
+
+		GameManager.Instance.SaveDataManager.SavePuzzleDynamicDataForLevel(_activePuzzle.PuzzleUniqueId, _saveDataHolder.DynamicData.WriteToJsonString());
+	}
+
 	protected void Cleanup()
 	{
 		_backButton.SetActive(true);
@@ -165,6 +284,7 @@ public class PuzzleScreen : MonoBehaviour
 		_levelEndButtonsContainer.SetActive(false);
 		_puzzleNameText.gameObject.SetActive(false);
 		_hintButton.gameObject.SetActive(true);
+		_saveDataHolder.ResetAllData();
 
 		foreach (Star star in _stars)
 		{

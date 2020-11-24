@@ -10,6 +10,7 @@ public class PuzzleSpinnersHelper
 {
 	private List<PuzzleSpinner> _puzzleSpinners = new List<PuzzleSpinner>();
 	private int _hintLockedSpinner = -1;
+	public int HintLockedSpinner => _hintLockedSpinner;
 
 	public List<Transform> GetSpinnerTransforms()
 	{
@@ -25,15 +26,33 @@ public class PuzzleSpinnersHelper
 		return rotations;
 	}
 
-	public Transform GetRandomSpinnerTransform()
+	public List<float> GetSpinnerObjectRotations()
+	{
+		List<float> rotations = new List<float>();
+		rotations.AddRange(_puzzleSpinners.Select(item => item.GetSpinnerObjectRotation()));
+		return rotations;
+	}
+
+	public Transform GetRandomSpinnerTransform(out int spinnerIndex)
 	{
 		if (_puzzleSpinners.Count == 0)
 		{
-			return null;
+			throw new InvalidOperationException("Attempted to get a random spinner's transform when there are no spinners.");
 		}
 
 		int rNum = UnityEngine.Random.Range(0, _puzzleSpinners.Count);
+		spinnerIndex = rNum;
 		return _puzzleSpinners[rNum].transform;
+	}
+
+	public Transform GetSpinnerTransformByIndex(int spinnerIndex)
+	{
+		if (spinnerIndex >= _puzzleSpinners.Count)
+		{
+			throw new ArgumentException("Tried to get spinner by index when there are less spinners than the specified index.");
+		}
+
+		return _puzzleSpinners[spinnerIndex].transform;
 	}
 
 	public float GetSpinnerTransitionTime()
@@ -46,6 +65,12 @@ public class PuzzleSpinnersHelper
 		return _puzzleSpinners[0].TransitionDuration;
 	}
 
+	/// <summary>
+	/// Creates a set of spinners for the puzzle.
+	/// </summary>
+	/// <param name="spinnerParent">A reference to the screen that owns the set of spinners.</param>
+	/// <param name="availableVisualDatas">The collection of colours and shapes for the spinners to use. If more spinners are made than availables datas, a random colour and no shape will be used for that spinner.</param>
+	/// <param name="numSpinnersToCreate">How many spinners to make for the puzzle. Other code ideally be used to make sure this number is not more than the number of available visual datas.</param>
 	public void CreateSpinners(PuzzleScreen spinnerParent, GameData.SpinnerVisualData[] availableVisualDatas, int numSpinnersToCreate)
 	{
 		for (int i = 0; i < numSpinnersToCreate; i++)
@@ -72,6 +97,9 @@ public class PuzzleSpinnersHelper
 		}
 	}
 
+	/// <summary>
+	/// Causes all spinners to have their rotation values set to random values such that all spinners are mostly spread out.
+	/// </summary>
 	public void RandomSpinSpinners()
 	{
 		// I want spinners to be somewhat spread out, so will divide the circle based on the number of spinners there are and give each spinner one of those sections.
@@ -96,6 +124,9 @@ public class PuzzleSpinnersHelper
 		}
 	}
 
+	/// <summary>
+	/// Looks for any star objects attached to itself so that the spinner has a reference to them for when something needs to be done with all stars on a particular spinner.
+	/// </summary>
 	public void HaveSpinnersFindStarChildren()
 	{
 		foreach (PuzzleSpinner spinner in _puzzleSpinners)
@@ -104,6 +135,10 @@ public class PuzzleSpinnersHelper
 		}
 	}
 
+	/// <summary>
+	/// Sets a random spinner to be switched to its hint locked state, if there is not a hint locked spinner already.
+	/// </summary>
+	/// <returns>True if a spinner was switched to its hint locked state, false otherwise.</returns>
 	public bool HintLockRandomSpinner()
 	{
 		if (_hintLockedSpinner == -1 && _puzzleSpinners.Count > 0)
@@ -111,9 +146,52 @@ public class PuzzleSpinnersHelper
 			int rNum = UnityEngine.Random.Range(0, _puzzleSpinners.Count);
 			_puzzleSpinners[rNum].SetToHintState();
 			_hintLockedSpinner = rNum;
+			return true;
 		}
 
 		return false;
+	}
+
+	/// <summary>
+	/// Sets a particular spinner to be switched to its hint locked state, if there is not a hint locked spinner already.
+	/// </summary>
+	/// <param name="spinnerIndex">The index of the spinner to switched to its hint locked state.</param>
+	/// <returns>True if the spinner was set to the hint locked state, false otherwise.</returns>
+	public bool HintLockSpinner(int spinnerIndex)
+	{
+		if (_hintLockedSpinner == -1 && spinnerIndex >= 0 && spinnerIndex < _puzzleSpinners.Count)
+		{
+			_hintLockedSpinner = spinnerIndex;
+			_puzzleSpinners[spinnerIndex].SetToHintState();
+			return true;
+		}
+
+		return false;
+	}
+
+	/// <summary>
+	/// Sets the rotations of each spinner and its touch object to specified values. If the number of rotation values are not the same as the number of spinners, it will do nothing instead.
+	/// </summary>
+	/// <param name="mainRotations">The rotation values for the spinners themselves.</param>
+	/// <param name="objectRotations">The rotation values for the touchable objects in the spinners.</param>
+	/// <returns>True if the rotations were set, false if it does not.</returns>
+	public bool SetRotationsForSpinners(List<float> mainRotations, List<float> objectRotations)
+	{
+		// If the number of either lists is not the same size as the puzzleSpinners, something went wrong with save data (though other code should prevent things from getting here in that case).
+		// So, in that case return false so the code calling this can know that happened.
+		if (mainRotations.Count != _puzzleSpinners.Count || objectRotations.Count != _puzzleSpinners.Count)
+		{
+			return false;
+		}
+		else
+		{
+			for (int i = 0; i < _puzzleSpinners.Count; i++)
+			{
+				_puzzleSpinners[i].SetRotations(mainRotations[i], objectRotations[i]);
+			}
+
+			return true;
+		}
 	}
 
 	/// <summary>
