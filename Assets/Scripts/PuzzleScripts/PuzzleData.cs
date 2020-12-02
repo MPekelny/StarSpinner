@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 [CreateAssetMenu(menuName = "Star Spinner/Create Puzzle Data")]
 public class PuzzleData : ScriptableObject
@@ -41,6 +42,20 @@ public class PuzzleData : ScriptableObject
 			_dataGrabber = null;
 		}
 	}
+
+#if UNITY_EDITOR
+	public void SetDataFromEditorTool(string puzzleId, string puzzleName, int numSpinners, List<EditorWindowStuff.PuzzleEditorStar> editorStarDatas)
+	{
+		_puzzleUniqueId = puzzleId;
+		_puzzleName = puzzleName;
+		_numSpinners = numSpinners;
+		_starDatas = new StarData[editorStarDatas.Count];
+		for (int i = 0; i < editorStarDatas.Count; i++)
+		{
+			_starDatas[i] = new StarData(editorStarDatas[i].GamePosition, editorStarDatas[i].EndColour);
+		}
+	}
+#endif
 
 	private void ProcessPuzzleGameObject()
 	{
