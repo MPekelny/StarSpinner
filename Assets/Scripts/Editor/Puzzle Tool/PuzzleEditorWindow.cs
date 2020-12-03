@@ -166,15 +166,21 @@ namespace EditorWindowStuff
 						{
 							// If that file already exists, load it and overwrite its data. Otherwise create a new PuzzleData and set its data.
 							string fullPath = $"{AssetDatabase.GetAssetPath(testObject)}/{_puzzleFileName}.asset";
+							string imagePath = "";
+							if (_starAreaReferenceImage.Texture != null)
+							{
+								imagePath = AssetDatabase.GetAssetPath(_starAreaReferenceImage.Texture);
+							}
+							
 							if (File.Exists(fullPath))
 							{
 								PuzzleData puzzleData = AssetDatabase.LoadAssetAtPath<PuzzleData>(fullPath);
-								puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars);
+								puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars, imagePath);
 							}	
 							else
 							{
 								PuzzleData puzzleData = ScriptableObject.CreateInstance<PuzzleData>();
-								puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars);
+								puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars, imagePath);
 								AssetDatabase.CreateAsset(puzzleData, fullPath);
 							}
 
@@ -388,6 +394,15 @@ namespace EditorWindowStuff
 				_puzzleFileName = dataToLoad.name;
 				_puzzleId = dataToLoad.PuzzleUniqueId;
 				_puzzleName = dataToLoad.PuzzleName;
+				if (!string.IsNullOrEmpty(dataToLoad.PuzzleImageReferencePath))
+				{
+					if (File.Exists(dataToLoad.PuzzleImageReferencePath))
+					{
+						_starAreaReferenceImage.Texture = AssetDatabase.LoadAssetAtPath<Texture>(dataToLoad.PuzzleImageReferencePath);
+						_starAreaReferenceImage.Color = Color.white;
+					}
+				}
+
 				_numPuzzleSpinners = dataToLoad.NumSpinners;
 				foreach (PuzzleData.StarData starData in dataToLoad.StarDatas)
 				{
