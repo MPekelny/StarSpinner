@@ -10,6 +10,7 @@ namespace EditorWindowStuff
 	{
 		private const int MIN_STARS_IN_PUZZLE = 15;
 		private const string DEFAULT_FOLDER_PATH = "Assets/Content/Puzzles";
+		private const float SIDE_SECTION_WIDTH = 300f;
 		public enum EditingMode
 		{
 			Add,
@@ -44,6 +45,9 @@ namespace EditorWindowStuff
 		private Color _currentPaintModeColor = Color.white;
 		private PuzzleEditorStar _selectedStar = null;
 		private PuzzleEditorStar _starBeingDragged = null;
+		private Vector2 _draggedStarStartPosition = Vector2.zero;
+
+		private PuzzleToolActionQueue _actionQueue = new PuzzleToolActionQueue();
 
 		[MenuItem("Window/Puzzle Editor")]
 		private static void Init()
@@ -92,12 +96,12 @@ namespace EditorWindowStuff
 
 			if (_loadPuzzleDataField == null)
 			{
-				_loadPuzzleDataField = new EditorWindowObjectSetterField<PuzzleData>("Load  Puzzle", "Load", 300f, LoadInPuzzle);
+				_loadPuzzleDataField = new EditorWindowObjectSetterField<PuzzleData>("Load  Puzzle", "Load", SIDE_SECTION_WIDTH, LoadInPuzzle);
 			}
 
 			if (_loadReferenceImageField == null)
 			{
-				_loadReferenceImageField = new EditorWindowObjectSetterField<Texture>("Set Reference Image for Puzzle", "Set", 300f, (Texture texture) =>
+				_loadReferenceImageField = new EditorWindowObjectSetterField<Texture>("Set Reference Image for Puzzle", "Set", SIDE_SECTION_WIDTH, (Texture texture) =>
 				{
 					_starAreaReferenceImage.Texture = texture;
 					_starAreaReferenceImage.Color = Color.white;
@@ -109,7 +113,7 @@ namespace EditorWindowStuff
 		{
 			_scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
-			if (GUILayout.Button("New Puzzle", GUILayout.Width(300f)))
+			if (GUILayout.Button("New Puzzle", GUILayout.Width(SIDE_SECTION_WIDTH)))
 			{
 				ResetValues();
 			}
@@ -121,10 +125,13 @@ namespace EditorWindowStuff
 				DrawPuzzleDataSection();
 				_loadReferenceImageField.Draw();
 				DrawModeToggleSection();
+				GUILayout.Space(10f);
+				DrawActionQueueSection();
 			}
 
 			// The scroll view stuff does not, as far as I can tell, interact with any of the draw stuff I do for the star field area.
 			// So, the only way I can think of to ensure the scroll area encompasses the star field is to just create a buch of gui layout space.
+			// Wish there was a way of getting the layout position after all the gui stuff so I can only add exactly how much extra space I need.
 			GUILayout.Space(600f);
 			GUILayout.BeginHorizontal();
 			GUILayout.Space(_starArea.max.x + 20f);
@@ -139,7 +146,7 @@ namespace EditorWindowStuff
 		private void DrawSavePuzzleSection()
 		{
 			string saveButtonText = _saveModeActive ? "Cancel" : "Save Puzzle";
-			if (GUILayout.Button(saveButtonText, GUILayout.Width(300f)))
+			if (GUILayout.Button(saveButtonText, GUILayout.Width(SIDE_SECTION_WIDTH)))
 			{
 				_saveModeActive = !_saveModeActive;
 			}
@@ -148,21 +155,21 @@ namespace EditorWindowStuff
 			{
 				if (!PuzzleDataValidForSaving())
 				{
-					GUILayout.Label($"In order to save a puzzle, it needs a name, id and at\nleast {MIN_STARS_IN_PUZZLE} stars.", GUILayout.Width(300f));
+					GUILayout.Label($"In order to save a puzzle, it needs a name, id and at\nleast {MIN_STARS_IN_PUZZLE} stars.", GUILayout.Width(SIDE_SECTION_WIDTH));
 				}
 				else
 				{
-					Object testObject = EditorGUILayout.ObjectField("Folder for Puzzle Data", _folderForPuzzleFile, typeof(Object), false, GUILayout.Width(300f));
+					Object testObject = EditorGUILayout.ObjectField("Folder for Puzzle Data", _folderForPuzzleFile, typeof(Object), false, GUILayout.Width(SIDE_SECTION_WIDTH));
 					if (Directory.Exists(AssetDatabase.GetAssetPath(testObject)))
 					{
 						_folderForPuzzleFile = testObject;
 					}
 
-					_puzzleFileName = EditorGUILayout.TextField("Filename for Puzzle Data", _puzzleFileName, GUILayout.Width(300f));
+					_puzzleFileName = EditorGUILayout.TextField("Filename for Puzzle Data", _puzzleFileName, GUILayout.Width(SIDE_SECTION_WIDTH));
 
 					if (_folderForPuzzleFile != null && !string.IsNullOrEmpty(_puzzleFileName))
 					{
-						if (GUILayout.Button("Save", GUILayout.Width(300f)))
+						if (GUILayout.Button("Save", GUILayout.Width(SIDE_SECTION_WIDTH)))
 						{
 							// If that file already exists, load it and overwrite its data. Otherwise create a new PuzzleData and set its data.
 							string fullPath = $"{AssetDatabase.GetAssetPath(testObject)}/{_puzzleFileName}.asset";
@@ -186,6 +193,7 @@ namespace EditorWindowStuff
 
 							AssetDatabase.SaveAssets();
 							AssetDatabase.Refresh();
+							_actionQueue.ClearQueue();
 							_saveModeActive = false;
 						}
 					}
@@ -196,18 +204,18 @@ namespace EditorWindowStuff
 		private void DrawPuzzleDataSection()
 		{
 			GUILayout.Space(10f);
-			_puzzleId = EditorGUILayout.TextField("Puzzle Id:", _puzzleId, GUILayout.Width(300f));
-			_puzzleName = EditorGUILayout.TextField("Puzzle Name:", _puzzleName, GUILayout.Width(300f));
+			_puzzleId = EditorGUILayout.TextField("Puzzle Id:", _puzzleId, GUILayout.Width(SIDE_SECTION_WIDTH));
+			_puzzleName = EditorGUILayout.TextField("Puzzle Name:", _puzzleName, GUILayout.Width(SIDE_SECTION_WIDTH));
 			GUILayout.BeginHorizontal();
-			GUILayout.Label("Spinners for Puzzle:", GUILayout.Width(150f));
-			_numPuzzleSpinners = EditorGUILayout.IntSlider(_numPuzzleSpinners, 2, 7, GUILayout.Width(150f));
+			GUILayout.Label("Spinners for Puzzle:", GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
+			_numPuzzleSpinners = EditorGUILayout.IntSlider(_numPuzzleSpinners, 2, 7, GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
 			GUILayout.EndHorizontal();
 		}
 
 		private void DrawModeToggleSection()
 		{
 			string[] toggleNames = { "Add Mode", "Paint Mode", "Select Mode" };
-			EditingMode mode = (EditingMode)GUILayout.Toolbar((int)_currentMode, toggleNames, GUILayout.Width(300f));
+			EditingMode mode = (EditingMode)GUILayout.Toolbar((int)_currentMode, toggleNames, GUILayout.Width(SIDE_SECTION_WIDTH));
 			// Make sure there is not a selected star if switching from select mode.
 			if (_currentMode == EditingMode.Select && mode != EditingMode.Select)
 			{
@@ -232,28 +240,33 @@ namespace EditorWindowStuff
 
 		private void DrawAddModeSection()
 		{
-			GUILayout.Label("Add Mode: Clicking on the canvas will add a new\nstar whose color is the color selected below.", GUILayout.Width(300f));
+			GUILayout.Label("Add Mode: Clicking on the canvas will add a new\nstar whose color is the color selected below.", GUILayout.Width(SIDE_SECTION_WIDTH));
 			_currentAddModeColor = EditorGUILayout.ColorField(_currentAddModeColor, GUILayout.Width(300f));
 		}
 
 		private void DrawPaintModeSection()
 		{
-			GUILayout.Label("Paint Mode: Clicking on on a star on the canvas\nwill change that star's color to the one selected\nbelow.", GUILayout.Width(300f));
+			GUILayout.Label("Paint Mode: Clicking on on a star on the canvas\nwill change that star's color to the one selected\nbelow.", GUILayout.Width(SIDE_SECTION_WIDTH));
 			_currentPaintModeColor = EditorGUILayout.ColorField(_currentPaintModeColor, GUILayout.Width(300f));
 		}
 
 		private void DrawSelectModeSection()
 		{
-			GUILayout.Label("Select Mode: Clicking on on a star on the canvas\nwill select it or another area to unselect any star.\nWhile a star is selected you can drag it to move it or\nchange its colour or press the delete key to remove it.", GUILayout.Width(310f));
+			GUILayout.Label("Select Mode: Clicking on on a star on the canvas\nwill select it or another area to unselect any star.\nWhile a star is selected you can drag it to move it or\nchange its colour or press the delete key to remove it.", GUILayout.Width(SIDE_SECTION_WIDTH));
 			if (_selectedStar != null)
 			{
 				GUILayout.BeginHorizontal();
-				_selectedStar.EndColour = EditorGUILayout.ColorField(_selectedStar.EndColour, GUILayout.Width(150f));
-				if (GUILayout.Button("Delete", GUILayout.Width(150f)))
+				_selectedStar.EndColour = EditorGUILayout.ColorField(_selectedStar.EndColour, GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
+				if (GUILayout.Button("Delete", GUILayout.Width(SIDE_SECTION_WIDTH / 2f)))
 				{
+					int starIndex = _stars.IndexOf(_selectedStar);
+					if (starIndex > -1)
+					{
+						AddDeleteStarAction(starIndex, _selectedStar);
+					}
+
 					_stars.Remove(_selectedStar);
 					_selectedStar = null;
-					_starHighlighterImage.Visible = false;
 				}
 
 				GUILayout.EndHorizontal();
@@ -273,6 +286,7 @@ namespace EditorWindowStuff
 							PuzzleEditorStar star = new PuzzleEditorStar(_currentAddModeColor, _starArea);
 							star.SetPositionsUsingEditorPosiiton(Event.current.mousePosition);
 							_stars.Add(star);
+							AddAddStarAction();
 						}
 					}
 					else if (_currentMode == EditingMode.Paint)
@@ -282,7 +296,14 @@ namespace EditorWindowStuff
 							PuzzleEditorStar star = GetClickedOnStar(Event.current.mousePosition);
 							if (star != null)
 							{
+								Color beforeColor = star.EndColour;
+								Color afterColor = _currentPaintModeColor;
 								star.EndColour = _currentPaintModeColor;
+								int starIndex = _stars.IndexOf(star);
+								if (starIndex > -1)
+								{
+									AddColorStarAction(starIndex, beforeColor, afterColor);
+								}
 							}
 						}
 					}
@@ -303,6 +324,7 @@ namespace EditorWindowStuff
 							}
 
 							_starBeingDragged = _selectedStar;
+							_draggedStarStartPosition = _selectedStar.EditorPosition;
 						}
 					}
 
@@ -323,7 +345,17 @@ namespace EditorWindowStuff
 					break;
 
 				case EventType.MouseUp:
+					if (_starBeingDragged != null)
+					{
+						int starIndex = _stars.IndexOf(_starBeingDragged);
+						if (starIndex > -1)
+						{
+							AddMoveStarAction(starIndex, _draggedStarStartPosition, _starBeingDragged.EditorPosition);
+						}
+					}
+
 					_starBeingDragged = null;
+					_draggedStarStartPosition = Vector2.zero;
 					Event.current.Use();
 					break;
 
@@ -332,6 +364,12 @@ namespace EditorWindowStuff
 					{
 						if (_currentMode == EditingMode.Select && _selectedStar != null)
 						{
+							int starIndex = _stars.IndexOf(_selectedStar);
+							if (starIndex > -1)
+							{
+								AddDeleteStarAction(starIndex, _selectedStar);
+							}
+
 							_stars.Remove(_selectedStar);
 							_selectedStar = null;
 						}
@@ -344,6 +382,39 @@ namespace EditorWindowStuff
 					DrawStarField();
 					break;
 			}
+		}
+
+		private void DrawActionQueueSection()
+		{
+			EditorGUILayout.LabelField("Undo/Redo Star Changing Actions.", EditorStyles.boldLabel);
+
+			GUILayout.BeginHorizontal();
+
+			if (!_actionQueue.UndoActionsAvailable)
+			{
+				GUI.enabled = false;
+			}
+
+			if (GUILayout.Button("Undo", GUILayout.Width(SIDE_SECTION_WIDTH / 2f)))
+			{
+				_actionQueue.UndoAction();
+			}
+
+			GUI.enabled = true;
+
+			if (!_actionQueue.RedoActionsAvailable)
+			{
+				GUI.enabled = false;
+			}
+
+			if (GUILayout.Button("Redo", GUILayout.Width(SIDE_SECTION_WIDTH / 2f)))
+			{
+				_actionQueue.RedoAction();
+			}
+
+			GUI.enabled = true;
+
+			GUILayout.EndHorizontal();
 		}
 
 		private void DrawStarField()
@@ -415,6 +486,7 @@ namespace EditorWindowStuff
 
 		private void ResetValues()
 		{
+			_actionQueue.ClearQueue();
 			_folderForPuzzleFile = _defaultFolderForPuzzleFile;
 			_puzzleFileName = "NewPuzzle";
 			_puzzleId = "";
@@ -434,6 +506,31 @@ namespace EditorWindowStuff
 			bool validPuzzleName = !string.IsNullOrEmpty(_puzzleName);
 
 			return validNumStars && validPuzzleId && validPuzzleName;
+		}
+
+		private void AddAddStarAction()
+		{
+			PuzzleEditorStar starAdded = _stars[_stars.Count - 1];
+			PuzzleAddStarAction action = new PuzzleAddStarAction(_stars, starAdded);
+			_actionQueue.AddAction(action);
+		}
+
+		private void AddDeleteStarAction(int starDeletedIndex, PuzzleEditorStar deletedStar)
+		{
+			PuzzleDeleteStarAction action = new PuzzleDeleteStarAction(_stars, deletedStar, starDeletedIndex);
+			_actionQueue.AddAction(action);
+		}
+
+		private void AddMoveStarAction(int starChangedIndex, Vector2 beforePosition, Vector2 afterPosition)
+		{
+			PuzzleMoveStarAction action = new PuzzleMoveStarAction(_stars, starChangedIndex, beforePosition, afterPosition);
+			_actionQueue.AddAction(action);
+		}
+
+		private void AddColorStarAction(int starChangedIndex, Color beforeColor, Color afterColor)
+		{
+			PuzzleColorStarAction action = new PuzzleColorStarAction(_stars, starChangedIndex, beforeColor, afterColor);
+			_actionQueue.AddAction(action);
 		}
 	}
 }
