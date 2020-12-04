@@ -79,7 +79,7 @@ namespace EditorWindowStuff
 			if (_centerImage == null)
 			{
 				Texture centerTexture = AssetDatabase.LoadAssetAtPath<Texture>("Assets/Content/Art/PuzzleToolCenterMark.png");
-				_centerImage = new EditorWindowImage(centerTexture, 50f, 50f, _starArea.center, Color.white);
+				_centerImage = new EditorWindowImage(centerTexture, 30f, 30f, _starArea.center, Color.white);
 			}
 
 			if (_starHighlighterImage == null)
@@ -115,7 +115,10 @@ namespace EditorWindowStuff
 
 			if (GUILayout.Button("New Puzzle", GUILayout.Width(SIDE_SECTION_WIDTH)))
 			{
-				ResetValues();
+				if (EditorUtility.DisplayDialog("Are You Sure?", "If you start a new puzzle any unsaved changes in the current puzzle will be discarded. Do you wish to continue?", "Yes", "No"))
+				{
+					ResetValues();
+				}
 			}
 
 			DrawSavePuzzleSection();
@@ -181,20 +184,26 @@ namespace EditorWindowStuff
 							
 							if (File.Exists(fullPath))
 							{
-								PuzzleData puzzleData = AssetDatabase.LoadAssetAtPath<PuzzleData>(fullPath);
-								puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars, imagePath);
+								if (EditorUtility.DisplayDialog("Overwrite File?", "A puzzle file of that name already exists in that location. Do you wish to overwrite it?", "Yes", "No"))
+								{
+									PuzzleData puzzleData = AssetDatabase.LoadAssetAtPath<PuzzleData>(fullPath);
+									puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars, imagePath);
+									AssetDatabase.SaveAssets();
+									AssetDatabase.Refresh();
+									_actionQueue.ClearQueue();
+									_saveModeActive = false;
+								}
 							}	
 							else
 							{
 								PuzzleData puzzleData = ScriptableObject.CreateInstance<PuzzleData>();
 								puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars, imagePath);
 								AssetDatabase.CreateAsset(puzzleData, fullPath);
+								AssetDatabase.SaveAssets();
+								AssetDatabase.Refresh();
+								_actionQueue.ClearQueue();
+								_saveModeActive = false;
 							}
-
-							AssetDatabase.SaveAssets();
-							AssetDatabase.Refresh();
-							_actionQueue.ClearQueue();
-							_saveModeActive = false;
 						}
 					}
 				}
@@ -397,6 +406,7 @@ namespace EditorWindowStuff
 
 			if (GUILayout.Button("Undo", GUILayout.Width(SIDE_SECTION_WIDTH / 2f)))
 			{
+				_selectedStar = null;
 				_actionQueue.UndoAction();
 			}
 
@@ -409,6 +419,7 @@ namespace EditorWindowStuff
 
 			if (GUILayout.Button("Redo", GUILayout.Width(SIDE_SECTION_WIDTH / 2f)))
 			{
+				_selectedStar = null;
 				_actionQueue.RedoAction();
 			}
 
@@ -459,27 +470,30 @@ namespace EditorWindowStuff
 		{
 			if (dataToLoad != null)
 			{
-				ResetValues();
-
-				_folderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(AssetDatabase.GetAssetPath(dataToLoad)));
-				_puzzleFileName = dataToLoad.name;
-				_puzzleId = dataToLoad.PuzzleUniqueId;
-				_puzzleName = dataToLoad.PuzzleName;
-				if (!string.IsNullOrEmpty(dataToLoad.PuzzleImageReferencePath))
+				if (EditorUtility.DisplayDialog("Load Puzzle?", "If you load a puzzle, any unsaved changes you have in the current puzzle will be lost. Do you want to continue?", "Yes", "No"))
 				{
-					if (File.Exists(dataToLoad.PuzzleImageReferencePath))
+					ResetValues();
+
+					_folderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(AssetDatabase.GetAssetPath(dataToLoad)));
+					_puzzleFileName = dataToLoad.name;
+					_puzzleId = dataToLoad.PuzzleUniqueId;
+					_puzzleName = dataToLoad.PuzzleName;
+					if (!string.IsNullOrEmpty(dataToLoad.PuzzleImageReferencePath))
 					{
-						_starAreaReferenceImage.Texture = AssetDatabase.LoadAssetAtPath<Texture>(dataToLoad.PuzzleImageReferencePath);
-						_starAreaReferenceImage.Color = Color.white;
+						if (File.Exists(dataToLoad.PuzzleImageReferencePath))
+						{
+							_starAreaReferenceImage.Texture = AssetDatabase.LoadAssetAtPath<Texture>(dataToLoad.PuzzleImageReferencePath);
+							_starAreaReferenceImage.Color = Color.white;
+						}
 					}
-				}
 
-				_numPuzzleSpinners = dataToLoad.NumSpinners;
-				foreach (PuzzleData.StarData starData in dataToLoad.StarDatas)
-				{
-					PuzzleEditorStar star = new PuzzleEditorStar(starData.FinalColor, _starArea);
-					star.SetPositionUsingGamePosition(starData.Position);
-					_stars.Add(star);
+					_numPuzzleSpinners = dataToLoad.NumSpinners;
+					foreach (PuzzleData.StarData starData in dataToLoad.StarDatas)
+					{
+						PuzzleEditorStar star = new PuzzleEditorStar(starData.FinalColor, _starArea);
+						star.SetPositionUsingGamePosition(starData.Position);
+						_stars.Add(star);
+					}
 				}
 			}
 		}
