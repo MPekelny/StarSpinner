@@ -16,6 +16,7 @@ namespace EditorWindowStuff
 
 		public Vector2 GamePosition => _gamePosition;
 		public Vector2 EditorPosition => _editorPosition;
+		public Rect DrawAreaReference => _drawAreaReference;
 
 		public Color EndColour
 		{
