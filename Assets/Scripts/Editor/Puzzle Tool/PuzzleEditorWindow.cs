@@ -31,6 +31,7 @@ namespace EditorWindowStuff
 		private Vector2 _scrollPosition = Vector2.zero;
 		private Rect _starArea = new Rect(320, 15, 650, 650);
 		private DrawAreaBorder _starAreaBorder = null;
+		private StarCollisionGrid _starCollisionGrid = null;
 
 		private EditorWindowImage _starAreaReferenceImage = null;
 		private EditorWindowImage _centerImage = null;
@@ -69,6 +70,11 @@ namespace EditorWindowStuff
 					// Default to the main Assets folder just in case, which will for sure exist.
 					_defaultFolderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>("Assets");
 				}
+			}
+
+			if (_starCollisionGrid == null)
+			{
+				_starCollisionGrid = new StarCollisionGrid(_starArea);
 			}
 
 			if (_starAreaReferenceImage == null)
@@ -188,6 +194,7 @@ namespace EditorWindowStuff
 								{
 									PuzzleData puzzleData = AssetDatabase.LoadAssetAtPath<PuzzleData>(fullPath);
 									puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars, imagePath);
+									EditorUtility.SetDirty(puzzleData);
 									AssetDatabase.SaveAssets();
 									AssetDatabase.Refresh();
 									_actionQueue.ClearQueue();
@@ -198,6 +205,7 @@ namespace EditorWindowStuff
 							{
 								PuzzleData puzzleData = ScriptableObject.CreateInstance<PuzzleData>();
 								puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars, imagePath);
+								EditorUtility.SetDirty(puzzleData);
 								AssetDatabase.CreateAsset(puzzleData, fullPath);
 								AssetDatabase.SaveAssets();
 								AssetDatabase.Refresh();
@@ -250,6 +258,7 @@ namespace EditorWindowStuff
 		private void DrawAddModeSection()
 		{
 			GUILayout.Label("Add Mode: Clicking on the canvas will add a new\nstar whose color is the color selected below.", GUILayout.Width(SIDE_SECTION_WIDTH));
+			GUILayout.Label("Note: If you click on a spot too close to an\nexisting star, the star will not be added.", GUILayout.Width(SIDE_SECTION_WIDTH));
 			_currentAddModeColor = EditorGUILayout.ColorField(_currentAddModeColor, GUILayout.Width(300f));
 		}
 
@@ -262,12 +271,14 @@ namespace EditorWindowStuff
 		private void DrawSelectModeSection()
 		{
 			GUILayout.Label("Select Mode: Clicking on on a star on the canvas\nwill select it or another area to unselect any star.\nWhile a star is selected you can drag it to move it or\nchange its colour or press the delete key to remove it.", GUILayout.Width(SIDE_SECTION_WIDTH));
+			GUILayout.Label("Note: if you drag a star too close to another, it\nwill return to the spot it was at before when you\nrelease the drag.", GUILayout.Width(SIDE_SECTION_WIDTH));
 			if (_selectedStar != null)
 			{
 				GUILayout.BeginHorizontal();
 				_selectedStar.EndColour = EditorGUILayout.ColorField(_selectedStar.EndColour, GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
 				if (GUILayout.Button("Delete", GUILayout.Width(SIDE_SECTION_WIDTH / 2f)))
 				{
+					_starCollisionGrid.PullStarFromGridAtPoint(_selectedStar.EditorPosition);
 					int starIndex = _stars.IndexOf(_selectedStar);
 					if (starIndex > -1)
 					{
@@ -292,17 +303,24 @@ namespace EditorWindowStuff
 					{
 						if (_starArea.Contains(Event.current.mousePosition))
 						{
-							PuzzleEditorStar star = new PuzzleEditorStar(_currentAddModeColor, _starArea);
-							star.SetPositionsUsingEditorPosiiton(Event.current.mousePosition);
-							_stars.Add(star);
-							AddAddStarAction();
+							if (!_starCollisionGrid.StarAreaOverlapsStar(Event.current.mousePosition))
+							{
+								PuzzleEditorStar star = new PuzzleEditorStar(_currentAddModeColor, _starArea);
+								star.SetPositionsUsingEditorPosiiton(Event.current.mousePosition);
+								// At this point, this check should basically never fail, but I think there might be some very small edge cases where it could fail, so it is necessary to still have it.
+								if (_starCollisionGrid.SetStarToGrid(star))
+								{
+									_stars.Add(star);
+									AddAddStarAction();
+								}
+							}
 						}
 					}
 					else if (_currentMode == EditingMode.Paint)
 					{
 						if (_starArea.Contains(Event.current.mousePosition))
 						{
-							PuzzleEditorStar star = GetClickedOnStar(Event.current.mousePosition);
+							PuzzleEditorStar star = _starCollisionGrid.GetStarAtPoint(Event.current.mousePosition);//GetClickedOnStar(Event.current.mousePosition);
 							if (star != null)
 							{
 								Color beforeColor = star.EndColour;
@@ -329,11 +347,15 @@ namespace EditorWindowStuff
 
 							if (!stillSelected)
 							{
-								_selectedStar = GetClickedOnStar(Event.current.mousePosition);
+								_selectedStar = _starCollisionGrid.GetStarAtPoint(Event.current.mousePosition);
 							}
 
 							_starBeingDragged = _selectedStar;
-							_draggedStarStartPosition = _selectedStar.EditorPosition;
+							if (_starBeingDragged != null)
+							{
+								_draggedStarStartPosition = _starBeingDragged.EditorPosition;
+								_starCollisionGrid.PullStarFromGridAtPoint(_starBeingDragged.EditorPosition);
+							}
 						}
 					}
 
@@ -356,10 +378,24 @@ namespace EditorWindowStuff
 				case EventType.MouseUp:
 					if (_starBeingDragged != null)
 					{
-						int starIndex = _stars.IndexOf(_starBeingDragged);
-						if (starIndex > -1)
+						bool successfullySetStar = false;
+						if (!_starCollisionGrid.StarAreaOverlapsStar(_starBeingDragged.EditorPosition))
 						{
-							AddMoveStarAction(starIndex, _draggedStarStartPosition, _starBeingDragged.EditorPosition);
+							if (_starCollisionGrid.SetStarToGrid(_starBeingDragged))
+							{
+								successfullySetStar = true;
+								int starIndex = _stars.IndexOf(_starBeingDragged);
+								if (starIndex > -1 && _draggedStarStartPosition != _starBeingDragged.EditorPosition)
+								{
+									AddMoveStarAction(starIndex, _draggedStarStartPosition, _starBeingDragged.EditorPosition);
+								}
+							}
+						}
+
+						if (!successfullySetStar)
+						{
+							_starBeingDragged.SetPositionsUsingEditorPosiiton(_draggedStarStartPosition);
+							_starCollisionGrid.SetStarToGrid(_starBeingDragged);
 						}
 					}
 
@@ -373,6 +409,7 @@ namespace EditorWindowStuff
 					{
 						if (_currentMode == EditingMode.Select && _selectedStar != null)
 						{
+							_starCollisionGrid.PullStarFromGridAtPoint(_selectedStar.EditorPosition);
 							int starIndex = _stars.IndexOf(_selectedStar);
 							if (starIndex > -1)
 							{
@@ -452,20 +489,6 @@ namespace EditorWindowStuff
 			}
 		}
 
-		private PuzzleEditorStar GetClickedOnStar(Vector2 clickPos)
-		{
-			// For the moment, just look at all the stars, but will want to use something like a quad tree to make star lookup more efficient.
-			foreach (PuzzleEditorStar star in _stars)
-			{
-				if (star.OverlapsPoint(clickPos))
-				{
-					return star;
-				}
-			}
-
-			return null;
-		}
-
 		private void LoadInPuzzle(PuzzleData dataToLoad)
 		{
 			if (dataToLoad != null)
@@ -492,6 +515,7 @@ namespace EditorWindowStuff
 					{
 						PuzzleEditorStar star = new PuzzleEditorStar(starData.FinalColor, _starArea);
 						star.SetPositionUsingGamePosition(starData.Position);
+						_starCollisionGrid.SetStarToGrid(star);
 						_stars.Add(star);
 					}
 				}
@@ -510,6 +534,7 @@ namespace EditorWindowStuff
 			_starAreaReferenceImage.Texture = null;
 			_starAreaReferenceImage.Color = Color.black;
 			_selectedStar = null;
+			_starCollisionGrid.ClearGrid();
 			_stars.Clear();
 		}
 
@@ -525,19 +550,19 @@ namespace EditorWindowStuff
 		private void AddAddStarAction()
 		{
 			PuzzleEditorStar starAdded = _stars[_stars.Count - 1];
-			PuzzleAddStarAction action = new PuzzleAddStarAction(_stars, starAdded);
+			PuzzleAddStarAction action = new PuzzleAddStarAction(_stars, _starCollisionGrid, starAdded);
 			_actionQueue.AddAction(action);
 		}
 
 		private void AddDeleteStarAction(int starDeletedIndex, PuzzleEditorStar deletedStar)
 		{
-			PuzzleDeleteStarAction action = new PuzzleDeleteStarAction(_stars, deletedStar, starDeletedIndex);
+			PuzzleDeleteStarAction action = new PuzzleDeleteStarAction(_stars, _starCollisionGrid, deletedStar, starDeletedIndex);
 			_actionQueue.AddAction(action);
 		}
 
 		private void AddMoveStarAction(int starChangedIndex, Vector2 beforePosition, Vector2 afterPosition)
 		{
-			PuzzleMoveStarAction action = new PuzzleMoveStarAction(_stars, starChangedIndex, beforePosition, afterPosition);
+			PuzzleMoveStarAction action = new PuzzleMoveStarAction(_stars, _starCollisionGrid, starChangedIndex, beforePosition, afterPosition);
 			_actionQueue.AddAction(action);
 		}
 

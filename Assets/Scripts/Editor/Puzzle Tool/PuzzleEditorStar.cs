@@ -6,7 +6,7 @@ namespace EditorWindowStuff
 	public class PuzzleEditorStar
 	{
 		private static Texture starImage = null;
-		private const float WIDTH = 10f;
+		public const float WIDTH = 10f;
 		private const float RADIUS = WIDTH / 2f;
 
 		private Vector2 _gamePosition = Vector2.zero;
