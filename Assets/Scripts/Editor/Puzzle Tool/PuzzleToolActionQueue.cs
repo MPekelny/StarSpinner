@@ -14,13 +14,15 @@ namespace EditorWindowStuff
 	public class PuzzleAddStarAction : PuzzleToolAction
 	{
 		private List<PuzzleEditorStar> _starList;
+		private StarCollisionGrid _starGrid;
 		private Rect _drawAreaRef;
 		private Vector2 _starAddedPosition;
 		private Color _starAddedColor;
 
-		public PuzzleAddStarAction(List<PuzzleEditorStar> starList, PuzzleEditorStar addedStar)
+		public PuzzleAddStarAction(List<PuzzleEditorStar> starList, StarCollisionGrid grid, PuzzleEditorStar addedStar)
 		{
 			_starList = starList;
+			_starGrid = grid;
 			_drawAreaRef = addedStar.DrawAreaReference;
 			_starAddedPosition = addedStar.EditorPosition;
 			_starAddedColor = addedStar.EndColour;
@@ -28,6 +30,11 @@ namespace EditorWindowStuff
 
 		public override void Undo()
 		{
+			if (!_starGrid.PullStarFromGridAtPoint(_starList[_starList.Count - 1].EditorPosition))
+			{
+				Debug.LogError("Something went wrong undoing PuzzleAddStarAction, PullStarFromGrid failed.");
+			}
+
 			_starList.RemoveAt(_starList.Count - 1);
 		}
 
@@ -35,6 +42,11 @@ namespace EditorWindowStuff
 		{
 			PuzzleEditorStar star = new PuzzleEditorStar(_starAddedColor, _drawAreaRef);
 			star.SetPositionsUsingEditorPosiiton(_starAddedPosition);
+			if (!_starGrid.SetStarToGrid(star))
+			{
+				Debug.LogError("Something went wrong redoing PuzzleAddStarAction, SetStarToGrid failed.");
+			}
+
 			_starList.Add(star);
 		}
 	}
@@ -44,14 +56,16 @@ namespace EditorWindowStuff
 	public class PuzzleDeleteStarAction : PuzzleToolAction
 	{
 		private List<PuzzleEditorStar> _starList;
+		private StarCollisionGrid _starGrid;
 		private Rect _drawAreaRef;
 		private Vector2 _starDeletedPosition;
 		private Color _starDeletedColor;
 		private int _starDeletedIndex;
 
-		public PuzzleDeleteStarAction(List<PuzzleEditorStar> starList, PuzzleEditorStar deletedStar, int deletedStarIndex)
+		public PuzzleDeleteStarAction(List<PuzzleEditorStar> starList, StarCollisionGrid grid, PuzzleEditorStar deletedStar, int deletedStarIndex)
 		{
 			_starList = starList;
+			_starGrid = grid;
 			_drawAreaRef = deletedStar.DrawAreaReference;
 			_starDeletedPosition = deletedStar.EditorPosition;
 			_starDeletedColor = deletedStar.EndColour;
@@ -62,11 +76,21 @@ namespace EditorWindowStuff
 		{
 			PuzzleEditorStar star = new PuzzleEditorStar(_starDeletedColor, _drawAreaRef);
 			star.SetPositionsUsingEditorPosiiton(_starDeletedPosition);
+			if (!_starGrid.SetStarToGrid(star))
+			{
+				Debug.LogError("Something went wrong undoing PuzzleDeleteStarAction, SetStarToGrid failed.");
+			}
+
 			_starList.Insert(_starDeletedIndex, star);
 		}
 
 		public override void Redo()
 		{
+			if (!_starGrid.PullStarFromGridAtPoint(_starList[_starDeletedIndex].EditorPosition))
+			{
+				Debug.LogError("Something went wrong redoing PuzzleDeleteStarAction, PullStarFromGrid failed.");
+			}
+
 			_starList.RemoveAt(_starDeletedIndex);
 		}
 	}
@@ -76,13 +100,15 @@ namespace EditorWindowStuff
 	public class PuzzleMoveStarAction : PuzzleToolAction
 	{
 		private List<PuzzleEditorStar> _starList;
+		private StarCollisionGrid _starGrid;
 		private int _starChangedIndex;
 		private Vector2 _positionBefore;
 		private Vector2 _positionAfter;
 
-		public PuzzleMoveStarAction(List<PuzzleEditorStar> starList, int starChangedIndex, Vector2 positionBefore, Vector2 positionAfter)
+		public PuzzleMoveStarAction(List<PuzzleEditorStar> starList, StarCollisionGrid grid, int starChangedIndex, Vector2 positionBefore, Vector2 positionAfter)
 		{
 			_starList = starList;
+			_starGrid = grid;
 			_starChangedIndex = starChangedIndex;
 			_positionBefore = positionBefore;
 			_positionAfter = positionAfter;
@@ -90,12 +116,32 @@ namespace EditorWindowStuff
 
 		public override void Undo()
 		{
+			if (!_starGrid.PullStarFromGridAtPoint(_positionAfter))
+			{
+				Debug.LogError("Something went wrong undoing PuzzleMoveStarAction, PullStarFromGrid failed.");
+			}
+
 			_starList[_starChangedIndex].SetPositionsUsingEditorPosiiton(_positionBefore);
+
+			if (!_starGrid.SetStarToGrid(_starList[_starChangedIndex]))
+			{
+				Debug.LogError("Something went wrong undoing PuzzleMoveStarAction, SetStarToGrid failed.");
+			}
 		}
 
 		public override void Redo()
 		{
+			if (!_starGrid.PullStarFromGridAtPoint(_positionBefore))
+			{
+				Debug.LogError("Something went wrong redoing PuzzleMoveStarAction, PullStarFromGrid failed.");
+			}
+
 			_starList[_starChangedIndex].SetPositionsUsingEditorPosiiton(_positionAfter);
+
+			if (!_starGrid.SetStarToGrid(_starList[_starChangedIndex]))
+			{
+				Debug.LogError("Something went wrong redoing PuzzleMoveStarAction, SetStarToGrid failed.");
+			}
 		}
 	}
 	#endregion
