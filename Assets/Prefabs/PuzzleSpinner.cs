@@ -12,14 +12,16 @@ public class PuzzleSpinner : PoolableObject
 	public Image SpinnerObject => _spinnerObject;
 	public float TransitionDuration => _transitionDuration;
 
-	private PuzzleScreen _parentRef = null;
+	private Action<PuzzleSpinner> _checkOverlapCallback = null;
+	private Action _checkSolvedCallback = null;
 	private EventTrigger _trigger = null;
 	private Star[] _referenceStars = null;
 	private bool _locked = false;
 
-	public void Init(PuzzleScreen parent, Color spinnerColor, Sprite spinnerSprite)
+	public void Init(Action<PuzzleSpinner> checkOverlapCallback, Action checkSolvedCallback, Color spinnerColor, Sprite spinnerSprite)
 	{
-		_parentRef = parent;
+		_checkOverlapCallback = checkOverlapCallback;
+		_checkSolvedCallback = checkSolvedCallback;
 		_trigger = _spinnerObject.GetComponent<EventTrigger>();
 
 		_touchablePart.interactable = true;
@@ -125,8 +127,8 @@ public class PuzzleSpinner : PoolableObject
 	{
 		if (!_locked)
 		{
-			_parentRef.CheckSpinnerOverlap(this);
-			_parentRef.CheckIfSolved();
+			_checkOverlapCallback?.Invoke(this);
+			_checkSolvedCallback?.Invoke();
 		}
 	}
 }

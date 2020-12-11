@@ -49,7 +49,7 @@ public class PuzzleScreen : MonoBehaviour
 			_activePuzzle = _gameData.PuzzleDatas[0];
 		}
 
-		_puzzleSpinnersHelper.CreateSpinners(this, _gameData.SpinnerVisualDatas, _activePuzzle.NumSpinners);
+		_puzzleSpinnersHelper.CreateSpinners(this, CheckSpinnerOverlap, CheckIfSolved, _gameData.SpinnerVisualDatas, _activePuzzle.NumSpinners);
 
 		bool gotValidStaticData = TryLoadStaticSaveDataAndPlaceStars();
 		if (!gotValidStaticData)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace EditorWindowStuff
@@ -24,7 +25,7 @@ namespace EditorWindowStuff
 		private string _puzzleFileName = null;
 		private string _puzzleId;
 		private string _puzzleName;
-		public int _numPuzzleSpinners;
+		private int _numPuzzleSpinners;
 		private List<PuzzleEditorStar> _stars = new List<PuzzleEditorStar>();
 
 		// Stuff for drawing editor:
@@ -48,6 +49,8 @@ namespace EditorWindowStuff
 		private PuzzleEditorStar _starBeingDragged = null;
 		private Vector2 _draggedStarStartPosition = Vector2.zero;
 
+		private string _switchingScene = null;
+		private string _previousScene = null;
 		private PuzzleToolActionQueue _actionQueue = new PuzzleToolActionQueue();
 
 		[MenuItem("Window/Puzzle Editor")]
@@ -136,6 +139,8 @@ namespace EditorWindowStuff
 				DrawModeToggleSection();
 				GUILayout.Space(10f);
 				DrawActionQueueSection();
+				GUILayout.Space(15f);
+				DrawTestPuzzleSection();
 			}
 
 			// The scroll view stuff does not, as far as I can tell, interact with any of the draw stuff I do for the star field area.
@@ -465,6 +470,42 @@ namespace EditorWindowStuff
 			GUILayout.EndHorizontal();
 		}
 
+		private void DrawTestPuzzleSection()
+		{
+			EditorGUILayout.LabelField("Puzzle Testing:", EditorStyles.boldLabel);
+			if (!PuzzleDataValidForTesting())
+			{
+				GUILayout.Label($"The puzzle needs to have a name and at least\n{MIN_STARS_IN_PUZZLE} stars in order to be tested.", GUILayout.Width(SIDE_SECTION_WIDTH));
+			}
+			else
+			{
+				if (_switchingScene == EditorSceneManager.GetActiveScene().path)
+				{
+					EditorApplication.isPlaying = true;
+					_switchingScene = null;
+				}
+
+				if (GUILayout.Button("Test Puzzle", GUILayout.Width(SIDE_SECTION_WIDTH)))
+				{
+					_previousScene = EditorSceneManager.GetActiveScene().path;
+					_switchingScene = "Assets/Scripts/Editor/Puzzle Tool/PuzzleTestScene.unity";
+					EditorSceneManager.OpenScene(_switchingScene);
+				}
+			}
+		}
+
+		private void Update()
+		{
+			if (!EditorApplication.isPlaying)
+			{
+				if (string.IsNullOrEmpty(_switchingScene) && !string.IsNullOrEmpty(_previousScene))
+				{
+					EditorSceneManager.OpenScene(_previousScene);
+					_previousScene = null;
+				}
+			}
+		}
+
 		private void DrawStarField()
 		{
 			_starAreaReferenceImage.Draw();
@@ -545,6 +586,14 @@ namespace EditorWindowStuff
 			bool validPuzzleName = !string.IsNullOrEmpty(_puzzleName);
 
 			return validNumStars && validPuzzleId && validPuzzleName;
+		}
+
+		private bool PuzzleDataValidForTesting()
+		{
+			bool validNumStars = _stars.Count >= MIN_STARS_IN_PUZZLE;
+			bool validPuzzleName = !string.IsNullOrEmpty(_puzzleName);
+
+			return validNumStars && validPuzzleName;
 		}
 
 		private void AddAddStarAction()
