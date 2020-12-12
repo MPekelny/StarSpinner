@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using SimpleJSON;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -186,7 +188,7 @@ namespace EditorWindowStuff
 						if (GUILayout.Button("Save", GUILayout.Width(SIDE_SECTION_WIDTH)))
 						{
 							// If that file already exists, load it and overwrite its data. Otherwise create a new PuzzleData and set its data.
-							string fullPath = $"{AssetDatabase.GetAssetPath(testObject)}/{_puzzleFileName}.asset";
+							string fullPath = $"{AssetDatabase.GetAssetPath(_folderForPuzzleFile)}/{_puzzleFileName}.asset";
 							string imagePath = "";
 							if (_starAreaReferenceImage.Texture != null)
 							{
@@ -481,6 +483,7 @@ namespace EditorWindowStuff
 			{
 				if (_switchingScene == EditorSceneManager.GetActiveScene().path)
 				{
+					PutDataIntoEditorPrefs();
 					EditorApplication.isPlaying = true;
 					_switchingScene = null;
 				}
@@ -502,6 +505,7 @@ namespace EditorWindowStuff
 				{
 					EditorSceneManager.OpenScene(_previousScene);
 					_previousScene = null;
+					GetDataFromEditorPrefs();
 				}
 			}
 		}
@@ -577,6 +581,85 @@ namespace EditorWindowStuff
 			_selectedStar = null;
 			_starCollisionGrid.ClearGrid();
 			_stars.Clear();
+		}
+
+		private void PutDataIntoEditorPrefs()
+		{
+			/*
+			 * Things that need to be put into the data:
+			 * Action queue data.
+			 */
+			JSONNode node = new JSONObject();
+			node["puzzle_id"] = _puzzleId;
+			node["puzzle_name"] = _puzzleName;
+			node["puzzle_num_spinners"] = _numPuzzleSpinners;
+			node["puzzle_image_ref"] = _starAreaReferenceImage.Texture == null ? "null" : AssetDatabase.GetAssetPath(_starAreaReferenceImage.Texture);
+			node["puzzle_folder"] = AssetDatabase.GetAssetPath(_folderForPuzzleFile);
+			node["puzzle_file"] = _puzzleFileName;
+
+			foreach (PuzzleEditorStar star in _stars)
+			{
+				JSONObject starData = new JSONObject();
+				starData["color_r"] = star.EndColour.r;
+				starData["color_g"] = star.EndColour.g;
+				starData["color_b"] = star.EndColour.b;
+				starData["pos_x"] = star.GamePosition.x;
+				starData["pos_y"] = star.GamePosition.y;
+
+				node["stars"][-1] = starData;
+			}
+
+			node["action_queue"] = _actionQueue.GetQueueDataAsNode();
+
+			StringBuilder builder = new StringBuilder();
+			node.WriteToStringBuilder(builder, 0, 0, JSONTextMode.Compact);
+			EditorPrefs.SetString("puzzle_data_being_edited", builder.ToString());
+		}
+
+		private void GetDataFromEditorPrefs()
+		{
+			if (EditorPrefs.HasKey("puzzle_data_being_edited"))
+			{
+				string json = EditorPrefs.GetString("puzzle_data_being_edited");
+				JSONNode node = JSONNode.Parse(json);
+				_puzzleId = node["puzzle_id"].Value;
+				_puzzleName = node["puzzle_name"].Value;
+				_numPuzzleSpinners = node["puzzle_num_spinners"].AsInt;
+				string imagePath = node["puzzle_image_ref"].Value;
+				if (!string.IsNullOrEmpty(imagePath) && imagePath != "null" && File.Exists(imagePath))
+				{
+					_starAreaReferenceImage.Texture = AssetDatabase.LoadAssetAtPath<Texture>(imagePath);
+					_starAreaReferenceImage.Color = Color.white;
+				}
+
+				_folderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(node["puzzle_folder"].Value));
+				_puzzleFileName = node["puzzle_file"].Value;
+
+				JSONArray starArray = node["stars"].AsArray;
+				for (int i = 0; i < starArray.Count; i++)
+				{
+					JSONNode starNode = starArray[i];
+					float colR = starNode["color_r"];
+					float colG = starNode["color_g"];
+					float colB = starNode["color_b"];
+					float posX = starNode["pos_x"];
+					float posY = starNode["pos_y"];
+
+					Color starColor = new Color(colR, colG, colB);
+					Vector2 pos = new Vector2(posX, posY);
+
+					PuzzleEditorStar star = new PuzzleEditorStar(starColor, _starArea);
+					star.SetPositionUsingGamePosition(pos);
+					if (_starCollisionGrid.SetStarToGrid(star))
+					{
+						_stars.Add(star);
+					}
+				}
+
+				_actionQueue.SetDataFromNode(node["action_queue"], _stars, _starCollisionGrid);
+
+				EditorPrefs.DeleteKey("puzzle_data_being_edited");
+			}
 		}
 
 		private bool PuzzleDataValidForSaving()
