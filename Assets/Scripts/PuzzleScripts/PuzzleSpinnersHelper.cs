@@ -71,7 +71,7 @@ public class PuzzleSpinnersHelper
 	/// <param name="spinnerParent">A reference to the screen that owns the set of spinners.</param>
 	/// <param name="availableVisualDatas">The collection of colours and shapes for the spinners to use. If more spinners are made than availables datas, a random colour and no shape will be used for that spinner.</param>
 	/// <param name="numSpinnersToCreate">How many spinners to make for the puzzle. Other code ideally be used to make sure this number is not more than the number of available visual datas.</param>
-	public void CreateSpinners(PuzzleScreen spinnerParent, GameData.SpinnerVisualData[] availableVisualDatas, int numSpinnersToCreate)
+	public void CreateSpinners(PuzzleScreen spinnerParent, Action<PuzzleSpinner> overlapCheckerCallback, Action solutionCheckerCallback, GameData.SpinnerVisualData[] availableVisualDatas, int numSpinnersToCreate)
 	{
 		for (int i = 0; i < numSpinnersToCreate; i++)
 		{
@@ -92,7 +92,7 @@ public class PuzzleSpinnersHelper
 				shape = null;
 			}
 
-			spinner.Init(spinnerParent, c, shape);
+			spinner.Init(overlapCheckerCallback, solutionCheckerCallback, c, shape);
 			_puzzleSpinners.Add(spinner);
 		}
 	}

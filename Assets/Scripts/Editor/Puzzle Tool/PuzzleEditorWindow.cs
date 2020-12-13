@@ -1,13 +1,31 @@
-﻿using System.Collections;
+﻿using SimpleJSON;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace EditorWindowStuff
 {
 	public class PuzzleEditorWindow : EditorWindow
 	{
+		public const string DATA_BEING_EDITED_PREFS_KEY = "puzzle_data_being_edited";
+		public const string PUZZLE_ID_KEY = "puzzle_id";
+		public const string PUZZLE_NAME_KEY = "puzzle_name";
+		public const string PUZZLE_NUM_SPINNERS_KEY = "puzzle_num_spinners";
+		public const string PUZZLE_STAR_POSITION_X_KEY = "pos_x";
+		public const string PUZZLE_STAR_POSITION_Y_KEY = "pos_y";
+		public const string PUZZLE_STAR_COLOR_R_KEY = "color_r";
+		public const string PUZZLE_STAR_COLOR_G_KEY = "color_g";
+		public const string PUZZLE_STAR_COLOR_B_KEY = "color_b";
+		public const string PUZZLE_STARS_KEY = "stars";
+		private const string PUZZLE_IMAGE_REF_KEY = "puzzle_image_ref";
+		private const string PUZZLE_FOLDER_KEY = "puzzle_folder";
+		private const string PUZZLE_FILE_KEY = "puzzle_file";
+		private const string PUZZLE_ACTION_QUEUE_KEY = "action_queue";
+
 		private const int MIN_STARS_IN_PUZZLE = 15;
 		private const string DEFAULT_FOLDER_PATH = "Assets/Content/Puzzles";
 		private const float SIDE_SECTION_WIDTH = 300f;
@@ -24,7 +42,7 @@ namespace EditorWindowStuff
 		private string _puzzleFileName = null;
 		private string _puzzleId;
 		private string _puzzleName;
-		public int _numPuzzleSpinners;
+		private int _numPuzzleSpinners;
 		private List<PuzzleEditorStar> _stars = new List<PuzzleEditorStar>();
 
 		// Stuff for drawing editor:
@@ -48,6 +66,8 @@ namespace EditorWindowStuff
 		private PuzzleEditorStar _starBeingDragged = null;
 		private Vector2 _draggedStarStartPosition = Vector2.zero;
 
+		private string _switchingScene = null;
+		private string _previousScene = null;
 		private PuzzleToolActionQueue _actionQueue = new PuzzleToolActionQueue();
 
 		[MenuItem("Window/Puzzle Editor")]
@@ -117,6 +137,12 @@ namespace EditorWindowStuff
 
 		private void OnGUI()
 		{
+			if (EditorApplication.isPlaying)
+			{
+				EditorGUILayout.LabelField("Please exit play mode to edit puzzles with the tool.", EditorStyles.boldLabel);
+				return;
+			}
+
 			_scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
 			if (GUILayout.Button("New Puzzle", GUILayout.Width(SIDE_SECTION_WIDTH)))
@@ -136,6 +162,8 @@ namespace EditorWindowStuff
 				DrawModeToggleSection();
 				GUILayout.Space(10f);
 				DrawActionQueueSection();
+				GUILayout.Space(15f);
+				DrawTestPuzzleSection();
 			}
 
 			// The scroll view stuff does not, as far as I can tell, interact with any of the draw stuff I do for the star field area.
@@ -181,7 +209,7 @@ namespace EditorWindowStuff
 						if (GUILayout.Button("Save", GUILayout.Width(SIDE_SECTION_WIDTH)))
 						{
 							// If that file already exists, load it and overwrite its data. Otherwise create a new PuzzleData and set its data.
-							string fullPath = $"{AssetDatabase.GetAssetPath(testObject)}/{_puzzleFileName}.asset";
+							string fullPath = $"{AssetDatabase.GetAssetPath(_folderForPuzzleFile)}/{_puzzleFileName}.asset";
 							string imagePath = "";
 							if (_starAreaReferenceImage.Texture != null)
 							{
@@ -465,6 +493,44 @@ namespace EditorWindowStuff
 			GUILayout.EndHorizontal();
 		}
 
+		private void DrawTestPuzzleSection()
+		{
+			EditorGUILayout.LabelField("Puzzle Testing:", EditorStyles.boldLabel);
+			if (!PuzzleDataValidForTesting())
+			{
+				GUILayout.Label($"The puzzle needs to have a name and at least\n{MIN_STARS_IN_PUZZLE} stars in order to be tested.", GUILayout.Width(SIDE_SECTION_WIDTH));
+			}
+			else
+			{
+				if (_switchingScene == EditorSceneManager.GetActiveScene().path)
+				{
+					PutDataIntoEditorPrefs();
+					EditorApplication.isPlaying = true;
+					_switchingScene = null;
+				}
+
+				if (GUILayout.Button("Test Puzzle", GUILayout.Width(SIDE_SECTION_WIDTH)))
+				{
+					_previousScene = EditorSceneManager.GetActiveScene().path;
+					_switchingScene = "Assets/Scripts/Editor/Puzzle Tool/PuzzleTestScene.unity";
+					EditorSceneManager.OpenScene(_switchingScene);
+				}
+			}
+		}
+
+		private void Update()
+		{
+			if (!EditorApplication.isPlaying)
+			{
+				if (string.IsNullOrEmpty(_switchingScene) && !string.IsNullOrEmpty(_previousScene))
+				{
+					EditorSceneManager.OpenScene(_previousScene);
+					_previousScene = null;
+					GetDataFromEditorPrefs();
+				}
+			}
+		}
+
 		private void DrawStarField()
 		{
 			_starAreaReferenceImage.Draw();
@@ -538,6 +604,85 @@ namespace EditorWindowStuff
 			_stars.Clear();
 		}
 
+		private void PutDataIntoEditorPrefs()
+		{
+			/*
+			 * Things that need to be put into the data:
+			 * Action queue data.
+			 */
+			JSONNode node = new JSONObject();
+			node[PUZZLE_ID_KEY] = _puzzleId;
+			node[PUZZLE_NAME_KEY] = _puzzleName;
+			node[PUZZLE_NUM_SPINNERS_KEY] = _numPuzzleSpinners;
+			node[PUZZLE_IMAGE_REF_KEY] = _starAreaReferenceImage.Texture == null ? "null" : AssetDatabase.GetAssetPath(_starAreaReferenceImage.Texture);
+			node[PUZZLE_FOLDER_KEY] = AssetDatabase.GetAssetPath(_folderForPuzzleFile);
+			node[PUZZLE_FILE_KEY] = _puzzleFileName;
+
+			foreach (PuzzleEditorStar star in _stars)
+			{
+				JSONObject starData = new JSONObject();
+				starData[PUZZLE_STAR_COLOR_R_KEY] = star.EndColour.r;
+				starData[PUZZLE_STAR_COLOR_G_KEY] = star.EndColour.g;
+				starData[PUZZLE_STAR_COLOR_B_KEY] = star.EndColour.b;
+				starData[PUZZLE_STAR_POSITION_X_KEY] = star.GamePosition.x;
+				starData[PUZZLE_STAR_POSITION_Y_KEY] = star.GamePosition.y;
+
+				node[PUZZLE_STARS_KEY][-1] = starData;
+			}
+
+			node[PUZZLE_ACTION_QUEUE_KEY] = _actionQueue.GetQueueDataAsNode();
+
+			StringBuilder builder = new StringBuilder();
+			node.WriteToStringBuilder(builder, 0, 0, JSONTextMode.Compact);
+			EditorPrefs.SetString(DATA_BEING_EDITED_PREFS_KEY, builder.ToString());
+		}
+
+		private void GetDataFromEditorPrefs()
+		{
+			if (EditorPrefs.HasKey(DATA_BEING_EDITED_PREFS_KEY))
+			{
+				string json = EditorPrefs.GetString(DATA_BEING_EDITED_PREFS_KEY);
+				JSONNode node = JSONNode.Parse(json);
+				_puzzleId = node[PUZZLE_ID_KEY].Value;
+				_puzzleName = node[PUZZLE_NAME_KEY].Value;
+				_numPuzzleSpinners = node[PUZZLE_NUM_SPINNERS_KEY].AsInt;
+				string imagePath = node[PUZZLE_IMAGE_REF_KEY].Value;
+				if (!string.IsNullOrEmpty(imagePath) && imagePath != "null" && File.Exists(imagePath))
+				{
+					_starAreaReferenceImage.Texture = AssetDatabase.LoadAssetAtPath<Texture>(imagePath);
+					_starAreaReferenceImage.Color = Color.white;
+				}
+
+				_folderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(node[PUZZLE_FOLDER_KEY].Value));
+				_puzzleFileName = node[PUZZLE_FILE_KEY].Value;
+
+				JSONArray starArray = node[PUZZLE_STARS_KEY].AsArray;
+				for (int i = 0; i < starArray.Count; i++)
+				{
+					JSONNode starNode = starArray[i];
+					float colR = starNode[PUZZLE_STAR_COLOR_R_KEY];
+					float colG = starNode[PUZZLE_STAR_COLOR_G_KEY];
+					float colB = starNode[PUZZLE_STAR_COLOR_B_KEY];
+					float posX = starNode[PUZZLE_STAR_POSITION_X_KEY];
+					float posY = starNode[PUZZLE_STAR_POSITION_Y_KEY];
+
+					Color starColor = new Color(colR, colG, colB);
+					Vector2 pos = new Vector2(posX, posY);
+
+					PuzzleEditorStar star = new PuzzleEditorStar(starColor, _starArea);
+					star.SetPositionUsingGamePosition(pos);
+					if (_starCollisionGrid.SetStarToGrid(star))
+					{
+						_stars.Add(star);
+					}
+				}
+
+				_actionQueue.SetDataFromNode(node[PUZZLE_ACTION_QUEUE_KEY], _stars, _starCollisionGrid);
+
+				EditorPrefs.DeleteKey(DATA_BEING_EDITED_PREFS_KEY);
+			}
+		}
+
 		private bool PuzzleDataValidForSaving()
 		{
 			bool validNumStars = _stars.Count >= MIN_STARS_IN_PUZZLE;
@@ -545,6 +690,14 @@ namespace EditorWindowStuff
 			bool validPuzzleName = !string.IsNullOrEmpty(_puzzleName);
 
 			return validNumStars && validPuzzleId && validPuzzleName;
+		}
+
+		private bool PuzzleDataValidForTesting()
+		{
+			bool validNumStars = _stars.Count >= MIN_STARS_IN_PUZZLE;
+			bool validPuzzleName = !string.IsNullOrEmpty(_puzzleName);
+
+			return validNumStars && validPuzzleName;
 		}
 
 		private void AddAddStarAction()
