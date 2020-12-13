@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Collections;
+using SimpleJSON;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEditor;
+using EditorWindowStuff;
 
 public class PuzzleTestScene : MonoBehaviour
 {
@@ -10,6 +12,8 @@ public class PuzzleTestScene : MonoBehaviour
 	// instantiate/destroy the prefabs instead of going through the object pooler.
 	[SerializeField] private Star _starPrefab = null;
 	[SerializeField] private PuzzleSpinner _spinnerPrefab = null;
+	[SerializeField] private TMPro.TextMeshProUGUI _nameText = null;
+	[SerializeField] private GameData.SpinnerVisualData[] _visualDatas = null;
 
 	private List<Star> _stars = new List<Star>();
 	private List<PuzzleSpinner> _spinners = new List<PuzzleSpinner>();
@@ -21,18 +25,32 @@ public class PuzzleTestScene : MonoBehaviour
 	private PuzzleOverlapResolver _overlapResolver = null;
 	private PuzzleSolutionChecker _checker = null;
 
-	private void Start()
+	public void Awake()
 	{
 		_overlapResolver = new PuzzleOverlapResolver(7.5f);
 		_checker = new PuzzleSolutionChecker(10f);
+		_nameText.gameObject.SetActive(false);
+
+		if (EditorPrefs.HasKey(PuzzleEditorWindow.DATA_BEING_EDITED_PREFS_KEY))
+		{
+			JSONNode node = JSONObject.Parse(EditorPrefs.GetString(PuzzleEditorWindow.DATA_BEING_EDITED_PREFS_KEY));
+			_puzzleName = node[PuzzleEditorWindow.PUZZLE_NAME_KEY].Value;
+			_numSpinnersForTesting = node[PuzzleEditorWindow.PUZZLE_NUM_SPINNERS_KEY].AsInt;
+
+			JSONArray stars = node[PuzzleEditorWindow.PUZZLE_STARS_KEY].AsArray;
+			for (int i = 0; i < stars.Count; i++)
+			{
+				JSONNode starNode = stars[i];
+				Vector2 pos = new Vector2(starNode[PuzzleEditorWindow.PUZZLE_STAR_POSITION_X_KEY], starNode[PuzzleEditorWindow.PUZZLE_STAR_POSITION_Y_KEY]);
+				Color color = new Color(starNode[PuzzleEditorWindow.PUZZLE_STAR_COLOR_R_KEY], starNode[PuzzleEditorWindow.PUZZLE_STAR_COLOR_G_KEY], starNode[PuzzleEditorWindow.PUZZLE_STAR_COLOR_B_KEY]);
+				_testingStars.Add(new PuzzleData.StarData(pos, color));
+			}
+
+			GenerateTest();
+		}
 	}
 
-	public void Awake()
-	{
-		
-	}
-
-	private void RegenerateTest()
+	private void GenerateTest()
 	{
 		foreach (Star star in _stars)
 		{
@@ -62,7 +80,7 @@ public class PuzzleTestScene : MonoBehaviour
 		for (int i = 0; i < _numSpinnersForTesting; i++)
 		{
 			PuzzleSpinner spinner = Instantiate<PuzzleSpinner>(_spinnerPrefab, transform);
-			spinner.Init(CheckOverlap, CheckSolved, Color.white, null);
+			spinner.Init(CheckOverlap, CheckSolved, _visualDatas[i].Color, _visualDatas[i].Shape);
 			int rNum = UnityEngine.Random.Range(0, randomRanges.Count);
 			spinner.SpinRandomly(randomRanges[rNum].Item1, randomRanges[rNum].Item2);
 			randomRanges.RemoveAt(rNum);
@@ -94,7 +112,24 @@ public class PuzzleTestScene : MonoBehaviour
 
 		if (_checker.CheckIfSolved(rotations))
 		{
+			int neededCount = _spinners.Count;
+			for (int i = 0; i < neededCount; i++)
+			{
+				_spinners[i].TransitionToEndState(() =>
+				{
+					neededCount--;
+					if (neededCount <= 0)
+					{
+						for (int j = 0; j < _stars.Count; j++)
+						{
+							_stars[j].TransitionToEndState();
+						}
 
+						_nameText.gameObject.SetActive(true);
+						_nameText.text = _puzzleName;
+					}
+				});
+			}
 		}
 	}
 }

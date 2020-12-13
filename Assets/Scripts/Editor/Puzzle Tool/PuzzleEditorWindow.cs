@@ -11,6 +11,21 @@ namespace EditorWindowStuff
 {
 	public class PuzzleEditorWindow : EditorWindow
 	{
+		public const string DATA_BEING_EDITED_PREFS_KEY = "puzzle_data_being_edited";
+		public const string PUZZLE_ID_KEY = "puzzle_id";
+		public const string PUZZLE_NAME_KEY = "puzzle_name";
+		public const string PUZZLE_NUM_SPINNERS_KEY = "puzzle_num_spinners";
+		public const string PUZZLE_STAR_POSITION_X_KEY = "pos_x";
+		public const string PUZZLE_STAR_POSITION_Y_KEY = "pos_y";
+		public const string PUZZLE_STAR_COLOR_R_KEY = "color_r";
+		public const string PUZZLE_STAR_COLOR_G_KEY = "color_g";
+		public const string PUZZLE_STAR_COLOR_B_KEY = "color_b";
+		public const string PUZZLE_STARS_KEY = "stars";
+		private const string PUZZLE_IMAGE_REF_KEY = "puzzle_image_ref";
+		private const string PUZZLE_FOLDER_KEY = "puzzle_folder";
+		private const string PUZZLE_FILE_KEY = "puzzle_file";
+		private const string PUZZLE_ACTION_QUEUE_KEY = "action_queue";
+
 		private const int MIN_STARS_IN_PUZZLE = 15;
 		private const string DEFAULT_FOLDER_PATH = "Assets/Content/Puzzles";
 		private const float SIDE_SECTION_WIDTH = 300f;
@@ -122,6 +137,12 @@ namespace EditorWindowStuff
 
 		private void OnGUI()
 		{
+			if (EditorApplication.isPlaying)
+			{
+				EditorGUILayout.LabelField("Please exit play mode to edit puzzles with the tool.", EditorStyles.boldLabel);
+				return;
+			}
+
 			_scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
 			if (GUILayout.Button("New Puzzle", GUILayout.Width(SIDE_SECTION_WIDTH)))
@@ -590,60 +611,60 @@ namespace EditorWindowStuff
 			 * Action queue data.
 			 */
 			JSONNode node = new JSONObject();
-			node["puzzle_id"] = _puzzleId;
-			node["puzzle_name"] = _puzzleName;
-			node["puzzle_num_spinners"] = _numPuzzleSpinners;
-			node["puzzle_image_ref"] = _starAreaReferenceImage.Texture == null ? "null" : AssetDatabase.GetAssetPath(_starAreaReferenceImage.Texture);
-			node["puzzle_folder"] = AssetDatabase.GetAssetPath(_folderForPuzzleFile);
-			node["puzzle_file"] = _puzzleFileName;
+			node[PUZZLE_ID_KEY] = _puzzleId;
+			node[PUZZLE_NAME_KEY] = _puzzleName;
+			node[PUZZLE_NUM_SPINNERS_KEY] = _numPuzzleSpinners;
+			node[PUZZLE_IMAGE_REF_KEY] = _starAreaReferenceImage.Texture == null ? "null" : AssetDatabase.GetAssetPath(_starAreaReferenceImage.Texture);
+			node[PUZZLE_FOLDER_KEY] = AssetDatabase.GetAssetPath(_folderForPuzzleFile);
+			node[PUZZLE_FILE_KEY] = _puzzleFileName;
 
 			foreach (PuzzleEditorStar star in _stars)
 			{
 				JSONObject starData = new JSONObject();
-				starData["color_r"] = star.EndColour.r;
-				starData["color_g"] = star.EndColour.g;
-				starData["color_b"] = star.EndColour.b;
-				starData["pos_x"] = star.GamePosition.x;
-				starData["pos_y"] = star.GamePosition.y;
+				starData[PUZZLE_STAR_COLOR_R_KEY] = star.EndColour.r;
+				starData[PUZZLE_STAR_COLOR_G_KEY] = star.EndColour.g;
+				starData[PUZZLE_STAR_COLOR_B_KEY] = star.EndColour.b;
+				starData[PUZZLE_STAR_POSITION_X_KEY] = star.GamePosition.x;
+				starData[PUZZLE_STAR_POSITION_Y_KEY] = star.GamePosition.y;
 
-				node["stars"][-1] = starData;
+				node[PUZZLE_STARS_KEY][-1] = starData;
 			}
 
-			node["action_queue"] = _actionQueue.GetQueueDataAsNode();
+			node[PUZZLE_ACTION_QUEUE_KEY] = _actionQueue.GetQueueDataAsNode();
 
 			StringBuilder builder = new StringBuilder();
 			node.WriteToStringBuilder(builder, 0, 0, JSONTextMode.Compact);
-			EditorPrefs.SetString("puzzle_data_being_edited", builder.ToString());
+			EditorPrefs.SetString(DATA_BEING_EDITED_PREFS_KEY, builder.ToString());
 		}
 
 		private void GetDataFromEditorPrefs()
 		{
-			if (EditorPrefs.HasKey("puzzle_data_being_edited"))
+			if (EditorPrefs.HasKey(DATA_BEING_EDITED_PREFS_KEY))
 			{
-				string json = EditorPrefs.GetString("puzzle_data_being_edited");
+				string json = EditorPrefs.GetString(DATA_BEING_EDITED_PREFS_KEY);
 				JSONNode node = JSONNode.Parse(json);
-				_puzzleId = node["puzzle_id"].Value;
-				_puzzleName = node["puzzle_name"].Value;
-				_numPuzzleSpinners = node["puzzle_num_spinners"].AsInt;
-				string imagePath = node["puzzle_image_ref"].Value;
+				_puzzleId = node[PUZZLE_ID_KEY].Value;
+				_puzzleName = node[PUZZLE_NAME_KEY].Value;
+				_numPuzzleSpinners = node[PUZZLE_NUM_SPINNERS_KEY].AsInt;
+				string imagePath = node[PUZZLE_IMAGE_REF_KEY].Value;
 				if (!string.IsNullOrEmpty(imagePath) && imagePath != "null" && File.Exists(imagePath))
 				{
 					_starAreaReferenceImage.Texture = AssetDatabase.LoadAssetAtPath<Texture>(imagePath);
 					_starAreaReferenceImage.Color = Color.white;
 				}
 
-				_folderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(node["puzzle_folder"].Value));
-				_puzzleFileName = node["puzzle_file"].Value;
+				_folderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(node[PUZZLE_FOLDER_KEY].Value));
+				_puzzleFileName = node[PUZZLE_FILE_KEY].Value;
 
-				JSONArray starArray = node["stars"].AsArray;
+				JSONArray starArray = node[PUZZLE_STARS_KEY].AsArray;
 				for (int i = 0; i < starArray.Count; i++)
 				{
 					JSONNode starNode = starArray[i];
-					float colR = starNode["color_r"];
-					float colG = starNode["color_g"];
-					float colB = starNode["color_b"];
-					float posX = starNode["pos_x"];
-					float posY = starNode["pos_y"];
+					float colR = starNode[PUZZLE_STAR_COLOR_R_KEY];
+					float colG = starNode[PUZZLE_STAR_COLOR_G_KEY];
+					float colB = starNode[PUZZLE_STAR_COLOR_B_KEY];
+					float posX = starNode[PUZZLE_STAR_POSITION_X_KEY];
+					float posY = starNode[PUZZLE_STAR_POSITION_Y_KEY];
 
 					Color starColor = new Color(colR, colG, colB);
 					Vector2 pos = new Vector2(posX, posY);
@@ -656,9 +677,9 @@ namespace EditorWindowStuff
 					}
 				}
 
-				_actionQueue.SetDataFromNode(node["action_queue"], _stars, _starCollisionGrid);
+				_actionQueue.SetDataFromNode(node[PUZZLE_ACTION_QUEUE_KEY], _stars, _starCollisionGrid);
 
-				EditorPrefs.DeleteKey("puzzle_data_being_edited");
+				EditorPrefs.DeleteKey(DATA_BEING_EDITED_PREFS_KEY);
 			}
 		}
 
