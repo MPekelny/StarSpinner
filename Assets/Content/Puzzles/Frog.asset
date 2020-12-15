@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 892684d5f13da8e429e8b10d1c8d7be2, type: 3}
   m_Name: Frog
   m_EditorClassIdentifier: 
-  _dataGrabber: {fileID: 0}
+  _puzzleImageReferencePath: Assets/Content/Puzzles/References/Frog.png
+  _currentVersionNumber: 0
   _puzzleUniqueId: frog_0
   _puzzleName: Frog
   _numSpinners: 4
@@ -247,3 +248,7 @@ MonoBehaviour:
     _finalColor: {r: 0.10659872, g: 0.5188679, b: 0, a: 1}
   - _position: {x: -12.2, y: 84.7, z: 0}
     _finalColor: {r: 0.10659872, g: 0.5188679, b: 0, a: 1}
+  _historyDatas:
+  - _numSpinners: 4
+    _numStarsAdded: 0
+    _starsDeleted: 

@@ -5,6 +5,30 @@ using UnityEngine;
 public class PuzzleData : ScriptableObject
 {
 	[System.Serializable]
+	public class HistoryData
+	{
+		[SerializeField] private int _numSpinners = 4;
+		[SerializeField] private int _numStarsAdded = 0;
+		[SerializeField] private int[] _starsDeleted = null;
+
+		public int NumSpinners => _numSpinners;
+		public int NumStarsAdded => _numStarsAdded;
+		public int[] StarsDeleted => _starsDeleted;
+
+		public HistoryData(int numSpinners, int numStarsAdded, List<int> starsDeleted)
+		{
+			_numSpinners = numSpinners;
+			_numStarsAdded = numStarsAdded;
+
+			// Want the list to be from highest to lowest, so sort the list an reverse it before getting the list as array.
+			starsDeleted.Sort();
+			starsDeleted.Reverse();
+
+			_starsDeleted = starsDeleted.ToArray();
+		}
+	}
+
+	[System.Serializable]
 	public class StarData
 	{
 		[SerializeField] Vector3 _position = Vector3.zero;
@@ -25,15 +49,18 @@ public class PuzzleData : ScriptableObject
 	public string PuzzleImageReferencePath => _puzzleImageReferencePath;
 #endif
 
+	[SerializeField] private int _currentVersionNumber = 0;
 	[SerializeField] private string _puzzleUniqueId = "";
 	[SerializeField] private string _puzzleName = "";
 	[SerializeField] [Range(2, 7)] private int _numSpinners = 4;
 	[SerializeField] private StarData[] _starDatas = null;
+	[SerializeField] private List<HistoryData> _historyDatas = new List<HistoryData>();
 
 	public string PuzzleUniqueId => _puzzleUniqueId;
 	public string PuzzleName => _puzzleName;
 	public int NumSpinners => _numSpinners;
 	public StarData[] StarDatas => _starDatas;
+	public List<HistoryData> HistoryDatas => _historyDatas;
 
 #if UNITY_EDITOR
 	public void SetDataFromEditorTool(string puzzleId, string puzzleName, int numSpinners, List<EditorWindowStuff.PuzzleEditorStar> editorStarDatas, string puzzleImageReferencePath)
@@ -47,6 +74,22 @@ public class PuzzleData : ScriptableObject
 		{
 			_starDatas[i] = new StarData(editorStarDatas[i].GamePosition, editorStarDatas[i].EndColour);
 		}
+	}
+
+	public void AddHistoryData(int numSpinnersForVersion, int numStarsAddedForVersion, List<int> starsDeletedForVersion)
+	{
+		// If this is the first version, other code should have the numStars be 0 and the starsDeleted list be empty, but just in case, the only data I care about for the first version is the number of spinners,
+		// so just ignore the other items.
+		if (_historyDatas.Count == 0)
+		{
+			_historyDatas.Add(new HistoryData(numSpinnersForVersion, 0, new List<int>()));
+		}
+		else
+		{
+			_historyDatas.Add(new HistoryData(numSpinnersForVersion, numStarsAddedForVersion, starsDeletedForVersion));
+		}
+
+		_currentVersionNumber = _historyDatas.Count - 1;
 	}
 #endif
 }

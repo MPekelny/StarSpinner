@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 892684d5f13da8e429e8b10d1c8d7be2, type: 3}
   m_Name: TrafficLight
   m_EditorClassIdentifier: 
-  _dataGrabber: {fileID: 0}
+  _puzzleImageReferencePath: Assets/Content/Puzzles/References/TrafficLight.png
+  _currentVersionNumber: 0
   _puzzleUniqueId: trafficlight_0
   _puzzleName: Traffic Light
   _numSpinners: 4
@@ -165,3 +166,7 @@ MonoBehaviour:
     _finalColor: {r: 1, g: 0.08126679, b: 0, a: 1}
   - _position: {x: 79.89996, y: 151.8, z: 0}
     _finalColor: {r: 1, g: 0.08126679, b: 0, a: 1}
+  _historyDatas:
+  - _numSpinners: 4
+    _numStarsAdded: 0
+    _starsDeleted: 

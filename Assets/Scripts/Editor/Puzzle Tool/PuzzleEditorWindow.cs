@@ -222,6 +222,9 @@ namespace EditorWindowStuff
 								{
 									PuzzleData puzzleData = AssetDatabase.LoadAssetAtPath<PuzzleData>(fullPath);
 									puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars, imagePath);
+									List<int> starsDeletedForVersion = new List<int>();
+									int starsAddedForVersion = _actionQueue.GetActionsAsHistoryData(starsDeletedForVersion);
+									puzzleData.AddHistoryData(_numPuzzleSpinners, starsAddedForVersion, starsDeletedForVersion);
 									EditorUtility.SetDirty(puzzleData);
 									AssetDatabase.SaveAssets();
 									AssetDatabase.Refresh();
@@ -233,6 +236,7 @@ namespace EditorWindowStuff
 							{
 								PuzzleData puzzleData = ScriptableObject.CreateInstance<PuzzleData>();
 								puzzleData.SetDataFromEditorTool(_puzzleId, _puzzleName, _numPuzzleSpinners, _stars, imagePath);
+								puzzleData.AddHistoryData(_numPuzzleSpinners, 0, new List<int>());
 								EditorUtility.SetDirty(puzzleData);
 								AssetDatabase.CreateAsset(puzzleData, fullPath);
 								AssetDatabase.SaveAssets();
@@ -606,10 +610,6 @@ namespace EditorWindowStuff
 
 		private void PutDataIntoEditorPrefs()
 		{
-			/*
-			 * Things that need to be put into the data:
-			 * Action queue data.
-			 */
 			JSONNode node = new JSONObject();
 			node[PUZZLE_ID_KEY] = _puzzleId;
 			node[PUZZLE_NAME_KEY] = _puzzleName;

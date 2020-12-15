@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 892684d5f13da8e429e8b10d1c8d7be2, type: 3}
   m_Name: Fish
   m_EditorClassIdentifier: 
-  _dataGrabber: {fileID: 0}
+  _puzzleImageReferencePath: Assets/Content/Puzzles/References/Fish.png
+  _currentVersionNumber: 0
   _puzzleUniqueId: fish_0
   _puzzleName: Fish
   _numSpinners: 4
@@ -133,3 +134,7 @@ MonoBehaviour:
     _finalColor: {r: 0.23483096, g: 0.23113209, b: 1, a: 1}
   - _position: {x: -148.7, y: -89.3, z: 0}
     _finalColor: {r: 0.23483096, g: 0.23113209, b: 1, a: 1}
+  _historyDatas:
+  - _numSpinners: 4
+    _numStarsAdded: 0
+    _starsDeleted: 

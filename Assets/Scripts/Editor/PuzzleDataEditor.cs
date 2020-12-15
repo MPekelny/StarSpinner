@@ -22,6 +22,22 @@ public class PuzzleDataEditor : Editor
 		}
 	}
 
+	private class HistoryDataEditor
+	{
+		public int SpinnerNumberForVersion;
+		public int StarsAddedForVersion;
+		public List<int> StarsDeletedForVersion;
+		public bool FoldedOut;
+
+		public HistoryDataEditor(int spinnerNum, int starsAdded, List<int> starsDeleted)
+		{
+			SpinnerNumberForVersion = spinnerNum;
+			StarsAddedForVersion = starsAdded;
+			StarsDeletedForVersion = starsDeleted;
+			FoldedOut = false;
+		}
+	}
+
 	private string _refImagePath;
 	private Texture _refImage = null;
 
@@ -30,16 +46,20 @@ public class PuzzleDataEditor : Editor
 	private string _puzzleId;
 	private string _puzzleName;
 	private int _numSpinners;
+	private int _currentVersion;
 	private List<StarDataEditor> _starDatas = new List<StarDataEditor>();
+	private List<HistoryDataEditor> _historyDatas = new List<HistoryDataEditor>();
 
-	private bool _refImageFoldedOut = false;
 	private bool _starDatasFoldedOut = false;
+	private bool _historyDataFoldedOut = false;
+	private bool _refImageFoldedOut = false;
 
 	private void OnEnable()
 	{
 		_puzzleId = serializedObject.FindProperty("_puzzleUniqueId").stringValue;
 		_puzzleName = serializedObject.FindProperty("_puzzleName").stringValue;
 		_numSpinners = serializedObject.FindProperty("_numSpinners").intValue;
+		_currentVersion = serializedObject.FindProperty("_currentVersionNumber").intValue;
 
 		SerializedProperty stars = serializedObject.FindProperty("_starDatas");
 		for (int i = 0; i < stars.arraySize; i++)
@@ -48,6 +68,22 @@ public class PuzzleDataEditor : Editor
 			Vector3 posVal = property.FindPropertyRelative("_position").vector3Value;
 			Color colVal = property.FindPropertyRelative("_finalColor").colorValue;
 			_starDatas.Add(new StarDataEditor(posVal, colVal));
+		}
+
+		SerializedProperty history = serializedObject.FindProperty("_historyDatas");
+		for (int i = 0; i < history.arraySize; i++)
+		{
+			SerializedProperty property = history.GetArrayElementAtIndex(i);
+			int spinners = property.FindPropertyRelative("_numSpinners").intValue;
+			int starsAdded = property.FindPropertyRelative("_numStarsAdded").intValue;
+			List<int> starsDeleted = new List<int>();
+			SerializedProperty deleted = property.FindPropertyRelative("_starsDeleted");
+			for (int j = 0; j < deleted.arraySize; j++)
+			{
+				starsDeleted.Add(deleted.GetArrayElementAtIndex(j).intValue);
+			}
+
+			_historyDatas.Add(new HistoryDataEditor(spinners, starsAdded, starsDeleted));
 		}
 
 		_refImagePath = serializedObject.FindProperty("_puzzleImageReferencePath").stringValue;
@@ -67,32 +103,9 @@ public class PuzzleDataEditor : Editor
 
 		DrawPuzzleDataValues();
 		GUILayout.Space(20f);
+		DrawPuzzleHistoryData();
+		GUILayout.Space(20f);
 		DrawRefImageInfo();
-	}
-
-	private void DrawRefImageInfo()
-	{
-		_refImageFoldedOut = EditorGUILayout.Foldout(_refImageFoldedOut, "Editor Reference Image data for puzzle");
-		if (_refImageFoldedOut)
-		{
-			if (_refImage == null)
-			{
-				if (!string.IsNullOrEmpty(_refImagePath))
-				{
-					GUILayout.Label($"Reference image for puzzle was set to\n{_refImagePath}\nbut no such image exists there.");
-				}
-				else
-				{
-					GUILayout.Label("No reference image set for this puzzle.");
-				}
-			}
-			else
-			{
-				GUILayout.Label(_refImage, GUILayout.MaxHeight(200f));
-				EditorGUILayout.LabelField("File path of reference image:", EditorStyles.boldLabel);
-				EditorGUILayout.LabelField(_refImagePath);
-			}
-		}
 	}
 
 	private void DrawPuzzleDataValues()
@@ -125,5 +138,73 @@ public class PuzzleDataEditor : Editor
 		}
 
 		EditorGUI.indentLevel--;
+	}
+
+	private void DrawPuzzleHistoryData()
+	{
+		GUILayout.Label($"Current version of puzzle: {_currentVersion}");
+		_historyDataFoldedOut = EditorGUILayout.Foldout(_historyDataFoldedOut, "Puzzle Change History");
+		if (_historyDataFoldedOut)
+		{
+			EditorGUI.indentLevel++;
+			if (_historyDatas.Count == 0)
+			{
+				GUILayout.Label("This puzzle has no history.");
+			}
+			else
+			{
+				for (int i = 0; i < _historyDatas.Count; i++)
+				{
+					_historyDatas[i].FoldedOut = EditorGUILayout.Foldout(_historyDatas[i].FoldedOut, $"Changes for version {i}");
+					if (_historyDatas[i].FoldedOut)
+					{
+						EditorGUI.indentLevel++;
+						EditorHelpers.DrawPairedLabelFields("Number of spinners:", _historyDatas[i].SpinnerNumberForVersion.ToString());
+						EditorHelpers.DrawPairedLabelFields("Number of stars added:", _historyDatas[i].StarsAddedForVersion.ToString());
+						EditorGUILayout.LabelField("Indices of stars that were deleted:", EditorStyles.boldLabel);
+						if (_historyDatas[i].StarsDeletedForVersion.Count == 0)
+						{
+							EditorGUILayout.LabelField("No stars were deleted in this version.");
+						}
+						else
+						{
+							for (int j = 0; j < _historyDatas[i].StarsDeletedForVersion.Count; j++)
+							{
+								EditorGUILayout.LabelField(_historyDatas[i].StarsDeletedForVersion[j].ToString());
+							}
+						}
+
+						EditorGUI.indentLevel--;
+					}
+				}
+			}
+
+			EditorGUI.indentLevel--;
+		}
+	}
+
+	private void DrawRefImageInfo()
+	{
+		_refImageFoldedOut = EditorGUILayout.Foldout(_refImageFoldedOut, "Editor Reference Image data for puzzle");
+		if (_refImageFoldedOut)
+		{
+			if (_refImage == null)
+			{
+				if (!string.IsNullOrEmpty(_refImagePath))
+				{
+					GUILayout.Label($"Reference image for puzzle was set to\n{_refImagePath}\nbut no such image exists there.");
+				}
+				else
+				{
+					GUILayout.Label("No reference image set for this puzzle.");
+				}
+			}
+			else
+			{
+				GUILayout.Label(_refImage, GUILayout.MaxHeight(200f));
+				EditorGUILayout.LabelField("File path of reference image:", EditorStyles.boldLabel);
+				EditorGUILayout.LabelField(_refImagePath);
+			}
+		}
 	}
 }
