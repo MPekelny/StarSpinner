@@ -8,19 +8,20 @@ public class PuzzleSaveData
 {
 	public class PuzzleStaticSaveData
 	{
+		private const string PUZZLE_VERSION_KEY = "puzzle_version";
 		private const string NUM_STARS_KEY = "num_stars";
 		private const string NUM_SPINNERS_KEY = "num_spinners";
 		private const string SPINNERS_LIST_KEY = "spinners_list";
 
 		public List<int> SpinnersForStarsList { get; private set; } = new List<int>();
-		public int NumStarsInPuzzle { get; set; } = -1;
 		public int NumSpinnersInPuzzle { get; set; } = -1;
+		public int PuzzleVersion { get; set; } = 0;
 
 		public string WriteToJsonString()
 		{
 			JSONNode node = new JSONObject();
-			node[NUM_STARS_KEY] = NumStarsInPuzzle;
 			node[NUM_SPINNERS_KEY] = NumSpinnersInPuzzle;
+			node[PUZZLE_VERSION_KEY] = PuzzleVersion;
 			foreach (int item in SpinnersForStarsList)
 			{
 				node[SPINNERS_LIST_KEY][-1] = item;
@@ -36,8 +37,8 @@ public class PuzzleSaveData
 			ResetData();
 
 			JSONNode node = JSONNode.Parse(json);
-			NumStarsInPuzzle = node[NUM_STARS_KEY];
 			NumSpinnersInPuzzle = node[NUM_SPINNERS_KEY];
+			PuzzleVersion = node[PUZZLE_VERSION_KEY];
 
 			JSONArray starList = node[SPINNERS_LIST_KEY].AsArray;
 			for (int i = 0; i < starList.Count; i++)
@@ -51,11 +52,35 @@ public class PuzzleSaveData
 			SpinnersForStarsList.Add(spinnerIndex);
 		}
 
+		public void RemoveSpinnerForStarItemAtIndex(int starIndex)
+		{
+			if (starIndex < SpinnersForStarsList.Count)
+			{
+				SpinnersForStarsList.RemoveAt(starIndex);
+			}
+			else
+			{
+				Debug.LogError("Tried to remove a star from the save data that is out of range of the list.");
+			}
+		}
+
+		public void RemoveSpinnerForStarItemsStartingAtIndex(int index)
+		{
+			if (index < SpinnersForStarsList.Count)
+			{
+				SpinnersForStarsList.RemoveRange(index, SpinnersForStarsList.Count - index);
+			}
+			else
+			{
+				Debug.LogError("Tried to remove stars from the save data that is starting out of range of the list.");
+			}
+		}
+
 		public void ResetData()
 		{
 			SpinnersForStarsList.Clear();
-			NumStarsInPuzzle = -1;
 			NumSpinnersInPuzzle = -1;
+			PuzzleVersion = 0;
 		}
 	}
 

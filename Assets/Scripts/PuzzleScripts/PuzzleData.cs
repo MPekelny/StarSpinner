@@ -56,6 +56,7 @@ public class PuzzleData : ScriptableObject
 	[SerializeField] private StarData[] _starDatas = null;
 	[SerializeField] private List<HistoryData> _historyDatas = new List<HistoryData>();
 
+	public int CurrentVersionNumber => _currentVersionNumber;
 	public string PuzzleUniqueId => _puzzleUniqueId;
 	public string PuzzleName => _puzzleName;
 	public int NumSpinners => _numSpinners;
