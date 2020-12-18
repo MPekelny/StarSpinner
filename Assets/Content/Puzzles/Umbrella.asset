@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 892684d5f13da8e429e8b10d1c8d7be2, type: 3}
   m_Name: Umbrella
   m_EditorClassIdentifier: 
-  _dataGrabber: {fileID: 0}
+  _puzzleImageReferencePath: Assets/Content/Puzzles/References/Umbrella.png
+  _currentVersionNumber: 0
   _puzzleUniqueId: umbrella_0
   _puzzleName: Umbrella
   _numSpinners: 4
@@ -105,3 +106,7 @@ MonoBehaviour:
     _finalColor: {r: 0.8000001, g: 0.6431373, b: 0.6, a: 1}
   - _position: {x: 229.9, y: 198.4, z: 0}
     _finalColor: {r: 0.8000001, g: 0.6431373, b: 0.6, a: 1}
+  _historyDatas:
+  - _numSpinners: 4
+    _numStarsAdded: 0
+    _starsDeleted: 

@@ -115,6 +115,8 @@ namespace EditorWindowStuff
 		private Color _starDeletedColor;
 		private int _starDeletedIndex;
 
+		public int StarDeletedIndex => _starDeletedIndex;
+
 		public PuzzleDeleteStarAction(List<PuzzleEditorStar> starList, StarCollisionGrid grid, PuzzleEditorStar deletedStar, int deletedStarIndex)
 		{
 			_starList = starList;
@@ -432,6 +434,33 @@ namespace EditorWindowStuff
 						break;
 				}
 			}
+		}
+
+		/// <summary>
+		/// Gets any add or delete star actions that have not been undone from the queue, which represents the star changes needed for a puzzle's history data.
+		/// </summary>
+		/// <param name="deletedStarsReference">Should be an empty list, any any delete actions have their index added to this list.</param>
+		/// <returns>How many stars were added.</returns>
+		public int GetActionsAsHistoryData(List<int> deletedStarsReference)
+		{
+			int totalAdds = 0;
+			for (int i = 1; i < _actions.Count && i <= _currentActionIndex; i++)
+			{
+				if (_actions[i] is PuzzleAddStarAction)
+				{
+					totalAdds++;
+				}
+				else if (_actions[i] is PuzzleDeleteStarAction)
+				{
+					// Doing this casting and using as the subclass kind of defeats the purpose of using an abstract base class,
+					// But since I only need to use as the subclass in this one case, this is probably a time when doing the casting is simpler than adding a generic extra
+					// thing to the base class.
+					PuzzleDeleteStarAction action = (PuzzleDeleteStarAction)_actions[i];
+					deletedStarsReference.Add(action.StarDeletedIndex);
+				}
+			}
+
+			return totalAdds;
 		}
 	}
 }

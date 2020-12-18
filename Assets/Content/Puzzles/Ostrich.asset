@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 892684d5f13da8e429e8b10d1c8d7be2, type: 3}
   m_Name: Ostrich
   m_EditorClassIdentifier: 
-  _dataGrabber: {fileID: 0}
+  _puzzleImageReferencePath: Assets/Content/Puzzles/References/Ostrich.png
+  _currentVersionNumber: 0
   _puzzleUniqueId: ostrich_0
   _puzzleName: Ostrich
   _numSpinners: 4
@@ -209,3 +210,7 @@ MonoBehaviour:
     _finalColor: {r: 1, g: 1, b: 1, a: 1}
   - _position: {x: -16, y: 186.2, z: 0}
     _finalColor: {r: 1, g: 1, b: 1, a: 1}
+  _historyDatas:
+  - _numSpinners: 4
+    _numStarsAdded: 0
+    _starsDeleted: 

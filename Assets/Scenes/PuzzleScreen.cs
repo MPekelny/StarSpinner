@@ -51,13 +51,20 @@ public class PuzzleScreen : MonoBehaviour
 
 		_puzzleSpinnersHelper.CreateSpinners(this, CheckSpinnerOverlap, CheckIfSolved, _gameData.SpinnerVisualDatas, _activePuzzle.NumSpinners);
 
-		bool gotValidStaticData = TryLoadStaticSaveDataAndPlaceStars();
-		if (!gotValidStaticData)
+		if (GameManager.Instance.SaveDataManager.PuzzleStaticDataExistsForLevel(_activePuzzle.PuzzleUniqueId))
+		{
+			ReadInStaticSaveData();
+		}
+		else
 		{
 			CreateStars();
 		}
 
-		if (!gotValidStaticData || !TryLoadDynamicSaveDataAndSetRotations())
+		if (GameManager.Instance.SaveDataManager.PuzzleDynamicDataExistsForLevel(_activePuzzle.PuzzleUniqueId))
+		{
+			ReadInDynamicSaveData();
+		}
+		else
 		{
 			_puzzleSpinnersHelper.RandomSpinSpinners();
 			CheckSpinnerOverlap();
@@ -66,52 +73,104 @@ public class PuzzleScreen : MonoBehaviour
 		}
 	}
 
-	/// <summary>
-	/// Loads the static save data if it exists and then tries to create the stars for the level based on that data.
-	/// </summary>
-	/// <returns>True if there is save data and it successfully creates the stars using that data, false if either does not happen.</returns>
-	private bool TryLoadStaticSaveDataAndPlaceStars()
+	private void ReadInStaticSaveData()
 	{
-		if (GameManager.Instance.SaveDataManager.PuzzleStaticDataExistsForLevel(_activePuzzle.PuzzleUniqueId))
+		string staticSaveData = GameManager.Instance.SaveDataManager.GetPuzzleStaticDataForLevel(_activePuzzle.PuzzleUniqueId);
+		_saveDataHolder.StaticData.ReadFromJsonString(staticSaveData);
+		bool staticDataShouldBeUpdated = false;
+		// If for some reason the saved version is higher than the current version, just make the data fresh.
+		if (_saveDataHolder.StaticData.PuzzleVersion > _activePuzzle.CurrentVersionNumber)
 		{
-			string staticSaveData = GameManager.Instance.SaveDataManager.GetPuzzleStaticDataForLevel(_activePuzzle.PuzzleUniqueId);
-			_saveDataHolder.StaticData.ReadFromJsonString(staticSaveData);
-			if (_saveDataHolder.StaticData.NumSpinnersInPuzzle == _activePuzzle.NumSpinners && _saveDataHolder.StaticData.NumStarsInPuzzle == _activePuzzle.StarDatas.Length)
+			Debug.LogError($"Save data for the puzzle {_activePuzzle.PuzzleUniqueId} exists, but for some reason the version number is greater than the current version. Generating the stars for the puzzle fresh.");
+			CreateStars();
+		}
+		else
+		{
+			// 1. Check that the save data is updated to match up with the current version.
+			if (_saveDataHolder.StaticData.PuzzleVersion < _activePuzzle.CurrentVersionNumber)
 			{
-				if (CreateStarsFromSaveData())
+				Debug.Log($"Save data for {_activePuzzle.PuzzleUniqueId} is a version older than current, upgrading the save data to match the current version.");
+				for (int i = _saveDataHolder.StaticData.PuzzleVersion + 1; i <= _activePuzzle.CurrentVersionNumber; i++)
 				{
-					return true;
+					_saveDataHolder.StaticData.ApplyPuzzleHistoryData(_activePuzzle.HistoryDatas[i]);
 				}
+
+				staticDataShouldBeUpdated = true;
+			}
+
+			// 2. Make sure that after any updating, there is the correct number of stars. Generally, this case should not happen, but it needs to be handled in case it does.
+			if (!_saveDataHolder.StaticData.EnsureCorrectNumberOfStars(_activePuzzle.StarDatas.Length))
+			{
+				Debug.LogError($"After upgrade static save data for {_activePuzzle.PuzzleUniqueId}, the number of stars in the data did not match the puzzle data, so an additional adjustment had to be made.");
+				staticDataShouldBeUpdated = true;
+			}
+
+			// 3. Make sure the stars are distributed among the correct number of spinners.
+			if (!_saveDataHolder.StaticData.EnsureStarDistribution(_activePuzzle.NumSpinners))
+			{
+				Debug.Log($"Number of spinners in static save data for {_activePuzzle.PuzzleUniqueId} was different than the puzzle data, the stars were redistributed to fit the puzzle data.");
+				staticDataShouldBeUpdated = true;
+			}
+
+			// 4. Create the stars using the save data.
+			if (!CreateStarsFromSaveData())
+			{
+				// The create stars from save data should not fail at this point, but as a final just in case, create them fresh if it does fail for some reason.
+				Debug.LogError("Somehow, after all the save data updating, it still failed to create the stars from the save data. So, creating the save data fresh.");
+				CreateStars();
+			}
+
+			// 5. If marked for updating, update the static save data.
+			if (staticDataShouldBeUpdated)
+			{
+				_saveDataHolder.StaticData.PuzzleVersion = _activePuzzle.CurrentVersionNumber;
+				GameManager.Instance.SaveDataManager.SavePuzzleStaticDataForLevel(_activePuzzle.PuzzleUniqueId, _saveDataHolder.StaticData.WriteToJsonString());
 			}
 		}
-
-		return false;
 	}
 
-	/// <summary>
-	/// Loads the dynamic save data if it exists and then tries to set the rotations and hint locked state for the spinners from that data.
-	/// </summary>
-	/// <returns>True if the is save data and it successfully sets the rotations using that data, false if either does not happen.</returns>
-	private bool TryLoadDynamicSaveDataAndSetRotations()
+	private void ReadInDynamicSaveData()
 	{
-		if (GameManager.Instance.SaveDataManager.PuzzleDynamicDataExistsForLevel(_activePuzzle.PuzzleUniqueId))
+		string dynamicSaveData = GameManager.Instance.SaveDataManager.GetPuzzleDynamicDataForLevel(_activePuzzle.PuzzleUniqueId);
+		_saveDataHolder.DynamicData.ReadFromJsonString(dynamicSaveData);
+		bool dynamicDataShouldBeUpdated = false;
+		// 6. If the number of spinners in the save data is not the same as the puzzle's current version, adjust it.
+		if (!_saveDataHolder.DynamicData.EnsureCorrectNumberOfSpinners(_activePuzzle.NumSpinners))
 		{
-			string dynamicSaveData = GameManager.Instance.SaveDataManager.GetPuzzleDynamicDataForLevel(_activePuzzle.PuzzleUniqueId);
-			_saveDataHolder.DynamicData.ReadFromJsonString(dynamicSaveData);
-
-			if (_saveDataHolder.DynamicData.HintLockedSpinner > -1)
-			{
-				_puzzleSpinnersHelper.HintLockSpinner(_saveDataHolder.DynamicData.HintLockedSpinner);
-				_hintButton.gameObject.SetActive(false);
-			}
-
-			if (_puzzleSpinnersHelper.SetRotationsForSpinners(_saveDataHolder.DynamicData.SpinnerRotations, _saveDataHolder.DynamicData.SpinnerTouchObjectRotations))
-			{
-				return true;
-			}
+			Debug.Log($"When loading the dynamic save data for the puzzle {_activePuzzle.PuzzleUniqueId}, the number of saved spinners was different than the puzzle's data, so it was adjusted to match.");
+			dynamicDataShouldBeUpdated = true;
 		}
 
-		return false;
+		// 7. If there is a hint locked spinner and it is now greater than the number of spinners, randomly rechoose it.
+		if (_saveDataHolder.DynamicData.HintLockedSpinner >= _activePuzzle.NumSpinners)
+		{
+			Debug.Log($"When loading the dynamic save data for the puzzle {_activePuzzle.PuzzleUniqueId}, the hint locked spinner is greater than the number of spinners, so randomly rechoosing it.");
+			_saveDataHolder.DynamicData.HintLockedSpinner = UnityEngine.Random.Range(0, _activePuzzle.NumSpinners);
+			dynamicDataShouldBeUpdated = true;
+		}
+
+		// 8. Set the spinner rotations based on save data.
+		if (!_puzzleSpinnersHelper.SetRotationsForSpinners(_saveDataHolder.DynamicData.SpinnerRotations, _saveDataHolder.DynamicData.SpinnerTouchObjectRotations))
+		{
+			// This should not fail at this point, but just in case it needs to be handled.
+			Debug.LogError($"When loading the dynamic save data for the puzzle {_activePuzzle.PuzzleUniqueId}, setting the spinners with the save data failed, so randomly spinning them.");
+			_puzzleSpinnersHelper.RandomSpinSpinners();
+			dynamicDataShouldBeUpdated = true;
+		}
+
+		// 9. Make sure the hint locked spinner is set correctly.
+		if (_saveDataHolder.DynamicData.HintLockedSpinner > -1)
+		{
+			_puzzleSpinnersHelper.HintLockSpinner(_saveDataHolder.DynamicData.HintLockedSpinner);
+			_hintButton.gameObject.SetActive(false);
+		}
+
+		// 10. If marked for updating, make sure overlaps are resolved and update dynamic save data.
+		if (dynamicDataShouldBeUpdated)
+		{
+			CheckSpinnerOverlap();
+			UpdateDynamicSaveData();
+		}
 	}
 
 	/// <summary>
@@ -194,7 +253,7 @@ public class PuzzleScreen : MonoBehaviour
 		}
 
 		_saveDataHolder.StaticData.NumSpinnersInPuzzle = _activePuzzle.NumSpinners;
-		_saveDataHolder.StaticData.NumStarsInPuzzle = _activePuzzle.StarDatas.Length;
+		_saveDataHolder.StaticData.PuzzleVersion = _activePuzzle.CurrentVersionNumber;
 		GameManager.Instance.SaveDataManager.SavePuzzleStaticDataForLevel(_activePuzzle.PuzzleUniqueId, _saveDataHolder.StaticData.WriteToJsonString());
 
 		_puzzleSpinnersHelper.HaveSpinnersFindStarChildren();

@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 892684d5f13da8e429e8b10d1c8d7be2, type: 3}
   m_Name: Elephant
   m_EditorClassIdentifier: 
-  _dataGrabber: {fileID: 0}
+  _puzzleImageReferencePath: Assets/Content/Puzzles/References/Elephant.png
+  _currentVersionNumber: 0
   _puzzleUniqueId: elephant_0
   _puzzleName: Elephant
   _numSpinners: 4
@@ -185,3 +186,7 @@ MonoBehaviour:
     _finalColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
   - _position: {x: -166.2, y: 36.3, z: 0}
     _finalColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
+  _historyDatas:
+  - _numSpinners: 4
+    _numStarsAdded: 0
+    _starsDeleted: 
