@@ -31,18 +31,18 @@ public class PuzzleTestScene : MonoBehaviour
 		_checker = new PuzzleSolutionChecker(10f);
 		_nameText.gameObject.SetActive(false);
 
-		if (EditorPrefs.HasKey(PuzzleEditorWindow.DATA_BEING_EDITED_PREFS_KEY))
+		if (EditorPrefs.HasKey(PuzzleEditorWindowData.DATA_BEING_EDITED_PREFS_KEY))
 		{
-			JSONNode node = JSONObject.Parse(EditorPrefs.GetString(PuzzleEditorWindow.DATA_BEING_EDITED_PREFS_KEY));
-			_puzzleName = node[PuzzleEditorWindow.PUZZLE_NAME_KEY].Value;
-			_numSpinnersForTesting = node[PuzzleEditorWindow.PUZZLE_NUM_SPINNERS_KEY].AsInt;
+			JSONNode node = JSONObject.Parse(EditorPrefs.GetString(PuzzleEditorWindowData.DATA_BEING_EDITED_PREFS_KEY));
+			_puzzleName = node[PuzzleEditorWindowData.PUZZLE_NAME_KEY].Value;
+			_numSpinnersForTesting = node[PuzzleEditorWindowData.PUZZLE_NUM_SPINNERS_KEY].AsInt;
 
-			JSONArray stars = node[PuzzleEditorWindow.PUZZLE_STARS_KEY].AsArray;
+			JSONArray stars = node[PuzzleEditorWindowData.PUZZLE_STARS_KEY].AsArray;
 			for (int i = 0; i < stars.Count; i++)
 			{
 				JSONNode starNode = stars[i];
-				Vector2 pos = new Vector2(starNode[PuzzleEditorWindow.PUZZLE_STAR_POSITION_X_KEY], starNode[PuzzleEditorWindow.PUZZLE_STAR_POSITION_Y_KEY]);
-				Color color = new Color(starNode[PuzzleEditorWindow.PUZZLE_STAR_COLOR_R_KEY], starNode[PuzzleEditorWindow.PUZZLE_STAR_COLOR_G_KEY], starNode[PuzzleEditorWindow.PUZZLE_STAR_COLOR_B_KEY]);
+				Vector2 pos = new Vector2(starNode[PuzzleEditorWindowData.PUZZLE_STAR_POSITION_X_KEY], starNode[PuzzleEditorWindowData.PUZZLE_STAR_POSITION_Y_KEY]);
+				Color color = new Color(starNode[PuzzleEditorWindowData.PUZZLE_STAR_COLOR_R_KEY], starNode[PuzzleEditorWindowData.PUZZLE_STAR_COLOR_G_KEY], starNode[PuzzleEditorWindowData.PUZZLE_STAR_COLOR_B_KEY]);
 				_testingStars.Add(new PuzzleData.StarData(pos, color));
 			}
 
