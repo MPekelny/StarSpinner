@@ -41,6 +41,12 @@ namespace EditorWindowStuff
 		public PuzzleToolActionQueue ActionQueue { get; private set; }
 		public StarCollisionGrid StarCollisionGrid { get; private set; }
 
+		private bool ValidNumStars => Stars.Count >= MIN_STARS_IN_PUZZLE;
+		private bool ValidPuzzleId => !string.IsNullOrEmpty(PuzzleId);
+		private bool ValidPuzzleName => !string.IsNullOrEmpty(PuzzleName);
+		public bool PuzzleDataValidForSaving => ValidNumStars && ValidPuzzleId && ValidPuzzleName;
+		public bool PuzzleDataValidForTesting => ValidNumStars && ValidPuzzleName;
+
 		public PuzzleEditorWindowData()
 		{
 			StarArea = new Rect(320, 15, 650, 650);
@@ -60,6 +66,9 @@ namespace EditorWindowStuff
 			}
 		}
 
+		/// <summary>
+		/// Resets all data to default values.
+		/// </summary>
 		public void ResetValues()
 		{
 			ActionQueue.ClearQueue();
@@ -74,23 +83,95 @@ namespace EditorWindowStuff
 			Stars.Clear();
 		}
 
-		public bool PuzzleDataValidForSaving()
+		/// <summary>
+		/// Writes the data into a puzzle data file.
+		/// </summary>
+		/// <param name="filePath">The location of where the file should be.</param>
+		/// <param name="createNew">If true, the file is meant to be created new. If false, an existing file is meant to be overwritten.</param>
+		public void SavePuzzleDataFile(string filePath, bool createNew)
 		{
-			bool validNumStars = Stars.Count >= MIN_STARS_IN_PUZZLE;
-			bool validPuzzleId = !string.IsNullOrEmpty(PuzzleId);
-			bool validPuzzleName = !string.IsNullOrEmpty(PuzzleName);
+			PuzzleData puzzleData = null;
+			List<int> starsDeletedForVersion = new List<int>();
+			int starsAddedForVersion = 0;
+			if (createNew)
+			{
+				puzzleData = ScriptableObject.CreateInstance<PuzzleData>();
+				AssetDatabase.CreateAsset(puzzleData, filePath);
+			}
+			else
+			{
+				puzzleData = AssetDatabase.LoadAssetAtPath<PuzzleData>(filePath);
+				starsAddedForVersion = ActionQueue.GetActionsAsHistoryData(starsDeletedForVersion);
+			}
 
-			return validNumStars && validPuzzleId && validPuzzleName;
+			string imagePath = StarAreaReferenceImage.Texture != null ? AssetDatabase.GetAssetPath(StarAreaReferenceImage.Texture) : "";
+			puzzleData.SetDataFromEditorTool(PuzzleId, PuzzleName, NumPuzzleSpinners, Stars, imagePath);
+			puzzleData.AddHistoryData(NumPuzzleSpinners, starsAddedForVersion, starsDeletedForVersion);
+			EditorUtility.SetDirty(puzzleData);
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
+			ActionQueue.ClearQueue();
 		}
 
-		public bool PuzzleDataValidForTesting()
+		/// <summary>
+		/// Takes the puzzle data and sets the window data using it.
+		/// </summary>
+		public void LoadInPuzzle(PuzzleData dataToLoad)
 		{
-			bool validNumStars = Stars.Count >= MIN_STARS_IN_PUZZLE;
-			bool validPuzzleName = !string.IsNullOrEmpty(PuzzleName);
+			if (dataToLoad != null)
+			{
+				FolderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(AssetDatabase.GetAssetPath(dataToLoad)));
+				PuzzleFileName = dataToLoad.name;
+				PuzzleId = dataToLoad.PuzzleUniqueId;
+				PuzzleName = dataToLoad.PuzzleName;
+				if (!string.IsNullOrEmpty(dataToLoad.PuzzleImageReferencePath))
+				{
+					if (File.Exists(dataToLoad.PuzzleImageReferencePath))
+					{
+						StarAreaReferenceImage.Texture = AssetDatabase.LoadAssetAtPath<Texture>(dataToLoad.PuzzleImageReferencePath);
+						StarAreaReferenceImage.Color = Color.white;
+					}
+				}
 
-			return validNumStars && validPuzzleName;
+				NumPuzzleSpinners = dataToLoad.NumSpinners;
+				foreach (PuzzleData.StarData starData in dataToLoad.StarDatas)
+				{
+					PuzzleEditorStar star = new PuzzleEditorStar(starData.FinalColor, StarArea);
+					star.SetPositionUsingGamePosition(starData.Position);
+					StarCollisionGrid.SetStarToGrid(star);
+					Stars.Add(star);
+				}
+			}
 		}
 
+		public void AddAddStarAction()
+		{
+			PuzzleEditorStar starAdded = Stars[Stars.Count - 1];
+			PuzzleAddStarAction action = new PuzzleAddStarAction(Stars, StarCollisionGrid, starAdded);
+			ActionQueue.AddAction(action);
+		}
+
+		public void AddDeleteStarAction(int starDeletedIndex, PuzzleEditorStar deletedStar)
+		{
+			PuzzleDeleteStarAction action = new PuzzleDeleteStarAction(Stars, StarCollisionGrid, deletedStar, starDeletedIndex);
+			ActionQueue.AddAction(action);
+		}
+
+		public void AddMoveStarAction(int starChangedIndex, Vector2 beforePosition, Vector2 afterPosition)
+		{
+			PuzzleMoveStarAction action = new PuzzleMoveStarAction(Stars, StarCollisionGrid, starChangedIndex, beforePosition, afterPosition);
+			ActionQueue.AddAction(action);
+		}
+
+		public void AddColorStarAction(int starChangedIndex, Color beforeColor, Color afterColor)
+		{
+			PuzzleColorStarAction action = new PuzzleColorStarAction(Stars, starChangedIndex, beforeColor, afterColor);
+			ActionQueue.AddAction(action);
+		}
+
+		/// <summary>
+		/// Takes all data and puts it into the editor prefs so it can be used by the testing scene and then loaded back after testing is done.
+		/// </summary>
 		public void PutDataIntoEditorPrefs()
 		{
 			JSONNode node = new JSONObject();
@@ -120,6 +201,9 @@ namespace EditorWindowStuff
 			EditorPrefs.SetString(DATA_BEING_EDITED_PREFS_KEY, builder.ToString());
 		}
 
+		/// <summary>
+		/// Takes the data from the editor prefs (if there is any), processes it into window data and then clears out the editor pref data.
+		/// </summary>
 		public void GetDataFromEditorPrefs()
 		{
 			if (EditorPrefs.HasKey(DATA_BEING_EDITED_PREFS_KEY))

@@ -11,7 +11,6 @@ namespace EditorWindowStuff
 {
 	public class PuzzleEditorWindow : EditorWindow
 	{
-		private const string DEFAULT_FOLDER_PATH = "Assets/Content/Puzzles";
 		private const float SIDE_SECTION_WIDTH = 300f;
 		public enum EditingMode
 		{
@@ -50,8 +49,12 @@ namespace EditorWindowStuff
 			window.Show();
 		}
 
+		#region Unity Message Methods
+
 		private void OnFocus()
 		{
+			// Stuff used in the editor window potentially has to be reinitialized on gaining focus, but not always (for example, after returning from testing a puzzle, but not if refocusing the window after focusing on another window).
+			// Hence why all these objects are checked for null and initied if null here rather than just initing everything in Awake (because in the case of the window reloading after stopping play, awake does not get called again).
 			if (_windowData == null)
 			{
 				_windowData = new PuzzleEditorWindowData();
@@ -87,6 +90,19 @@ namespace EditorWindowStuff
 					_windowData.StarAreaReferenceImage.Texture = texture;
 					_windowData.StarAreaReferenceImage.Color = Color.white;
 				});
+			}
+		}
+
+		private void Update()
+		{
+			if (!EditorApplication.isPlaying)
+			{
+				if (string.IsNullOrEmpty(_switchingScene) && !string.IsNullOrEmpty(_previousScene))
+				{
+					EditorSceneManager.OpenScene(_previousScene);
+					_previousScene = null;
+					_windowData.GetDataFromEditorPrefs();
+				}
 			}
 		}
 
@@ -132,7 +148,23 @@ namespace EditorWindowStuff
 			HandleGUIEvents();
 
 			EditorGUILayout.EndScrollView();
+		}
 
+		#endregion
+
+		#region Puzzle File Saving/Loading
+
+		private void LoadInPuzzle(PuzzleData dataToLoad)
+		{
+			if (dataToLoad != null)
+			{
+				if (EditorUtility.DisplayDialog("Load Puzzle?", "If you load a puzzle, any unsaved changes you have in the current puzzle will be lost. Do you want to continue?", "Yes", "No"))
+				{
+					ResetValues();
+
+					_windowData.LoadInPuzzle(dataToLoad);
+				}
+			}
 		}
 
 		private void DrawSavePuzzleSection()
@@ -145,7 +177,7 @@ namespace EditorWindowStuff
 
 			if (_saveModeActive)
 			{
-				if (!_windowData.PuzzleDataValidForSaving())
+				if (!_windowData.PuzzleDataValidForSaving)
 				{
 					GUILayout.Label($"In order to save a puzzle, it needs a name, id and at least {PuzzleEditorWindowData.MIN_STARS_IN_PUZZLE} stars.", EditorStyles.wordWrappedLabel, GUILayout.Width(SIDE_SECTION_WIDTH));
 				}
@@ -169,13 +201,13 @@ namespace EditorWindowStuff
 							{
 								if (EditorUtility.DisplayDialog("Overwrite File?", "A puzzle file of that name already exists in that location. Do you wish to overwrite it?", "Yes", "No"))
 								{
-									SavePuzzleDataFile(fullPath, false);
+									_windowData.SavePuzzleDataFile(fullPath, false);
 									_saveModeActive = false;
 								}
 							}	
 							else
 							{
-								SavePuzzleDataFile(fullPath, true);
+								_windowData.SavePuzzleDataFile(fullPath, true);
 								_saveModeActive = false;
 							}
 						}
@@ -184,30 +216,9 @@ namespace EditorWindowStuff
 			}
 		}
 
-		private void SavePuzzleDataFile(string filePath, bool createNew)
-		{
-			PuzzleData puzzleData = null;
-			List<int> starsDeletedForVersion = new List<int>();
-			int starsAddedForVersion = 0;
-			if (createNew)
-			{
-				puzzleData = ScriptableObject.CreateInstance<PuzzleData>();
-				AssetDatabase.CreateAsset(puzzleData, filePath);
-			}
-			else
-			{
-				puzzleData = AssetDatabase.LoadAssetAtPath<PuzzleData>(filePath);
-				starsAddedForVersion = _windowData.ActionQueue.GetActionsAsHistoryData(starsDeletedForVersion);
-			}
+		#endregion
 
-			string imagePath = _windowData.StarAreaReferenceImage.Texture != null ? AssetDatabase.GetAssetPath(_windowData.StarAreaReferenceImage.Texture) : "";
-			puzzleData.SetDataFromEditorTool(_windowData.PuzzleId, _windowData.PuzzleName, _windowData.NumPuzzleSpinners, _windowData.Stars, imagePath);
-			puzzleData.AddHistoryData(_windowData.NumPuzzleSpinners, starsAddedForVersion, starsDeletedForVersion);
-			EditorUtility.SetDirty(puzzleData);
-			AssetDatabase.SaveAssets();
-			AssetDatabase.Refresh();
-			_windowData.ActionQueue.ClearQueue();
-		}
+		#region Specific GUI Section Drawing Stuff
 
 		private void DrawPuzzleDataSection()
 		{
@@ -219,6 +230,56 @@ namespace EditorWindowStuff
 			_windowData.NumPuzzleSpinners = EditorGUILayout.IntSlider(_windowData.NumPuzzleSpinners, 2, 7, GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
 			GUILayout.EndHorizontal();
 		}
+
+		private void DrawActionQueueSection()
+		{
+			EditorGUILayout.LabelField("Undo/Redo Star Changing Actions.", EditorStyles.boldLabel);
+
+			GUILayout.BeginHorizontal();
+
+			if (EditorHelpers.DrawDisablableButton("Undo", SIDE_SECTION_WIDTH / 2f, _windowData.ActionQueue.UndoActionsAvailable))
+			{
+				_selectedStar = null;
+				_windowData.ActionQueue.UndoAction();
+			}
+
+			if (EditorHelpers.DrawDisablableButton("Redo", SIDE_SECTION_WIDTH / 2f, _windowData.ActionQueue.RedoActionsAvailable))
+			{
+				_selectedStar = null;
+				_windowData.ActionQueue.RedoAction();
+			}
+
+			GUILayout.EndHorizontal();
+		}
+
+		private void DrawTestPuzzleSection()
+		{
+			EditorGUILayout.LabelField("Puzzle Testing:", EditorStyles.boldLabel);
+			if (!_windowData.PuzzleDataValidForTesting)
+			{
+				GUILayout.Label($"The puzzle needs to have a name and at least {PuzzleEditorWindowData.MIN_STARS_IN_PUZZLE} stars in order to be tested.", EditorStyles.wordWrappedLabel, GUILayout.Width(SIDE_SECTION_WIDTH));
+			}
+			else
+			{
+				if (_switchingScene == EditorSceneManager.GetActiveScene().path)
+				{
+					_windowData.PutDataIntoEditorPrefs();
+					EditorApplication.isPlaying = true;
+					_switchingScene = null;
+				}
+
+				if (GUILayout.Button("Test Puzzle", GUILayout.Width(SIDE_SECTION_WIDTH)))
+				{
+					_previousScene = EditorSceneManager.GetActiveScene().path;
+					_switchingScene = "Assets/Scripts/Editor/Puzzle Tool/PuzzleTestScene.unity";
+					EditorSceneManager.OpenScene(_switchingScene);
+				}
+			}
+		}
+
+		#endregion
+
+		#region Editing Mode Section
 
 		private void DrawModeToggleSection()
 		{
@@ -271,7 +332,7 @@ namespace EditorWindowStuff
 					int starIndex = _windowData.Stars.IndexOf(_selectedStar);
 					if (starIndex > -1)
 					{
-						AddDeleteStarAction(starIndex, _selectedStar);
+						_windowData.AddDeleteStarAction(starIndex, _selectedStar);
 					}
 
 					_windowData.Stars.Remove(_selectedStar);
@@ -282,134 +343,32 @@ namespace EditorWindowStuff
 			}
 		}
 
+		#endregion
+
+		#region Star Field Input Handling
+
 		private void HandleGUIEvents()
 		{
 			int controlID = GUIUtility.GetControlID(FocusType.Passive);
 			switch (Event.current.GetTypeForControl(controlID))
 			{
 				case EventType.MouseDown:
-					if (_currentMode == EditingMode.Add)
-					{
-						if (_windowData.StarArea.Contains(Event.current.mousePosition))
-						{
-							if (!_windowData.StarCollisionGrid.StarAreaOverlapsStar(Event.current.mousePosition))
-							{
-								PuzzleEditorStar star = new PuzzleEditorStar(_currentAddModeColor, _windowData.StarArea);
-								star.SetPositionsUsingEditorPosiiton(Event.current.mousePosition);
-								// At this point, this check should basically never fail, but I think there might be some very small edge cases where it could fail, so it is necessary to still have it.
-								if (_windowData.StarCollisionGrid.SetStarToGrid(star))
-								{
-									_windowData.Stars.Add(star);
-									AddAddStarAction();
-								}
-							}
-						}
-					}
-					else if (_currentMode == EditingMode.Paint)
-					{
-						if (_windowData.StarArea.Contains(Event.current.mousePosition))
-						{
-							PuzzleEditorStar star = _windowData.StarCollisionGrid.GetStarAtPoint(Event.current.mousePosition);
-							if (star != null)
-							{
-								Color beforeColor = star.EndColour;
-								Color afterColor = _currentPaintModeColor;
-								star.EndColour = _currentPaintModeColor;
-								int starIndex = _windowData.Stars.IndexOf(star);
-								if (starIndex > -1)
-								{
-									AddColorStarAction(starIndex, beforeColor, afterColor);
-								}
-							}
-						}
-					}
-					else if (_currentMode == EditingMode.Select)
-					{
-						if (_windowData.StarArea.Contains(Event.current.mousePosition))
-						{
-							// If we have a selected star, we want to first check if the click is close (but not necessarily in the star) to be considered still selected.
-							bool stillSelected = false;
-							if (_selectedStar != null)
-							{
-								stillSelected = _selectedStar.WithinRangeOfPoint(Event.current.mousePosition, _starHighlighterImage.Width / 2f);
-							}
-
-							if (!stillSelected)
-							{
-								_selectedStar = _windowData.StarCollisionGrid.GetStarAtPoint(Event.current.mousePosition);
-							}
-
-							_starBeingDragged = _selectedStar;
-							if (_starBeingDragged != null)
-							{
-								_draggedStarStartPosition = _starBeingDragged.EditorPosition;
-								_windowData.StarCollisionGrid.PullStarFromGridAtPoint(_starBeingDragged.EditorPosition);
-							}
-						}
-					}
-
+					HandleMouseDown();
 					Event.current.Use();
 					break;
 
 				case EventType.MouseDrag:
-					if (_currentMode == EditingMode.Select && _starBeingDragged != null)
-					{
-						Vector2 dragPos = Event.current.mousePosition;
-						dragPos.x = Mathf.Clamp(dragPos.x, _windowData.StarArea.xMin, _windowData.StarArea.xMax);
-						dragPos.y = Mathf.Clamp(dragPos.y, _windowData.StarArea.yMin, _windowData.StarArea.yMax);
-
-						_starBeingDragged.SetPositionsUsingEditorPosiiton(dragPos);
-					}
-
+					HandleMouseDrag();
 					Event.current.Use();
 					break;
 
 				case EventType.MouseUp:
-					if (_starBeingDragged != null)
-					{
-						bool successfullySetStar = false;
-						if (!_windowData.StarCollisionGrid.StarAreaOverlapsStar(_starBeingDragged.EditorPosition))
-						{
-							if (_windowData.StarCollisionGrid.SetStarToGrid(_starBeingDragged))
-							{
-								successfullySetStar = true;
-								int starIndex = _windowData.Stars.IndexOf(_starBeingDragged);
-								if (starIndex > -1 && _draggedStarStartPosition != _starBeingDragged.EditorPosition)
-								{
-									AddMoveStarAction(starIndex, _draggedStarStartPosition, _starBeingDragged.EditorPosition);
-								}
-							}
-						}
-
-						if (!successfullySetStar)
-						{
-							_starBeingDragged.SetPositionsUsingEditorPosiiton(_draggedStarStartPosition);
-							_windowData.StarCollisionGrid.SetStarToGrid(_starBeingDragged);
-						}
-					}
-
-					_starBeingDragged = null;
-					_draggedStarStartPosition = Vector2.zero;
+					HandleMouseUp();
 					Event.current.Use();
 					break;
 
 				case EventType.KeyDown:
-					if (Event.current.keyCode == KeyCode.Delete)
-					{
-						if (_currentMode == EditingMode.Select && _selectedStar != null)
-						{
-							_windowData.StarCollisionGrid.PullStarFromGridAtPoint(_selectedStar.EditorPosition);
-							int starIndex = _windowData.Stars.IndexOf(_selectedStar);
-							if (starIndex > -1)
-							{
-								AddDeleteStarAction(starIndex, _selectedStar);
-							}
-
-							_windowData.Stars.Remove(_selectedStar);
-							_selectedStar = null;
-						}
-					}
-
+					HandleKeyDown();
 					Event.current.Use();
 					break;
 
@@ -419,78 +378,130 @@ namespace EditorWindowStuff
 			}
 		}
 
-		private void DrawActionQueueSection()
+		private void HandleMouseDown()
 		{
-			EditorGUILayout.LabelField("Undo/Redo Star Changing Actions.", EditorStyles.boldLabel);
-
-			GUILayout.BeginHorizontal();
-
-			if (!_windowData.ActionQueue.UndoActionsAvailable)
+			if (_currentMode == EditingMode.Add)
 			{
-				GUI.enabled = false;
-			}
-
-			if (GUILayout.Button("Undo", GUILayout.Width(SIDE_SECTION_WIDTH / 2f)))
-			{
-				_selectedStar = null;
-				_windowData.ActionQueue.UndoAction();
-			}
-
-			GUI.enabled = true;
-
-			if (!_windowData.ActionQueue.RedoActionsAvailable)
-			{
-				GUI.enabled = false;
-			}
-
-			if (GUILayout.Button("Redo", GUILayout.Width(SIDE_SECTION_WIDTH / 2f)))
-			{
-				_selectedStar = null;
-				_windowData.ActionQueue.RedoAction();
-			}
-
-			GUI.enabled = true;
-
-			GUILayout.EndHorizontal();
-		}
-
-		private void DrawTestPuzzleSection()
-		{
-			EditorGUILayout.LabelField("Puzzle Testing:", EditorStyles.boldLabel);
-			if (!_windowData.PuzzleDataValidForTesting())
-			{
-				GUILayout.Label($"The puzzle needs to have a name and at least {PuzzleEditorWindowData.MIN_STARS_IN_PUZZLE} stars in order to be tested.", EditorStyles.wordWrappedLabel, GUILayout.Width(SIDE_SECTION_WIDTH));
-			}
-			else
-			{
-				if (_switchingScene == EditorSceneManager.GetActiveScene().path)
+				if (_windowData.StarArea.Contains(Event.current.mousePosition))
 				{
-					_windowData.PutDataIntoEditorPrefs();
-					EditorApplication.isPlaying = true;
-					_switchingScene = null;
-				}
-
-				if (GUILayout.Button("Test Puzzle", GUILayout.Width(SIDE_SECTION_WIDTH)))
-				{
-					_previousScene = EditorSceneManager.GetActiveScene().path;
-					_switchingScene = "Assets/Scripts/Editor/Puzzle Tool/PuzzleTestScene.unity";
-					EditorSceneManager.OpenScene(_switchingScene);
+					if (!_windowData.StarCollisionGrid.StarAreaOverlapsStar(Event.current.mousePosition))
+					{
+						PuzzleEditorStar star = new PuzzleEditorStar(_currentAddModeColor, _windowData.StarArea);
+						star.SetPositionsUsingEditorPosiiton(Event.current.mousePosition);
+						// At this point, this check should basically never fail, but I think there might be some very small edge cases where it could fail, so it is necessary to still have it.
+						if (_windowData.StarCollisionGrid.SetStarToGrid(star))
+						{
+							_windowData.Stars.Add(star);
+							_windowData.AddAddStarAction();
+						}
+					}
 				}
 			}
-		}
-
-		private void Update()
-		{
-			if (!EditorApplication.isPlaying)
+			else if (_currentMode == EditingMode.Paint)
 			{
-				if (string.IsNullOrEmpty(_switchingScene) && !string.IsNullOrEmpty(_previousScene))
+				if (_windowData.StarArea.Contains(Event.current.mousePosition))
 				{
-					EditorSceneManager.OpenScene(_previousScene);
-					_previousScene = null;
-					_windowData.GetDataFromEditorPrefs();
+					PuzzleEditorStar star = _windowData.StarCollisionGrid.GetStarAtPoint(Event.current.mousePosition);
+					if (star != null)
+					{
+						Color beforeColor = star.EndColour;
+						Color afterColor = _currentPaintModeColor;
+						star.EndColour = _currentPaintModeColor;
+						int starIndex = _windowData.Stars.IndexOf(star);
+						if (starIndex > -1)
+						{
+							_windowData.AddColorStarAction(starIndex, beforeColor, afterColor);
+						}
+					}
+				}
+			}
+			else if (_currentMode == EditingMode.Select)
+			{
+				if (_windowData.StarArea.Contains(Event.current.mousePosition))
+				{
+					// If we have a selected star, we want to first check if the click is close (but not necessarily in the star) to be considered still selected.
+					bool stillSelected = false;
+					if (_selectedStar != null)
+					{
+						stillSelected = _selectedStar.WithinRangeOfPoint(Event.current.mousePosition, _starHighlighterImage.Width / 2f);
+					}
+
+					if (!stillSelected)
+					{
+						_selectedStar = _windowData.StarCollisionGrid.GetStarAtPoint(Event.current.mousePosition);
+					}
+
+					_starBeingDragged = _selectedStar;
+					if (_starBeingDragged != null)
+					{
+						_draggedStarStartPosition = _starBeingDragged.EditorPosition;
+						_windowData.StarCollisionGrid.PullStarFromGridAtPoint(_starBeingDragged.EditorPosition);
+					}
 				}
 			}
 		}
+
+		private void HandleMouseDrag()
+		{
+			if (_currentMode == EditingMode.Select && _starBeingDragged != null)
+			{
+				Vector2 dragPos = Event.current.mousePosition;
+				dragPos.x = Mathf.Clamp(dragPos.x, _windowData.StarArea.xMin, _windowData.StarArea.xMax);
+				dragPos.y = Mathf.Clamp(dragPos.y, _windowData.StarArea.yMin, _windowData.StarArea.yMax);
+
+				_starBeingDragged.SetPositionsUsingEditorPosiiton(dragPos);
+			}
+		}
+
+		private void HandleMouseUp()
+		{
+			if (_starBeingDragged != null)
+			{
+				bool successfullySetStar = false;
+				if (!_windowData.StarCollisionGrid.StarAreaOverlapsStar(_starBeingDragged.EditorPosition))
+				{
+					if (_windowData.StarCollisionGrid.SetStarToGrid(_starBeingDragged))
+					{
+						successfullySetStar = true;
+						int starIndex = _windowData.Stars.IndexOf(_starBeingDragged);
+						if (starIndex > -1 && _draggedStarStartPosition != _starBeingDragged.EditorPosition)
+						{
+							_windowData.AddMoveStarAction(starIndex, _draggedStarStartPosition, _starBeingDragged.EditorPosition);
+						}
+					}
+				}
+
+				if (!successfullySetStar)
+				{
+					_starBeingDragged.SetPositionsUsingEditorPosiiton(_draggedStarStartPosition);
+					_windowData.StarCollisionGrid.SetStarToGrid(_starBeingDragged);
+				}
+			}
+
+			_starBeingDragged = null;
+			_draggedStarStartPosition = Vector2.zero;
+		}
+		
+		private void HandleKeyDown()
+		{
+			if (Event.current.keyCode == KeyCode.Delete)
+			{
+				if (_currentMode == EditingMode.Select && _selectedStar != null)
+				{
+					_windowData.StarCollisionGrid.PullStarFromGridAtPoint(_selectedStar.EditorPosition);
+					int starIndex = _windowData.Stars.IndexOf(_selectedStar);
+					if (starIndex > -1)
+					{
+						_windowData.AddDeleteStarAction(starIndex, _selectedStar);
+					}
+
+					_windowData.Stars.Remove(_selectedStar);
+					_selectedStar = null;
+				}
+			}
+		}
+
+		#endregion
 
 		private void DrawStarField()
 		{
@@ -516,70 +527,12 @@ namespace EditorWindowStuff
 			}
 		}
 
-		private void LoadInPuzzle(PuzzleData dataToLoad)
-		{
-			if (dataToLoad != null)
-			{
-				if (EditorUtility.DisplayDialog("Load Puzzle?", "If you load a puzzle, any unsaved changes you have in the current puzzle will be lost. Do you want to continue?", "Yes", "No"))
-				{
-					ResetValues();
-
-					_windowData.FolderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(AssetDatabase.GetAssetPath(dataToLoad)));
-					_windowData.PuzzleFileName = dataToLoad.name;
-					_windowData.PuzzleId = dataToLoad.PuzzleUniqueId;
-					_windowData.PuzzleName = dataToLoad.PuzzleName;
-					if (!string.IsNullOrEmpty(dataToLoad.PuzzleImageReferencePath))
-					{
-						if (File.Exists(dataToLoad.PuzzleImageReferencePath))
-						{
-							_windowData.StarAreaReferenceImage.Texture = AssetDatabase.LoadAssetAtPath<Texture>(dataToLoad.PuzzleImageReferencePath);
-							_windowData.StarAreaReferenceImage.Color = Color.white;
-						}
-					}
-
-					_windowData.NumPuzzleSpinners = dataToLoad.NumSpinners;
-					foreach (PuzzleData.StarData starData in dataToLoad.StarDatas)
-					{
-						PuzzleEditorStar star = new PuzzleEditorStar(starData.FinalColor, _windowData.StarArea);
-						star.SetPositionUsingGamePosition(starData.Position);
-						_windowData.StarCollisionGrid.SetStarToGrid(star);
-						_windowData.Stars.Add(star);
-					}
-				}
-			}
-		}
-
 		private void ResetValues()
 		{
 			_windowData.ResetValues();
 
 			_saveModeActive = false;
 			_selectedStar = null;
-		}
-
-		private void AddAddStarAction()
-		{
-			PuzzleEditorStar starAdded = _windowData.Stars[_windowData.Stars.Count - 1];
-			PuzzleAddStarAction action = new PuzzleAddStarAction(_windowData.Stars, _windowData.StarCollisionGrid, starAdded);
-			_windowData.ActionQueue.AddAction(action);
-		}
-
-		private void AddDeleteStarAction(int starDeletedIndex, PuzzleEditorStar deletedStar)
-		{
-			PuzzleDeleteStarAction action = new PuzzleDeleteStarAction(_windowData.Stars, _windowData.StarCollisionGrid, deletedStar, starDeletedIndex);
-			_windowData.ActionQueue.AddAction(action);
-		}
-
-		private void AddMoveStarAction(int starChangedIndex, Vector2 beforePosition, Vector2 afterPosition)
-		{
-			PuzzleMoveStarAction action = new PuzzleMoveStarAction(_windowData.Stars, _windowData.StarCollisionGrid, starChangedIndex, beforePosition, afterPosition);
-			_windowData.ActionQueue.AddAction(action);
-		}
-
-		private void AddColorStarAction(int starChangedIndex, Color beforeColor, Color afterColor)
-		{
-			PuzzleColorStarAction action = new PuzzleColorStarAction(_windowData.Stars, starChangedIndex, beforeColor, afterColor);
-			_windowData.ActionQueue.AddAction(action);
 		}
 	}
 }
