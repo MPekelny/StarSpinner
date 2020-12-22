@@ -220,7 +220,12 @@ namespace EditorWindowStuff
 					StarAreaReferenceImage.Color = Color.white;
 				}
 
-				FolderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(node[PUZZLE_FOLDER_KEY].Value));
+				string folderPath = node[PUZZLE_FOLDER_KEY].Value;
+				if (!string.IsNullOrEmpty(imagePath) && folderPath != "null" && Directory.Exists(folderPath))
+				{
+					FolderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(folderPath));
+				}
+				
 				PuzzleFileName = node[PUZZLE_FILE_KEY].Value;
 
 				JSONArray starArray = node[PUZZLE_STARS_KEY].AsArray;
