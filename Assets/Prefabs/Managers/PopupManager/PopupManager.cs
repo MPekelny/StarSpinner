@@ -10,8 +10,10 @@ public class PopupManager : MonoBehaviour
 		BasicPopup
 	}
 
-	[SerializeField] BasicPopup _basicPopup = null;
+	[SerializeField] BasicPopup _basicPopupPrefab = null;
 	[SerializeField] GameObject _popupBacking = null;
+
+	private BasicPopup _basicPopupInst = null;
 
 	private Dictionary<PopupTypes, PopupBase> _typeObjectPopupMap = new Dictionary<PopupTypes, PopupBase>();
 	protected Queue<PopupData> _popupQueue = new Queue<PopupData>();
@@ -21,10 +23,13 @@ public class PopupManager : MonoBehaviour
 
 	private void Start()
 	{
-		_basicPopup.SetBasePopupButtonAction(OnPopupButtonPressed);
+		_basicPopupInst = Instantiate<BasicPopup>(_basicPopupPrefab, transform);
+		_basicPopupInst.SetBasePopupButtonAction(OnPopupButtonPressed);
+		_basicPopupInst.gameObject.SetActive(false);
+
 		_popupBacking.SetActive(false);
 
-		_typeObjectPopupMap.Add(PopupTypes.BasicPopup, _basicPopup);
+		_typeObjectPopupMap.Add(PopupTypes.BasicPopup, _basicPopupInst);
 	}
 
 	private void Update()
@@ -58,6 +63,10 @@ public class PopupManager : MonoBehaviour
 		if (data != null)
 		{
 			_popupQueue.Enqueue(data);
+		}
+		else
+		{
+			Debug.LogWarning("Attempted to add a null popup to the queue.");
 		}
 	}
 
