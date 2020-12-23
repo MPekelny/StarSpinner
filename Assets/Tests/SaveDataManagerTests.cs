@@ -11,7 +11,7 @@ namespace Tests.ManagerTests
 		[OneTimeSetUp]
 		public void Setup()
 		{
-			GameObject go = (GameObject)GameObject.Instantiate(AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Managers/SaveDataManager.prefab", typeof(GameObject)));
+			GameObject go = (GameObject)GameObject.Instantiate(AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Managers/SaveData/SaveDataManager.prefab", typeof(GameObject)));
 			_saveManager = go.GetComponent<SaveDataManager>();
 		}
 
