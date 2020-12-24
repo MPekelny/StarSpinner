@@ -19,6 +19,20 @@ namespace EditorWindowStuff
 		}
 
 		/// <summary>
+		/// Draws a horizontal line in the editor. Copied from alexanderameye's post at https://forum.unity.com/threads/horizontal-line-in-editor-window.520812/
+		/// </summary>
+		public static void DrawUILine(Color color, int thickness = 2, int padding = 2)
+		{
+			Rect r = EditorGUILayout.GetControlRect(GUILayout.Height(padding + thickness));
+			r.height = thickness;
+			r.y += padding / 2;
+			r.x -= 2;
+			r.width += 6;
+			EditorGUI.DrawRect(r, color);
+		}
+
+
+		/// <summary>
 		/// Draws a text label with a color field beide it that is disabled so that it only displays the colour and does not allow it to be edited.
 		/// </summary>
 		public static void DrawColorDisplay(string label, Color displayColor)

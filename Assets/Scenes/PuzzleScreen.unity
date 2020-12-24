@@ -1070,6 +1070,10 @@ MonoBehaviour:
   _hintButton: {fileID: 1135195481}
   _levelEndButtonsContainer: {fileID: 138266055}
   _levelEndNextLevelButton: {fileID: 1446357680}
+  _getHintButtonText: {fileID: 1509762509}
+  _levelCompleteText: {fileID: 1020414505}
+  _returnButtonText: {fileID: 808033169}
+  _nextLevelButtonText: {fileID: 777204200}
 --- !u!1 &1135195481
 GameObject:
   m_ObjectHideFlags: 0

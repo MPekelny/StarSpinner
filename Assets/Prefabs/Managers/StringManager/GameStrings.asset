@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d8c523b433356644b2bd0778b548f87, type: 3}
+  m_Name: GameStrings
+  m_EditorClassIdentifier: 
+  _stringValues:
+  - _key: title_tap_to_continue
+    _value: Tap To Continue
+  - _key: select_screen_clear_save
+    _value: Clear Save Data
+  - _key: select_screen_select_level
+    _value: Select Level
+  - _key: select_screen_level_button
+    _value: Level
+  - _key: select_screen_next_puzzles_button
+    _value: Next Puzzles
+  - _key: select_screen_previous_puzzles_button
+    _value: Previous Puzzles
+  - _key: popup_clear_data_title
+    _value: Clear All Data?
+  - _key: popup_clear_data_body
+    _value: Clear all your save data?
+  - _key: popup_clear_data_yes
+    _value: Yes
+  - _key: popup_clear_data_no
+    _value: No
+  - _key: popup_in_progress_body
+    _value: Level In Progress
+  - _key: popup_in_progress_body
+    _value: You left this puzzle in progress. Do you want to enter the puzzle where
+      you left it, enter it fresh, or just clear your progress on it?
+  - _key: popup_in_progress_resume
+    _value: Resume
+  - _key: popup_in_progress_restart
+    _value: Restart
+  - _key: popup_in_progress_clear
+    _value: Clear
+  - _key: gameplay_get_hint_button
+    _value: Get a Hint
+  - _key: popup_get_hint_title
+    _value: Get A Hint?
+  - _key: popup_get_hint_body
+    _value: Once per puzzle, you can lock one of the spinners into the correct position
+      (In a full mobile version of this game, you'd watch a video to get this hint,
+      but for now, just hint yes to get it). Do you want to get the hint?
+  - _key: popup_get_hint_yes
+    _value: Yes
+  - _key: popup_get_hint_no
+    _value: No
+  - _key: gameplay_level_complete
+    _value: Level Complete
+  - _key: gameplay_return
+    _value: Return to Level Selection
+  - _key: gameplay_next_level
+    _value: Go To Next Level

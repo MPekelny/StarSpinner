@@ -5502,6 +5502,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _titleStarContainer: {fileID: 420138013}
   _titlePuzzle: {fileID: 11400000, guid: b6519607a9eee5a46a039abe1d6b0842, type: 2}
+  _tapToContinueText: {fileID: 1258880048}
 --- !u!1 &1902046530
 GameObject:
   m_ObjectHideFlags: 0

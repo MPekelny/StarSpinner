@@ -570,6 +570,10 @@ MonoBehaviour:
   _previousPageButton: {fileID: 512299467}
   _nextPageButton: {fileID: 1997931837}
   _numLevelsPerPage: 20
+  _selectLevelText: {fileID: 1594287924}
+  _clearSaveButtonText: {fileID: 1511633446}
+  _previousPuzzlesButtonText: {fileID: 1878438104}
+  _nextPuzzlesButtonText: {fileID: 711141033}
 --- !u!1 &753101359
 GameObject:
   m_ObjectHideFlags: 0

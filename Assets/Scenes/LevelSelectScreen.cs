@@ -12,12 +12,23 @@ public class LevelSelectScreen : MonoBehaviour
 	[SerializeField] private GameObject _nextPageButton = null;
 	[SerializeField] private int _numLevelsPerPage = 20;
 
+	[SerializeField] private TMPro.TextMeshProUGUI _selectLevelText = null;
+	[SerializeField] private TMPro.TextMeshProUGUI _clearSaveButtonText = null;
+	[SerializeField] private TMPro.TextMeshProUGUI _previousPuzzlesButtonText = null;
+	[SerializeField] private TMPro.TextMeshProUGUI _nextPuzzlesButtonText = null;
+
 	private int _currentPageStartNumber = 0;
 	private List<LevelSelectButton> _buttons = new List<LevelSelectButton>();
 	private PuzzleData[] _allPuzzleDataReference;
 
 	public void Awake()
 	{
+		StringManager stringMan = GameManager.Instance.StringManager;
+		_selectLevelText.text = stringMan.GetStringForKey("select_screen_select_level");
+		_clearSaveButtonText.text = stringMan.GetStringForKey("select_screen_clear_save");
+		_previousPuzzlesButtonText.text = stringMan.GetStringForKey("select_screen_previous_puzzles_button");
+		_nextPuzzlesButtonText.text = stringMan.GetStringForKey("select_screen_next_puzzles_button");
+
 		_currentPageStartNumber = 0;
 		_allPuzzleDataReference = GameManager.Instance.GameDataReference.PuzzleDatas;
 		ReloadPage();
@@ -33,19 +44,27 @@ public class LevelSelectScreen : MonoBehaviour
 		bool levelInProgress = GameManager.Instance.SaveDataManager.PuzzleStaticDataExistsForLevel(_allPuzzleDataReference[index].PuzzleUniqueId);
 		if (levelInProgress)
 		{
-			PopupData data = GameManager.Instance.PopupManager.MakePopupData("Level In Progress", "You left this puzzle in progress. Do you want to enter the puzzle where you left it, enter it fresh, or just clear your progress on it?");
-			data.AddButtonData("Resume", () =>
+			StringManager stringMan = GameManager.Instance.StringManager;
+
+			string titleText = stringMan.GetStringForKey("popup_in_progress_title");
+			string bodyText = stringMan.GetStringForKey("popup_in_progress_body");
+			PopupData data = GameManager.Instance.PopupManager.MakePopupData(titleText, bodyText);
+
+			string resumeText = stringMan.GetStringForKey("popup_in_progress_resume");
+			data.AddButtonData(resumeText, () =>
 			{
 				EnterLevel(index);
 			});
 
-			data.AddButtonData("Restart", () =>
+			string restartText = stringMan.GetStringForKey("popup_in_progress_restart");
+			data.AddButtonData(restartText, () =>
 			{
 				GameManager.Instance.SaveDataManager.RemovePuzzleSaveDataForLevel(_allPuzzleDataReference[index].PuzzleUniqueId);
 				EnterLevel(index);
 			});
 
-			data.AddButtonData("Clear", () =>
+			string clearText = stringMan.GetStringForKey("popup_in_progress_clear");
+			data.AddButtonData(clearText, () =>
 			{
 				GameManager.Instance.SaveDataManager.RemovePuzzleSaveDataForLevel(_allPuzzleDataReference[index].PuzzleUniqueId);
 				ReloadPage();
@@ -64,13 +83,21 @@ public class LevelSelectScreen : MonoBehaviour
 	/// </summary>
 	public void ClearSaveDataButtonPressed()
 	{
-		PopupData data = GameManager.Instance.PopupManager.MakePopupData("Clear All Data?", "Clear all your save data?");
-		data.AddButtonData("Yes", () =>
+		StringManager stringMan = GameManager.Instance.StringManager;
+		string titleText = stringMan.GetStringForKey("popup_clear_data_title");
+		string bodyText = stringMan.GetStringForKey("popup_clear_data_body");
+
+		PopupData data = GameManager.Instance.PopupManager.MakePopupData(titleText, bodyText);
+
+		string yesText = stringMan.GetStringForKey("popup_clear_data_yes");
+		data.AddButtonData(yesText, () =>
 		{
 			GameManager.Instance.SaveDataManager.ClearAllSaveData();
 			ReloadPage();
 		});
-		data.AddButtonData("No");
+
+		string noText = stringMan.GetStringForKey("popup_clear_data_no");
+		data.AddButtonData(noText);
 
 		GameManager.Instance.PopupManager.AddPopup(data);
 	}
