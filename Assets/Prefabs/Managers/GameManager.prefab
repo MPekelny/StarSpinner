@@ -52,3 +52,5 @@ MonoBehaviour:
     type: 3}
   _popupManagerPrefab: {fileID: 4808892747141775624, guid: 9e97fef175c2c054582c81a6cb3e6830,
     type: 3}
+  _stringManagerPrefab: {fileID: -1803503536514525487, guid: d3bf1e43ef1ed3f49b2746ba41009329,
+    type: 3}

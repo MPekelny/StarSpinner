@@ -15,6 +15,11 @@ public class PuzzleScreen : MonoBehaviour
 	[SerializeField] private GameObject _levelEndButtonsContainer = null;
 	[SerializeField] private GameObject _levelEndNextLevelButton = null;
 
+	[SerializeField] private TMPro.TextMeshProUGUI _getHintButtonText = null;
+	[SerializeField] private TMPro.TextMeshProUGUI _levelCompleteText = null;
+	[SerializeField] private TMPro.TextMeshProUGUI _returnButtonText = null;
+	[SerializeField] private TMPro.TextMeshProUGUI _nextLevelButtonText = null;
+
 	protected List<Star> _stars = new List<Star>();
 	protected PuzzleData _activePuzzle = null;
 
@@ -25,6 +30,12 @@ public class PuzzleScreen : MonoBehaviour
 
 	public void Awake()
 	{
+		StringManager stringMan = GameManager.Instance.StringManager;
+		_getHintButtonText.text = stringMan.GetStringForKey("gameplay_get_hint_button");
+		_levelCompleteText.text = stringMan.GetStringForKey("gameplay_level_complete");
+		_returnButtonText.text = stringMan.GetStringForKey("gameplay_return");
+		_nextLevelButtonText.text = stringMan.GetStringForKey("gameplay_next_level");
+
 		_puzzleSpinnersHelper = new PuzzleSpinnersHelper();
 		_solutionChecker = new PuzzleSolutionChecker(_gameData.SolutionTolerance);
 		_overlapResolver = new PuzzleOverlapResolver(_gameData.OverlapTolerance);
@@ -198,8 +209,14 @@ public class PuzzleScreen : MonoBehaviour
 
 	public void HintButtonPressed()
 	{
-		PopupData data = GameManager.Instance.PopupManager.MakePopupData("Get A Hint?", "Once per puzzle, you can lock one of the spinners into the correct position (In a full mobile version of this game, you'd watch a video to get this hint, but for now, just hint yes to get it). Do you want to get the hint?");
-		data.AddButtonData("Yes", () =>
+		StringManager stringMan = GameManager.Instance.StringManager;
+		string titleText = stringMan.GetStringForKey("popup_get_hint_title");
+		string bodyText = stringMan.GetStringForKey("popup_get_hint_body");
+
+		PopupData data = GameManager.Instance.PopupManager.MakePopupData(titleText, bodyText);
+
+		string yesText = stringMan.GetStringForKey("popup_get_hint_yes");
+		data.AddButtonData(yesText, () =>
 		{
 			if (_puzzleSpinnersHelper.HintLockRandomSpinner())
 			{
@@ -209,7 +226,8 @@ public class PuzzleScreen : MonoBehaviour
 			}
 		});
 
-		data.AddButtonData("No");
+		string noText = stringMan.GetStringForKey("popup_get_hint_no");
+		data.AddButtonData(noText);
 
 		GameManager.Instance.PopupManager.AddPopup(data);
 	}

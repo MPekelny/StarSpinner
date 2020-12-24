@@ -10,12 +10,15 @@ public class TitleScreen : MonoBehaviour
 
 	[SerializeField] private GameObject _titleStarContainer = null;
 	[SerializeField] private PuzzleData _titlePuzzle = null;
+	[SerializeField] private TMPro.TextMeshProUGUI _tapToContinueText = null;
 
 	private List<GameObject> _autoSpinners = new List<GameObject>();
 	private List<Star> _stars = new List<Star>();
 
-	public void Awake()
+	public void Start()
 	{
+		_tapToContinueText.text = GameManager.Instance.StringManager.GetStringForKey("title_tap_to_continue");
+
 		for (int i = 0; i < _titlePuzzle.NumSpinners; i++)
 		{
 			GameObject spinner = new GameObject($"Spinner{i + 1}");
