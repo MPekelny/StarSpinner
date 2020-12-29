@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 [CreateAssetMenu(menuName = "Star Spinner/Create Game Data")]
 public class GameData : ScriptableObject
@@ -24,4 +25,11 @@ public class GameData : ScriptableObject
 
 	[SerializeField] private float _solutionTolerance = 10f;
 	public float SolutionTolerance => _solutionTolerance;
+
+#if UNITY_EDITOR
+	public void SetSortedPuzzleDatas(List<PuzzleData> sortedData)
+	{
+		_puzzleDatas = sortedData.ToArray();
+	}
+#endif
 }

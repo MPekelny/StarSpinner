@@ -227,7 +227,7 @@ namespace EditorWindowStuff
 			_windowData.PuzzleName = EditorGUILayout.TextField("Puzzle Name:", _windowData.PuzzleName, GUILayout.Width(SIDE_SECTION_WIDTH));
 			GUILayout.BeginHorizontal();
 			GUILayout.Label("Spinners for Puzzle:", GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
-			_windowData.NumPuzzleSpinners = EditorGUILayout.IntSlider(_windowData.NumPuzzleSpinners, 2, 7, GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
+			_windowData.NumPuzzleSpinners = EditorGUILayout.IntSlider(_windowData.NumPuzzleSpinners, PuzzleData.MIN_NUM_SPINNERS, PuzzleData.MAX_NUM_SPINNERS, GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
 			GUILayout.EndHorizontal();
 		}
 
