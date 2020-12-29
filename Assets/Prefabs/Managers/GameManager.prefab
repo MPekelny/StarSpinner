@@ -54,3 +54,5 @@ MonoBehaviour:
     type: 3}
   _stringManagerPrefab: {fileID: -1803503536514525487, guid: d3bf1e43ef1ed3f49b2746ba41009329,
     type: 3}
+  _audioManagerPrefab: {fileID: 1951111068795996432, guid: eae1c11026fb3594abc28884ecfd85c8,
+    type: 3}

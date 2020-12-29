@@ -1,0 +1,8 @@
+Notes so I can add these into the credits screen when I make it.
+
+Menu Music: Soul Star v1_0 by FoxSynergy
+Puzzle Play Music: Planetrise v1_0 by FoxSynergy
+Puzzle Solved Music: Cosmic Blast v1_0 by FoxSynergy
+
+ButtonPressed: NenadSimic
+PuzzleSolved: Jalastram

@@ -87,6 +87,7 @@ public class GameStringsEditor : Editor
 			gameStrings.AddKeyStringPair(pair);
 		}
 
+		EditorUtility.SetDirty(target);
 		AssetDatabase.SaveAssets();
 		AssetDatabase.Refresh();
 	}

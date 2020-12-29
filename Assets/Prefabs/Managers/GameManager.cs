@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
 	[SerializeField] private ScreenTransitionManager _screenTransitionManagerPrefab = null;
 	[SerializeField] private PopupManager _popupManagerPrefab = null;
 	[SerializeField] private StringManager _stringManagerPrefab = null;
+	[SerializeField] private AudioManager _audioManagerPrefab = null;
 
 	public GameData GameDataReference => _gameDataReference;
 	private int _activePuzzleIndex = 0;
@@ -30,6 +31,9 @@ public class GameManager : MonoBehaviour
 
 	private StringManager _stringManager = null;
 	public StringManager StringManager => _stringManager;
+
+	private AudioManager _audioManager = null;
+	public AudioManager AudioManager => _audioManager;
 
 	public void Awake()
 	{
@@ -86,5 +90,6 @@ public class GameManager : MonoBehaviour
 		_screenTransitionManager = Instantiate(_screenTransitionManagerPrefab, transform);
 		_popupManager = Instantiate(_popupManagerPrefab, transform);
 		_stringManager = Instantiate(_stringManagerPrefab, transform);
+		_audioManager = Instantiate(_audioManagerPrefab, transform);
 	}
 }

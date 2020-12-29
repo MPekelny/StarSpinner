@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd8e2d2b4fd31b1468c5c0da1a8c79e2, type: 3}
+  m_Name: GameAudio
+  m_EditorClassIdentifier: 
+  _bgmAudio:
+  - _key: menu_bgm
+    _audioAsset: {fileID: 8300000, guid: 071467f3c2aff354e9179ebb3ea45762, type: 3}
+  - _key: puzzle_bgm
+    _audioAsset: {fileID: 8300000, guid: 32a4e281003e1f040b583075b338fbef, type: 3}
+  - _key: puzzle_victory_bgm
+    _audioAsset: {fileID: 8300000, guid: 1e7e388f70fb80747a9e6320b25ddc70, type: 3}
+  _soundEffects:
+  - _key: button_pressed
+    _audioAsset: {fileID: 8300000, guid: 696448c01e359364296d7687a022aec6, type: 3}
+  - _key: puzzle_solved
+    _audioAsset: {fileID: 8300000, guid: 19c089ba5d4cc16498afcc74d0d0f078, type: 3}

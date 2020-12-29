@@ -34,12 +34,19 @@ public class LevelSelectScreen : MonoBehaviour
 		ReloadPage();
 	}
 
+	public void Start()
+	{
+		GameManager.Instance.AudioManager.PlayBGM("menu_bgm", 0.5f);
+	}
+
 	/// <summary>
 	/// Called by the individual buttons when they are pressed so the game enters the puzzle for the button that was pressed.
 	/// </summary>
 	/// <param name="index">The index of the level whose button was pressed.</param>
 	public void LevelButtonPressed(int index)
 	{
+		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+
 		// If the level was in progress, do not just enter the level, show a popup giving the opportunity to start over or clear the data if the player wants instead of entering where it was left off.
 		bool levelInProgress = GameManager.Instance.SaveDataManager.PuzzleStaticDataExistsForLevel(_allPuzzleDataReference[index].PuzzleUniqueId);
 		if (levelInProgress)
@@ -83,6 +90,8 @@ public class LevelSelectScreen : MonoBehaviour
 	/// </summary>
 	public void ClearSaveDataButtonPressed()
 	{
+		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+
 		StringManager stringMan = GameManager.Instance.StringManager;
 		string titleText = stringMan.GetStringForKey("popup_clear_data_title");
 		string bodyText = stringMan.GetStringForKey("popup_clear_data_body");
@@ -107,6 +116,8 @@ public class LevelSelectScreen : MonoBehaviour
 	/// </summary>
 	public void PreviousPageButtonPressed()
 	{
+		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+
 		// Just in case, don't let the start number go below 0.
 		_currentPageStartNumber = Math.Max(0, _currentPageStartNumber - _numLevelsPerPage);
 		ReloadPage();
@@ -117,6 +128,8 @@ public class LevelSelectScreen : MonoBehaviour
 	/// </summary>
 	public void NextPageButtonPressed()
 	{
+		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+
 		// Just in case, don't do anything (other than making sure the buttons are set correctly) if increasing the start point would go beyond the end of the level list.
 		if (_currentPageStartNumber + _numLevelsPerPage > _allPuzzleDataReference.Length)
 		{
