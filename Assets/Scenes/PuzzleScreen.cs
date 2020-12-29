@@ -43,6 +43,8 @@ public class PuzzleScreen : MonoBehaviour
 
 	public void Start()
 	{
+		GameManager.Instance.AudioManager.PlayBGM("puzzle_bgm", 0.5f);
+
 		_backButton.SetActive(true);
 		_uiParticleObject.SetActive(false);
 		_puzzleNameText.gameObject.SetActive(false);
@@ -189,6 +191,8 @@ public class PuzzleScreen : MonoBehaviour
 	/// </summary>
 	public void BackButtonPressed()
 	{
+		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+
 		Cleanup();
 		GameManager.Instance.ScreenTransitionManager.TransitionScreen(LevelSelectScreen.SCREEN_NAME);
 	}
@@ -198,6 +202,8 @@ public class PuzzleScreen : MonoBehaviour
 	/// </summary>
 	public void NextLevelButtonPressed()
 	{
+		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+
 		GameManager.Instance.ScreenTransitionManager.FadeOut(() => 
 		{
 			GameManager.Instance.SetPuzzleIndexToNext();
@@ -209,6 +215,8 @@ public class PuzzleScreen : MonoBehaviour
 
 	public void HintButtonPressed()
 	{
+		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+
 		StringManager stringMan = GameManager.Instance.StringManager;
 		string titleText = stringMan.GetStringForKey("popup_get_hint_title");
 		string bodyText = stringMan.GetStringForKey("popup_get_hint_body");
@@ -317,7 +325,11 @@ public class PuzzleScreen : MonoBehaviour
 	/// </summary>
 	private void PlaySolved()
 	{
+		GameManager.Instance.AudioManager.PlaySoundEffect("puzzle_solved");
+		GameManager.Instance.AudioManager.PlayBGM("puzzle_solved_bgm");
+
 		_backButton.SetActive(false);
+		_hintButton.SetActive(false);
 		_uiParticleObject.SetActive(true);
 		GameManager.Instance.SaveDataManager.SaveLevelCompleted(_activePuzzle.PuzzleUniqueId);
 		GameManager.Instance.SaveDataManager.RemovePuzzleSaveDataForLevel(_activePuzzle.PuzzleUniqueId);

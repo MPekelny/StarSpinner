@@ -1,0 +1,23 @@
+title_tap_to_continue,Tap To Continue
+select_screen_clear_save,Clear Save Data
+select_screen_select_level,Select Level
+select_screen_level_button,Level
+select_screen_next_puzzles_button,Next Puzzles
+select_screen_previous_puzzles_button,Previous Puzzles
+popup_clear_data_title,Clear All Data?
+popup_clear_data_body,Clear all your save data?
+popup_clear_data_yes,Yes
+popup_clear_data_no,No
+popup_in_progress_title,Level In Progress
+popup_in_progress_body,"You left this puzzle in progress. Do you want to enter the puzzle where you left it, enter it fresh, or just clear your progress on it?"
+popup_in_progress_resume,Resume
+popup_in_progress_restart,Restart
+popup_in_progress_clear,Clear
+gameplay_get_hint_button,Get a Hint
+popup_get_hint_title,Get A Hint?
+popup_get_hint_body,"Once per puzzle, you can lock one of the spinners into the correct position (In a full mobile version of this game, you'd watch a video to get this hint, but for now, just hint yes to get it). Do you want to get the hint?"
+popup_get_hint_yes,Yes
+popup_get_hint_no,No
+gameplay_level_complete,Level Complete
+gameplay_return,Return to Level Selection
+gameplay_next_level,Go To Next Level

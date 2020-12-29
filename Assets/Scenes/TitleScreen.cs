@@ -14,9 +14,12 @@ public class TitleScreen : MonoBehaviour
 
 	private List<GameObject> _autoSpinners = new List<GameObject>();
 	private List<Star> _stars = new List<Star>();
+	private Sequence _starSpinnSequenceReference = null;
 
 	public void Start()
 	{
+		GameManager.Instance.AudioManager.PlayBGM("menu_bgm", 0.5f);
+
 		_tapToContinueText.text = GameManager.Instance.StringManager.GetStringForKey("title_tap_to_continue");
 
 		for (int i = 0; i < _titlePuzzle.NumSpinners; i++)
@@ -43,18 +46,18 @@ public class TitleScreen : MonoBehaviour
 	private void SpinStars()
 	{
 		float rotationAmount = 360f;
-		Sequence starSequence = DOTween.Sequence();
+		_starSpinnSequenceReference = DOTween.Sequence();
 		foreach (GameObject autoSpin in _autoSpinners)
 		{
 			Tween tween = autoSpin.transform.DORotate(new Vector3(0f, 0f, rotationAmount), 3f);
 			tween.SetEase(Ease.InOutCubic);
 			tween.SetRelative();
-			starSequence.Insert(0f, tween);
+			_starSpinnSequenceReference.Insert(0f, tween);
 
 			rotationAmount *= -1f;
 		}
 
-		starSequence.OnComplete(() => { StartCoroutine(DelayNextSpin()); });
+		_starSpinnSequenceReference.OnComplete(() => { StartCoroutine(DelayNextSpin()); });
 	}
 
 	private IEnumerator DelayNextSpin()
@@ -66,6 +69,8 @@ public class TitleScreen : MonoBehaviour
 
 	public void OnTappedScreen()
 	{
+		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+		_starSpinnSequenceReference.Kill();
 		foreach (Star star in _stars)
 		{
 			star.ReturnToPool();

@@ -88,6 +88,7 @@ public class PopupManager : MonoBehaviour
 	{
 		if (_activePopup == popupFrom)
 		{
+			GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
 			_activePopup.Cleanup();
 			_activePopup.gameObject.SetActive(false);
 			_activePopup = null;
