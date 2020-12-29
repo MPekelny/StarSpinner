@@ -4,6 +4,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Star Spinner/Create Puzzle Data")]
 public class PuzzleData : ScriptableObject
 {
+	public const int MIN_NUM_SPINNERS = 2;
+	public const int MAX_NUM_SPINNERS = 7;
+
 	[System.Serializable]
 	public class HistoryData
 	{
@@ -52,7 +55,7 @@ public class PuzzleData : ScriptableObject
 	[SerializeField] private int _currentVersionNumber = 0;
 	[SerializeField] private string _puzzleUniqueId = "";
 	[SerializeField] private string _puzzleName = "";
-	[SerializeField] [Range(2, 7)] private int _numSpinners = 4;
+	[SerializeField] [Range(MIN_NUM_SPINNERS, MAX_NUM_SPINNERS)] private int _numSpinners = 4;
 	[SerializeField] private StarData[] _starDatas = null;
 	[SerializeField] private List<HistoryData> _historyDatas = new List<HistoryData>();
 

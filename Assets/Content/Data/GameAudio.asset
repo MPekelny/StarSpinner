@@ -17,7 +17,7 @@ MonoBehaviour:
     _audioAsset: {fileID: 8300000, guid: 071467f3c2aff354e9179ebb3ea45762, type: 3}
   - _key: puzzle_bgm
     _audioAsset: {fileID: 8300000, guid: 32a4e281003e1f040b583075b338fbef, type: 3}
-  - _key: puzzle_victory_bgm
+  - _key: puzzle_solved_bgm
     _audioAsset: {fileID: 8300000, guid: 1e7e388f70fb80747a9e6320b25ddc70, type: 3}
   _soundEffects:
   - _key: button_pressed
