@@ -47,12 +47,14 @@ public class PuzzleDataEditor : Editor
 	private string _puzzleName;
 	private int _numSpinners;
 	private int _currentVersion;
+	private Sprite _solvedSprite = null;
 	private List<StarDataEditor> _starDatas = new List<StarDataEditor>();
 	private List<HistoryDataEditor> _historyDatas = new List<HistoryDataEditor>();
 
 	private bool _starDatasFoldedOut = false;
 	private bool _historyDataFoldedOut = false;
 	private bool _refImageFoldedOut = false;
+	private bool _solvedImageFoldedOut = false;
 
 	private void OnEnable()
 	{
@@ -60,6 +62,11 @@ public class PuzzleDataEditor : Editor
 		_puzzleName = serializedObject.FindProperty("_puzzleName").stringValue;
 		_numSpinners = serializedObject.FindProperty("_numSpinners").intValue;
 		_currentVersion = serializedObject.FindProperty("_currentVersionNumber").intValue;
+		SerializedProperty imageProperty = serializedObject.FindProperty("_puzzleSolvedSprite");
+		if (imageProperty != null)
+		{
+			_solvedSprite = (Sprite)imageProperty.objectReferenceValue;
+		}
 
 		SerializedProperty stars = serializedObject.FindProperty("_starDatas");
 		for (int i = 0; i < stars.arraySize; i++)
@@ -106,6 +113,8 @@ public class PuzzleDataEditor : Editor
 		DrawPuzzleHistoryData();
 		GUILayout.Space(20f);
 		DrawRefImageInfo();
+		GUILayout.Space(20f);
+		DrawSolvedImageInfo();
 	}
 
 	private void DrawPuzzleDataValues()
@@ -204,6 +213,22 @@ public class PuzzleDataEditor : Editor
 				GUILayout.Label(_refImage, GUILayout.MaxHeight(200f));
 				EditorGUILayout.LabelField("File path of reference image:", EditorStyles.boldLabel);
 				EditorGUILayout.LabelField(_refImagePath);
+			}
+		}
+	}
+
+	private void DrawSolvedImageInfo()
+	{
+		_solvedImageFoldedOut = EditorGUILayout.Foldout(_solvedImageFoldedOut, "Image used on the level button when solved.");
+		if (_solvedImageFoldedOut)
+		{
+			if (_solvedSprite == null)
+			{
+				GUILayout.Label("No solved image set for this puzzle.");
+			}
+			else
+			{
+				GUILayout.Label(_solvedSprite.texture, GUILayout.MaxHeight(185f), GUILayout.MaxWidth(185f));
 			}
 		}
 	}

@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: TitleStar
   m_EditorClassIdentifier: 
   _puzzleImageReferencePath: Assets/Content/Puzzles/References/Star.png
-  _currentVersionNumber: 1
+  _currentVersionNumber: 0
   _puzzleUniqueId: titlestar
   _puzzleName: Title Star
+  _puzzleSolvedSprite: {fileID: 21300000, guid: 210abcb454d19e147bbe3698a43f9cad,
+    type: 3}
   _numSpinners: 2
   _starDatas:
   - _position: {x: -1, y: 322, z: 0}
@@ -139,9 +141,6 @@ MonoBehaviour:
   - _position: {x: -15, y: 278, z: 0}
     _finalColor: {r: 1, g: 1, b: 1, a: 1}
   _historyDatas:
-  - _numSpinners: 4
-    _numStarsAdded: 0
-    _starsDeleted: 
   - _numSpinners: 2
     _numStarsAdded: 0
     _starsDeleted: 

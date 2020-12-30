@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: dog_0
   _puzzleName: Dog
+  _puzzleSolvedSprite: {fileID: 21300000, guid: cf184ae9d0ac54043a19a82998397ade,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -142, y: 250.1, z: 0}

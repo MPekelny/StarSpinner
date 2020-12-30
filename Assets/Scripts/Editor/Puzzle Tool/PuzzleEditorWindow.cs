@@ -32,6 +32,7 @@ namespace EditorWindowStuff
 		private EditorWindowObjectSetterField<Texture> _loadReferenceImageField = null;
 
 		private bool _saveModeActive = false;
+		private bool _resetSaveHistory = false;
 		private EditingMode _currentMode = EditingMode.Add;
 		private Color _currentAddModeColor = Color.white;
 		private Color _currentPaintModeColor = Color.white;
@@ -190,6 +191,7 @@ namespace EditorWindowStuff
 					}
 
 					_windowData.PuzzleFileName = EditorGUILayout.TextField("Filename for Puzzle Data", _windowData.PuzzleFileName, GUILayout.Width(SIDE_SECTION_WIDTH));
+					_resetSaveHistory = EditorGUILayout.Toggle("Reset Puzzle's History", _resetSaveHistory, GUILayout.Width(SIDE_SECTION_WIDTH));
 
 					if (_windowData.FolderForPuzzleFile != null && !string.IsNullOrEmpty(_windowData.PuzzleFileName))
 					{
@@ -201,7 +203,7 @@ namespace EditorWindowStuff
 							{
 								if (EditorUtility.DisplayDialog("Overwrite File?", "A puzzle file of that name already exists in that location. Do you wish to overwrite it?", "Yes", "No"))
 								{
-									_windowData.SavePuzzleDataFile(fullPath, false);
+									_windowData.SavePuzzleDataFile(fullPath, false, _resetSaveHistory);
 									_saveModeActive = false;
 								}
 							}	
@@ -229,6 +231,7 @@ namespace EditorWindowStuff
 			GUILayout.Label("Spinners for Puzzle:", GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
 			_windowData.NumPuzzleSpinners = EditorGUILayout.IntSlider(_windowData.NumPuzzleSpinners, PuzzleData.MIN_NUM_SPINNERS, PuzzleData.MAX_NUM_SPINNERS, GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
 			GUILayout.EndHorizontal();
+			_windowData.PuzzleSolvedImage = (Sprite)EditorGUILayout.ObjectField("Level Button Solved Image:", _windowData.PuzzleSolvedImage, typeof(Sprite), false, GUILayout.Width(SIDE_SECTION_WIDTH));
 		}
 
 		private void DrawActionQueueSection()

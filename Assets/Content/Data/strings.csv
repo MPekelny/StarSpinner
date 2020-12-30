@@ -4,6 +4,8 @@ select_screen_select_level,Select Level
 select_screen_level_button,Level
 select_screen_next_puzzles_button,Next Puzzles
 select_screen_previous_puzzles_button,Previous Puzzles
+select_button_level,Level
+select_button_in_progress,In Progress
 popup_clear_data_title,Clear All Data?
 popup_clear_data_body,Clear all your save data?
 popup_clear_data_yes,Yes

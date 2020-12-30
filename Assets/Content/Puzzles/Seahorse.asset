@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: seahorse_0
   _puzzleName: Seahorse
+  _puzzleSolvedSprite: {fileID: 21300000, guid: 18b00bda27879224fac92b703588b14f,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -59.4, y: 192.9, z: 0}

@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: rabbit_0
   _puzzleName: Rabbit
+  _puzzleSolvedSprite: {fileID: 21300000, guid: f88fa1a511df32a41a020eb0e2064772,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: 190.7, y: 36.2, z: 0}

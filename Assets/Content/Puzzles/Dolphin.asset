@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: dolphin_0
   _puzzleName: Dolphin
+  _puzzleSolvedSprite: {fileID: 21300000, guid: 40d1f9a959d22f44c88c8342962b7da8,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -243.2, y: -108.6, z: 0}

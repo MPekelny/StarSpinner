@@ -25,6 +25,10 @@ MonoBehaviour:
     _value: Next Puzzles
   - _key: select_screen_previous_puzzles_button
     _value: Previous Puzzles
+  - _key: select_button_level
+    _value: Level
+  - _key: select_button_in_progress
+    _value: In Progress
   - _key: popup_clear_data_title
     _value: Clear All Data?
   - _key: popup_clear_data_body

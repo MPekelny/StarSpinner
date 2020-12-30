@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: umbrella_0
   _puzzleName: Umbrella
+  _puzzleSolvedSprite: {fileID: 21300000, guid: c10f43630d476194b861da0553fce77a,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -74.7, y: -240, z: 0}

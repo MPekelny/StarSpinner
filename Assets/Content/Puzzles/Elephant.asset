@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: elephant_0
   _puzzleName: Elephant
+  _puzzleSolvedSprite: {fileID: 21300000, guid: 34e6512f1e6b4044b98f33b550adfb3e,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -177.7, y: 140.5, z: 0}

@@ -55,6 +55,7 @@ public class PuzzleData : ScriptableObject
 	[SerializeField] private int _currentVersionNumber = 0;
 	[SerializeField] private string _puzzleUniqueId = "";
 	[SerializeField] private string _puzzleName = "";
+	[SerializeField] private Sprite _puzzleSolvedSprite = null;
 	[SerializeField] [Range(MIN_NUM_SPINNERS, MAX_NUM_SPINNERS)] private int _numSpinners = 4;
 	[SerializeField] private StarData[] _starDatas = null;
 	[SerializeField] private List<HistoryData> _historyDatas = new List<HistoryData>();
@@ -62,16 +63,18 @@ public class PuzzleData : ScriptableObject
 	public int CurrentVersionNumber => _currentVersionNumber;
 	public string PuzzleUniqueId => _puzzleUniqueId;
 	public string PuzzleName => _puzzleName;
+	public Sprite PuzzleSolvedSprite => _puzzleSolvedSprite;
 	public int NumSpinners => _numSpinners;
 	public StarData[] StarDatas => _starDatas;
 	public List<HistoryData> HistoryDatas => _historyDatas;
 
 #if UNITY_EDITOR
-	public void SetDataFromEditorTool(string puzzleId, string puzzleName, int numSpinners, List<EditorWindowStuff.PuzzleEditorStar> editorStarDatas, string puzzleImageReferencePath)
+	public void SetDataFromEditorTool(string puzzleId, string puzzleName, int numSpinners, Sprite puzzleSolvedTexture, List<EditorWindowStuff.PuzzleEditorStar> editorStarDatas, string puzzleImageReferencePath)
 	{
 		_puzzleUniqueId = puzzleId;
 		_puzzleName = puzzleName;
 		_numSpinners = numSpinners;
+		_puzzleSolvedSprite = puzzleSolvedTexture;
 		_puzzleImageReferencePath = puzzleImageReferencePath;
 		_starDatas = new StarData[editorStarDatas.Count];
 		for (int i = 0; i < editorStarDatas.Count; i++)
@@ -93,6 +96,13 @@ public class PuzzleData : ScriptableObject
 			_historyDatas.Add(new HistoryData(numSpinnersForVersion, numStarsAddedForVersion, starsDeletedForVersion));
 		}
 
+		_currentVersionNumber = _historyDatas.Count - 1;
+	}
+
+	public void RestartHistory(int numSpinnersForVersion)
+	{
+		_historyDatas.Clear();
+		_historyDatas.Add(new HistoryData(numSpinnersForVersion, 0, new List<int>()));
 		_currentVersionNumber = _historyDatas.Count - 1;
 	}
 #endif

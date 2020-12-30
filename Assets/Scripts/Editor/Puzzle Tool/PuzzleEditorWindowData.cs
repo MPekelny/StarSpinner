@@ -27,6 +27,7 @@ namespace EditorWindowStuff
 		private const string PUZZLE_FOLDER_KEY = "puzzle_folder";
 		private const string PUZZLE_FILE_KEY = "puzzle_file";
 		private const string PUZZLE_ACTION_QUEUE_KEY = "action_queue";
+		private const string PUZZLE_SOLVED_IMAGE_KEY = "puzzle_solved_image";
 
 		private Object _defaultFolderForPuzzleFile = null;
 
@@ -36,6 +37,7 @@ namespace EditorWindowStuff
 		public string PuzzleId { get; set; } = "";
 		public string PuzzleName { get; set; } = "";
 		public int NumPuzzleSpinners { get; set; } = 0;
+		public Sprite PuzzleSolvedImage { get; set; } = null;
 		public List<PuzzleEditorStar> Stars { get; private set; }
 		public EditorWindowImage StarAreaReferenceImage { get; private set; }
 		public PuzzleToolActionQueue ActionQueue { get; private set; }
@@ -76,6 +78,7 @@ namespace EditorWindowStuff
 			PuzzleFileName = "NewPuzzle";
 			PuzzleId = "";
 			PuzzleName = "";
+			PuzzleSolvedImage = null;
 			NumPuzzleSpinners = 4;
 			StarAreaReferenceImage.Texture = null;
 			StarAreaReferenceImage.Color = Color.black;
@@ -88,7 +91,8 @@ namespace EditorWindowStuff
 		/// </summary>
 		/// <param name="filePath">The location of where the file should be.</param>
 		/// <param name="createNew">If true, the file is meant to be created new. If false, an existing file is meant to be overwritten.</param>
-		public void SavePuzzleDataFile(string filePath, bool createNew)
+		/// <param name="resetHistory">If true, instead of adding any changes to the puzzle's version history, resets the history so the current state of the puzzle is version 0.</param>
+		public void SavePuzzleDataFile(string filePath, bool createNew, bool resetHistory = false)
 		{
 			PuzzleData puzzleData = null;
 			List<int> starsDeletedForVersion = new List<int>();
@@ -105,8 +109,16 @@ namespace EditorWindowStuff
 			}
 
 			string imagePath = StarAreaReferenceImage.Texture != null ? AssetDatabase.GetAssetPath(StarAreaReferenceImage.Texture) : "";
-			puzzleData.SetDataFromEditorTool(PuzzleId, PuzzleName, NumPuzzleSpinners, Stars, imagePath);
-			puzzleData.AddHistoryData(NumPuzzleSpinners, starsAddedForVersion, starsDeletedForVersion);
+			puzzleData.SetDataFromEditorTool(PuzzleId, PuzzleName, NumPuzzleSpinners, PuzzleSolvedImage, Stars, imagePath);
+			if (resetHistory)
+			{
+				puzzleData.RestartHistory(NumPuzzleSpinners);
+			}
+			else
+			{
+				puzzleData.AddHistoryData(NumPuzzleSpinners, starsAddedForVersion, starsDeletedForVersion);
+			}
+			
 			EditorUtility.SetDirty(puzzleData);
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
@@ -124,6 +136,7 @@ namespace EditorWindowStuff
 				PuzzleFileName = dataToLoad.name;
 				PuzzleId = dataToLoad.PuzzleUniqueId;
 				PuzzleName = dataToLoad.PuzzleName;
+				PuzzleSolvedImage = dataToLoad.PuzzleSolvedSprite;
 				if (!string.IsNullOrEmpty(dataToLoad.PuzzleImageReferencePath))
 				{
 					if (File.Exists(dataToLoad.PuzzleImageReferencePath))
@@ -181,6 +194,7 @@ namespace EditorWindowStuff
 			node[PUZZLE_IMAGE_REF_KEY] = StarAreaReferenceImage.Texture == null ? "null" : AssetDatabase.GetAssetPath(StarAreaReferenceImage.Texture);
 			node[PUZZLE_FOLDER_KEY] = AssetDatabase.GetAssetPath(FolderForPuzzleFile);
 			node[PUZZLE_FILE_KEY] = PuzzleFileName;
+			node[PUZZLE_SOLVED_IMAGE_KEY] = PuzzleSolvedImage == null ? "null" : AssetDatabase.GetAssetPath(PuzzleSolvedImage);
 
 			foreach (PuzzleEditorStar star in Stars)
 			{
@@ -224,6 +238,12 @@ namespace EditorWindowStuff
 				if (!string.IsNullOrEmpty(imagePath) && folderPath != "null" && Directory.Exists(folderPath))
 				{
 					FolderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(folderPath));
+				}
+
+				string solvedPath = node[PUZZLE_SOLVED_IMAGE_KEY].Value;
+				if (!string.IsNullOrEmpty(solvedPath) && solvedPath != null && File.Exists(solvedPath))
+				{
+					PuzzleSolvedImage = AssetDatabase.LoadAssetAtPath<Sprite>(solvedPath);
 				}
 				
 				PuzzleFileName = node[PUZZLE_FILE_KEY].Value;
