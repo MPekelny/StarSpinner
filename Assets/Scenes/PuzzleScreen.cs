@@ -206,6 +206,7 @@ public class PuzzleScreen : MonoBehaviour
 
 		GameManager.Instance.ScreenTransitionManager.FadeOut(() => 
 		{
+			GameManager.Instance.AudioManager.PlayBGM("puzzle_bgm", 0.5f);
 			GameManager.Instance.SetPuzzleIndexToNext();
 			Cleanup();
 			SetupPuzzle();

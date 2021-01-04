@@ -41,20 +41,32 @@ public class LevelSelectButton : PoolableObject
 	{
 		LevelProgressState state = GetButtonState();
 
-		// Set the colour part.
 		SetColorForButton(state);
+		SetUpperText(state);
+		SetNumberText(state);
+		SetLevelNameText(state);
+		SetSolvedImage(state);
+	}
 
-		// Set the upper text.
+	private void SetUpperText(LevelProgressState state)
+	{
+		_upperText.gameObject.SetActive(true);
 		if (state == LevelProgressState.InProgress || state == LevelProgressState.SolvedAndInProgress)
 		{
 			_upperText.text = GameManager.Instance.StringManager.GetStringForKey("select_button_in_progress");
 		}
-		else
+		else if (state != LevelProgressState.Solved)
 		{
 			_upperText.text = GameManager.Instance.StringManager.GetStringForKey("select_button_level");
 		}
+		else
+		{
+			_upperText.gameObject.SetActive(false);
+		}
+	}
 
-		// Set the number text.
+	private void SetNumberText(LevelProgressState state)
+	{
 		if (state == LevelProgressState.Solved || state == LevelProgressState.SolvedAndInProgress)
 		{
 			_numberText.gameObject.SetActive(false);
@@ -64,8 +76,10 @@ public class LevelSelectButton : PoolableObject
 			_numberText.gameObject.SetActive(true);
 			_numberText.text = (_levelIndex + 1).ToString();
 		}
+	}
 
-		// Set the level name text.
+	private void SetLevelNameText(LevelProgressState state)
+	{
 		if (state == LevelProgressState.Solved || state == LevelProgressState.SolvedAndInProgress)
 		{
 			_nameText.gameObject.SetActive(true);
@@ -75,8 +89,10 @@ public class LevelSelectButton : PoolableObject
 		{
 			_nameText.gameObject.SetActive(false);
 		}
+	}
 
-		// Set the solved image.
+	private void SetSolvedImage(LevelProgressState state)
+	{
 		if (state == LevelProgressState.Solved || state == LevelProgressState.SolvedAndInProgress)
 		{
 			_solutionImage.gameObject.SetActive(true);
