@@ -13,7 +13,6 @@ public class LevelSelectScreen : MonoBehaviour
 	[SerializeField] private int _numLevelsPerPage = 20;
 
 	[SerializeField] private TMPro.TextMeshProUGUI _selectLevelText = null;
-	[SerializeField] private TMPro.TextMeshProUGUI _clearSaveButtonText = null;
 	[SerializeField] private TMPro.TextMeshProUGUI _previousPuzzlesButtonText = null;
 	[SerializeField] private TMPro.TextMeshProUGUI _nextPuzzlesButtonText = null;
 
@@ -25,7 +24,6 @@ public class LevelSelectScreen : MonoBehaviour
 	{
 		StringManager stringMan = GameManager.Instance.StringManager;
 		_selectLevelText.text = stringMan.GetStringForKey("select_screen_select_level");
-		_clearSaveButtonText.text = stringMan.GetStringForKey("select_screen_clear_save");
 		_previousPuzzlesButtonText.text = stringMan.GetStringForKey("select_screen_previous_puzzles_button");
 		_nextPuzzlesButtonText.text = stringMan.GetStringForKey("select_screen_next_puzzles_button");
 
@@ -36,7 +34,7 @@ public class LevelSelectScreen : MonoBehaviour
 
 	public void Start()
 	{
-		GameManager.Instance.AudioManager.PlayBGM("menu_bgm", 0.5f);
+		GameManager.Instance.AudioManager.PlayBGM(AudioManager.MENU_BGM, 0.5f);
 	}
 
 	/// <summary>
@@ -45,7 +43,7 @@ public class LevelSelectScreen : MonoBehaviour
 	/// <param name="index">The index of the level whose button was pressed.</param>
 	public void LevelButtonPressed(int index)
 	{
-		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+		GameManager.Instance.AudioManager.PlaySoundEffect(AudioManager.BUTTON_SE);
 
 		// If the level was in progress, do not just enter the level, show a popup giving the opportunity to start over or clear the data if the player wants instead of entering where it was left off.
 		bool levelInProgress = GameManager.Instance.SaveDataManager.PuzzleStaticDataExistsForLevel(_allPuzzleDataReference[index].PuzzleUniqueId);
@@ -85,30 +83,10 @@ public class LevelSelectScreen : MonoBehaviour
 		}
 	}
 
-	/// <summary>
-	/// Callback for when the clear data button is pressed. Presents a popup that if confirmed clears all save data of the player.
-	/// </summary>
-	public void ClearSaveDataButtonPressed()
+	public void SettingsButtonPressed()
 	{
-		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
-
-		StringManager stringMan = GameManager.Instance.StringManager;
-		string titleText = stringMan.GetStringForKey("popup_clear_data_title");
-		string bodyText = stringMan.GetStringForKey("popup_clear_data_body");
-
-		PopupData data = GameManager.Instance.PopupManager.MakePopupData(titleText, bodyText);
-
-		string yesText = stringMan.GetStringForKey("popup_clear_data_yes");
-		data.AddButtonData(yesText, () =>
-		{
-			GameManager.Instance.SaveDataManager.ClearAllSaveData();
-			ReloadPage();
-		});
-
-		string noText = stringMan.GetStringForKey("popup_clear_data_no");
-		data.AddButtonData(noText);
-
-		GameManager.Instance.PopupManager.AddPopup(data);
+		GameManager.Instance.AudioManager.PlaySoundEffect(AudioManager.BUTTON_SE);
+		GameManager.Instance.ScreenTransitionManager.TransitionScreen(SettingsScreen.SCREEN_NAME);
 	}
 
 	/// <summary>
@@ -116,7 +94,7 @@ public class LevelSelectScreen : MonoBehaviour
 	/// </summary>
 	public void PreviousPageButtonPressed()
 	{
-		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+		GameManager.Instance.AudioManager.PlaySoundEffect(AudioManager.BUTTON_SE);
 
 		// Just in case, don't let the start number go below 0.
 		_currentPageStartNumber = Math.Max(0, _currentPageStartNumber - _numLevelsPerPage);
@@ -128,8 +106,6 @@ public class LevelSelectScreen : MonoBehaviour
 	/// </summary>
 	public void NextPageButtonPressed()
 	{
-		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
-
 		// Just in case, don't do anything (other than making sure the buttons are set correctly) if increasing the start point would go beyond the end of the level list.
 		if (_currentPageStartNumber + _numLevelsPerPage > _allPuzzleDataReference.Length)
 		{

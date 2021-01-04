@@ -34,6 +34,7 @@ public class LevelSelectButton : PoolableObject
 
 	public void OnLevelButtonPressed()
 	{
+		GameManager.Instance.AudioManager.PlaySoundEffect(AudioManager.BUTTON_SE);
 		_parentReference.LevelButtonPressed(_levelIndex);
 	}
 

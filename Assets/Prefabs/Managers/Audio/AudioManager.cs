@@ -5,6 +5,12 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
+	public const string MENU_BGM = "menu_bgm";
+	public const string GAME_BGM = "puzzle_bgm";
+	public const string GAME_WIN_BGM = "puzzle_solved_bgm";
+	public const string BUTTON_SE = "button_pressed";
+	public const string PUZZLE_VICTORY_SE = "puzzle_solved";
+
 	private const string BGM_VOLUME_KEY = "bgm_volume";
 	private const string SE_VOLUME_KEY = "se_volume";
 	private const string BGM_MUTED_KEY = "bgm_muted";

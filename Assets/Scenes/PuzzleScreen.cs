@@ -43,7 +43,7 @@ public class PuzzleScreen : MonoBehaviour
 
 	public void Start()
 	{
-		GameManager.Instance.AudioManager.PlayBGM("puzzle_bgm", 0.5f);
+		GameManager.Instance.AudioManager.PlayBGM(AudioManager.MENU_BGM, 0.5f);
 
 		_backButton.SetActive(true);
 		_uiParticleObject.SetActive(false);
@@ -191,7 +191,7 @@ public class PuzzleScreen : MonoBehaviour
 	/// </summary>
 	public void BackButtonPressed()
 	{
-		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+		GameManager.Instance.AudioManager.PlaySoundEffect(AudioManager.BUTTON_SE);
 
 		Cleanup();
 		GameManager.Instance.ScreenTransitionManager.TransitionScreen(LevelSelectScreen.SCREEN_NAME);
@@ -202,11 +202,11 @@ public class PuzzleScreen : MonoBehaviour
 	/// </summary>
 	public void NextLevelButtonPressed()
 	{
-		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+		GameManager.Instance.AudioManager.PlaySoundEffect(AudioManager.BUTTON_SE);
 
 		GameManager.Instance.ScreenTransitionManager.FadeOut(() => 
 		{
-			GameManager.Instance.AudioManager.PlayBGM("puzzle_bgm", 0.5f);
+			GameManager.Instance.AudioManager.PlayBGM(AudioManager.GAME_BGM, 0.5f);
 			GameManager.Instance.SetPuzzleIndexToNext();
 			Cleanup();
 			SetupPuzzle();
@@ -216,7 +216,7 @@ public class PuzzleScreen : MonoBehaviour
 
 	public void HintButtonPressed()
 	{
-		GameManager.Instance.AudioManager.PlaySoundEffect("button_pressed");
+		GameManager.Instance.AudioManager.PlaySoundEffect(AudioManager.BUTTON_SE);
 
 		StringManager stringMan = GameManager.Instance.StringManager;
 		string titleText = stringMan.GetStringForKey("popup_get_hint_title");
@@ -326,8 +326,8 @@ public class PuzzleScreen : MonoBehaviour
 	/// </summary>
 	private void PlaySolved()
 	{
-		GameManager.Instance.AudioManager.PlaySoundEffect("puzzle_solved");
-		GameManager.Instance.AudioManager.PlayBGM("puzzle_solved_bgm");
+		GameManager.Instance.AudioManager.PlaySoundEffect(AudioManager.PUZZLE_VICTORY_SE);
+		GameManager.Instance.AudioManager.PlayBGM(AudioManager.GAME_WIN_BGM);
 
 		_backButton.SetActive(false);
 		_hintButton.SetActive(false);
