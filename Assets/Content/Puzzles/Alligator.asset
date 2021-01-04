@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: Alligator
   m_EditorClassIdentifier: 
   _puzzleImageReferencePath: Assets/Content/Puzzles/References/Alligator.png
-  _currentVersionNumber: 2
+  _currentVersionNumber: 0
   _puzzleUniqueId: alligator_0
   _puzzleName: Alligator
+  _puzzleSolvedSprite: {fileID: 21300000, guid: d10ed4c5e6b9f3748ba29565d4f43587,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: 318, y: 61, z: 0}
@@ -138,9 +140,3 @@ MonoBehaviour:
   - _numSpinners: 4
     _numStarsAdded: 0
     _starsDeleted: 
-  - _numSpinners: 4
-    _numStarsAdded: 0
-    _starsDeleted: 
-  - _numSpinners: 4
-    _numStarsAdded: 2
-    _starsDeleted: 3600000004000000

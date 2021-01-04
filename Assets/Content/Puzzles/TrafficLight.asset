@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: trafficlight_0
   _puzzleName: Traffic Light
+  _puzzleSolvedSprite: {fileID: 21300000, guid: e93a746e8d5c9cb48991ce0cd2ece960,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -144.48999, y: 238.19995, z: 0}

@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: apple_0
   _puzzleName: Apple
+  _puzzleSolvedSprite: {fileID: 21300000, guid: 3aede94f0e47f8442912cae43f332479,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -163, y: -220, z: 0}

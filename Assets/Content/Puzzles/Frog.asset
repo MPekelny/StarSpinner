@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: frog_0
   _puzzleName: Frog
+  _puzzleSolvedSprite: {fileID: 21300000, guid: f0e54eb51801c9d47a7e06f5cafb9774,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -5, y: 112.9, z: 0}

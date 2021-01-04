@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: beaver_0
   _puzzleName: Beaver
+  _puzzleSolvedSprite: {fileID: 21300000, guid: b6c24f8d64c5b884b8e11cca6642768f,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: 298.6, y: 108.8, z: 0}

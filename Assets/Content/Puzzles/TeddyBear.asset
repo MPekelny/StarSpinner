@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: TeddyBear
   m_EditorClassIdentifier: 
   _puzzleImageReferencePath: Assets/Content/Puzzles/References/TeddyBear.png
-  _currentVersionNumber: 0
+  _currentVersionNumber: 2
   _puzzleUniqueId: teddybear_0
   _puzzleName: Teddy Bear
+  _puzzleSolvedSprite: {fileID: 21300000, guid: a9ce31631edfaee448442b718e3e42a2,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -83.4, y: 149.9, z: 0}
@@ -173,6 +175,12 @@ MonoBehaviour:
   - _position: {x: -96.3, y: -11.4, z: 0}
     _finalColor: {r: 0.6117647, g: 0.39215687, b: 0.047058824, a: 1}
   _historyDatas:
+  - _numSpinners: 4
+    _numStarsAdded: 0
+    _starsDeleted: 
+  - _numSpinners: 4
+    _numStarsAdded: 0
+    _starsDeleted: 
   - _numSpinners: 4
     _numStarsAdded: 0
     _starsDeleted: 

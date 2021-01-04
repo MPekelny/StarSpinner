@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: dragon_0
   _puzzleName: Dragon
+  _puzzleSolvedSprite: {fileID: 21300000, guid: fed8d6bc58695614aba8a77fbdf30dc6,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: 28, y: -136, z: 0}

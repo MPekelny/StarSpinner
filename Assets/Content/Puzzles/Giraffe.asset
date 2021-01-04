@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: giraffe_0
   _puzzleName: Giraffe
+  _puzzleSolvedSprite: {fileID: 21300000, guid: 65d9fbf03e3c0a0478b766a666799d32,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -187.5, y: 264.7, z: 0}

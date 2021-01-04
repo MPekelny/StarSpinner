@@ -152,20 +152,8 @@ public class LevelSelectScreen : MonoBehaviour
 
 		for (int i = _currentPageStartNumber; i < _currentPageStartNumber + _numLevelsPerPage && i < _allPuzzleDataReference.Length; i++)
 		{
-			LevelSelectButton.LevelProgressState stateForButton = LevelSelectButton.LevelProgressState.Normal;
-			bool isSolved = GameManager.Instance.SaveDataManager.IsLevelCompleted(_allPuzzleDataReference[i].PuzzleUniqueId);
-			bool isInProgress = GameManager.Instance.SaveDataManager.PuzzleStaticDataExistsForLevel(_allPuzzleDataReference[i].PuzzleUniqueId);
-			if (isInProgress)
-			{
-				stateForButton = LevelSelectButton.LevelProgressState.InProgress;
-			}
-			else if (isSolved)
-			{
-				stateForButton = LevelSelectButton.LevelProgressState.Solved;
-			}
-			
 			LevelSelectButton button = GameManager.Instance.ObjectPoolManager.GetObjectFromPool("LevelSelectButton", _levelSelectGrid.transform).GetComponent<LevelSelectButton>();
-			button.Init(this, i, stateForButton);
+			button.Init(this, _allPuzzleDataReference[i], i);
 			_buttons.Add(button);
 		}
 

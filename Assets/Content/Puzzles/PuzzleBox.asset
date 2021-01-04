@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: puzzlebox_0
   _puzzleName: Puzzle Box
+  _puzzleSolvedSprite: {fileID: 21300000, guid: 8044306d496aeea408b5c845e29ed74e,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -285, y: 197, z: 0}

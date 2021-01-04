@@ -16,6 +16,8 @@ MonoBehaviour:
   _currentVersionNumber: 0
   _puzzleUniqueId: fish_0
   _puzzleName: Fish
+  _puzzleSolvedSprite: {fileID: 21300000, guid: 4fcd5a53747ccc742a63bbad5d8de2cb,
+    type: 3}
   _numSpinners: 4
   _starDatas:
   - _position: {x: -202.8, y: 32.8, z: 0}
