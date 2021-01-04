@@ -1,0 +1,13 @@
+<size=55><b>Coding and Design</b></size>
+Matthew Pekelny
+
+<size=55><b>Art</b></size>
+Game Title image by Theodore Kavanagh
+Puzzle Solved images obtained from openclipart.org
+
+<size=55><b>Audio</b></size>
+Menu Music: Soul Story v1_0 by FoxSynergy
+Puzzle Gameplay Music: Planetrise v1_0 by FoxSynergy
+Puzzle Solved Music: Cosmic Blast v1_0 by FoxSynergy
+Button Press sound effect by NenadSimic
+Puzzle Solved sound effect by Jalastram

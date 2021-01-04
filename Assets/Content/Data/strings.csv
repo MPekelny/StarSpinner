@@ -1,5 +1,4 @@
 title_tap_to_continue,Tap To Continue
-select_screen_clear_save,Clear Save Data
 select_screen_select_level,Select Level
 select_screen_level_button,Level
 select_screen_next_puzzles_button,Next Puzzles
@@ -23,3 +22,11 @@ popup_get_hint_no,No
 gameplay_level_complete,Level Complete
 gameplay_return,Return to Level Selection
 gameplay_next_level,Go To Next Level
+game_credits_header,Game Credits
+settings_header,Settings
+settings_music_header,Music
+settings_sound_effects_header,Sound Effects
+settings_volume,Volume
+settings_mute,Mute
+credits_button,Credits
+clear_save_button,Clear Save Data

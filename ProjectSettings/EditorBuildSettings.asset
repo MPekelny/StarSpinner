@@ -14,4 +14,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PuzzleScreen.unity
     guid: 6ed2baf62cd7cbb49aefeee95c781e4d
+  - enabled: 1
+    path: Assets/Scenes/SettingsScreen.unity
+    guid: 79839c9d142d8b245afe663e4ddbd076
+  - enabled: 1
+    path: Assets/Scenes/CreditsScreen.unity
+    guid: a759f5b213f9c084f9d850cfe906a570
   m_configObjects: {}

@@ -15,8 +15,6 @@ MonoBehaviour:
   _stringValues:
   - _key: title_tap_to_continue
     _value: Tap To Continue
-  - _key: select_screen_clear_save
-    _value: Clear Save Data
   - _key: select_screen_select_level
     _value: Select Level
   - _key: select_screen_level_button
@@ -66,3 +64,19 @@ MonoBehaviour:
     _value: Return to Level Selection
   - _key: gameplay_next_level
     _value: Go To Next Level
+  - _key: game_credits_header
+    _value: Game Credits
+  - _key: settings_header
+    _value: Settings
+  - _key: settings_music_header
+    _value: Music
+  - _key: settings_sound_effects_header
+    _value: Sound Effects
+  - _key: settings_volume
+    _value: Volume
+  - _key: settings_mute
+    _value: Mute
+  - _key: credits_button
+    _value: Credits
+  - _key: clear_save_button
+    _value: Clear Save Data
