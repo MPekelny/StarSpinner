@@ -41,7 +41,7 @@ namespace Tests.ManagerTests
 			_saveManager.SaveLevelCompleted("Test2");
 			Assert.IsTrue(_saveManager.IsLevelCompleted("Test"));
 			Assert.IsTrue(_saveManager.IsLevelCompleted("Test2"));
-			_saveManager.RemoveLevelCompled("Test");
+			_saveManager.RemoveLevelCompleted("Test");
 			Assert.IsFalse(_saveManager.IsLevelCompleted("Test"));
 			Assert.IsTrue(_saveManager.IsLevelCompleted("Test2"));
 		}
