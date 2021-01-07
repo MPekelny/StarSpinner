@@ -1,15 +1,16 @@
 ﻿using SimpleJSON;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine;
 
-// TODO: the game is using dynamic and static data as strings. The data is now going to be stored as actual datas now with them just being converted to strings for saving into the playerprefs (and later save files).
-// To facilitate switching things over, the methods other code uses to grab the data will still convert to strings and return them. But, at some point it needs to be switched to using the data directly.
 public class SaveDataManager : MonoBehaviour
 {
-	private const string SOLVED_PUZZLES_KEY = "solved_puzzles";
-	private const string STATIC_DATA_KEY = "static_datas";
-	private const string DYNAMIC_DATA_KEY = "dynamic_datas";
+	// So this kind of does not matter since my code is on a public github, but naming the save files like this (as opposed to something like data.sav) provides a layer of obfustication towards players playing around with the save files.
+	private const string COMPLETION_SAVE_FILE = "lvlc.sda";
+	private const string DYNAMIC_SAVE_FILE = "dyd.sda";
+	private const string STATIC_SAVE_FILE = "std.sda";
+
 	private const string PUZZLE_ID_KEY = "puzzle_id";
 	private const string DATA_KEY = "data";
 
@@ -141,16 +142,19 @@ public class SaveDataManager : MonoBehaviour
 	public void ClearAllSaveData()
 	{
 		_completionData.ResetData();
+		File.Delete(Application.persistentDataPath + "/" + COMPLETION_SAVE_FILE);
 		_staticSaveDatas.Clear();
+		File.Delete(Application.persistentDataPath + "/" + STATIC_SAVE_FILE);
 		_dynamicSaveDatas.Clear();
-		PlayerPrefs.DeleteAll();
+		File.Delete(Application.persistentDataPath + "/" + DYNAMIC_SAVE_FILE);
 	}
 
 	private void ReadInDynamicData()
 	{
-		if (PlayerPrefs.HasKey(DYNAMIC_DATA_KEY))
+		string filepath = Application.persistentDataPath + "/" + DYNAMIC_SAVE_FILE;
+		if (File.Exists(filepath))
 		{
-			string dynamicDataString = PlayerPrefs.GetString(DYNAMIC_DATA_KEY);
+			string dynamicDataString = File.ReadAllText(filepath);
 			JSONArray array = JSONNode.Parse(dynamicDataString).AsArray;
 			for (int i = 0; i < array.Count; i++)
 			{
@@ -175,15 +179,17 @@ public class SaveDataManager : MonoBehaviour
 
 		StringBuilder builder = new StringBuilder();
 		array.WriteToStringBuilder(builder, 0, 0, JSONTextMode.Compact);
-		PlayerPrefs.SetString(DYNAMIC_DATA_KEY, builder.ToString());
-		PlayerPrefs.Save();
+
+		string filepath = Application.persistentDataPath + "/" + DYNAMIC_SAVE_FILE;
+		File.WriteAllText(filepath, builder.ToString());
 	}
 
 	private void ReadInStaticData()
 	{
-		if (PlayerPrefs.HasKey(STATIC_DATA_KEY))
+		string filepath = Application.persistentDataPath + "/" + STATIC_SAVE_FILE;
+		if (File.Exists(filepath))
 		{
-			string staticDataString = PlayerPrefs.GetString(STATIC_DATA_KEY);
+			string staticDataString = File.ReadAllText(filepath);
 			JSONArray array = JSONNode.Parse(staticDataString).AsArray;
 			for (int i = 0; i < array.Count; i++)
 			{
@@ -209,22 +215,23 @@ public class SaveDataManager : MonoBehaviour
 
 		StringBuilder builder = new StringBuilder();
 		array.WriteToStringBuilder(builder, 0, 0, JSONTextMode.Compact);
-		PlayerPrefs.SetString(STATIC_DATA_KEY, builder.ToString());
-		PlayerPrefs.Save();
+		string filepath = Application.persistentDataPath + "/" + STATIC_SAVE_FILE;
+		File.WriteAllText(filepath, builder.ToString());
 	}
 
 	private void ReadInCompletionData()
 	{
-		if (PlayerPrefs.HasKey(SOLVED_PUZZLES_KEY))
+		string filepath = Application.persistentDataPath + "/" + COMPLETION_SAVE_FILE;
+		if (File.Exists(filepath))
 		{
-			string completionDataString = PlayerPrefs.GetString(SOLVED_PUZZLES_KEY);
+			string completionDataString = File.ReadAllText(filepath);
 			_completionData.ReadFromJSONString(completionDataString);
 		}
 	}
 
 	private void WriteOutCompletionData()
 	{
-		PlayerPrefs.SetString(SOLVED_PUZZLES_KEY, _completionData.WriteToJSONString());
-		PlayerPrefs.Save();
+		string filepath = Application.persistentDataPath + "/" + COMPLETION_SAVE_FILE;
+		File.WriteAllText(filepath, _completionData.WriteToJSONString());
 	}
 }
