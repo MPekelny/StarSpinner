@@ -32,21 +32,6 @@ namespace Tests.ManagerTests
 		}
 
 		/// <summary>
-		/// Tests that when a level is removed from being completed, only that one is removed.
-		/// </summary>
-		[Test]
-		public void TestLevelCompleteClear()
-		{
-			_saveManager.SaveLevelCompleted("Test");
-			_saveManager.SaveLevelCompleted("Test2");
-			Assert.IsTrue(_saveManager.IsLevelCompleted("Test"));
-			Assert.IsTrue(_saveManager.IsLevelCompleted("Test2"));
-			_saveManager.RemoveLevelCompleted("Test");
-			Assert.IsFalse(_saveManager.IsLevelCompleted("Test"));
-			Assert.IsTrue(_saveManager.IsLevelCompleted("Test2"));
-		}
-
-		/// <summary>
 		/// Tests that when ClearAllSaveData is called, it removes all save data.
 		/// </summary>
 		[Test]

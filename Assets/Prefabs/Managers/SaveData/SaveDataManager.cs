@@ -23,41 +23,15 @@ public class SaveDataManager : MonoBehaviour
 
 	private void Start()
 	{
-		// Read in the puzzle completion data.
-		if (PlayerPrefs.HasKey(SOLVED_PUZZLES_KEY))
-		{
-			string completionDataString = PlayerPrefs.GetString(SOLVED_PUZZLES_KEY);
-			_completionData.ReadFromJSONString(completionDataString);
-		}
-
-		if (PlayerPrefs.HasKey(STATIC_DATA_KEY))
-		{
-			string staticDataString = PlayerPrefs.GetString(STATIC_DATA_KEY);
-			JSONArray array = JSONNode.Parse(staticDataString).AsArray;
-			for (int i = 0; i < array.Count; i++)
-			{
-				string puzzleId = array[i][PUZZLE_ID_KEY].Value;
-				PuzzleStaticSaveData data = new PuzzleStaticSaveData();
-				string dataString = array[i][DATA_KEY].Value;
-				data.ReadFromJsonString(dataString);
-				_staticSaveDatas.Add(puzzleId, data);
-			}
-		}
-
-		if (PlayerPrefs.HasKey(DYNAMIC_DATA_KEY))
-		{
-			string dynamicDataString = PlayerPrefs.GetString(DYNAMIC_DATA_KEY);
-			JSONArray array = JSONNode.Parse(dynamicDataString).AsArray;
-			for (int i = 0; i < array.Count; i++)
-			{
-				string puzzleId = array[i][PUZZLE_ID_KEY].Value;
-				PuzzleDynamicSaveData data = new PuzzleDynamicSaveData();
-				data.ReadFromJsonString(array[i][DATA_KEY].Value);
-				_dynamicSaveDatas.Add(puzzleId, data);
-			}
-		}
+		ReadInCompletionData();
+		ReadInStaticData();
+		ReadInDynamicData();
 	}
 
+	/// <summary>
+	/// Saves that a given level has been completed.
+	/// </summary>
+	/// <param name="levelId">The id of the level that was completed.</param>
 	public void SaveLevelCompleted(string levelId)
 	{
 		bool levelWasAdded = _completionData.SetLevelCompleted(levelId);
@@ -67,67 +41,78 @@ public class SaveDataManager : MonoBehaviour
 		}
 	}
 
-	public void RemoveLevelCompleted(string levelId)
-	{
-		bool levelWasRemoved = _completionData.RemoveLevelCompleted(levelId);
-		if (levelWasRemoved)
-		{
-			WriteOutCompletionData();
-		}
-	}
-
-	public string GetPuzzleStaticDataForLevel(string levelId)
+	/// <summary>
+	/// Gets the static save data for a level, if in the save data.
+	/// </summary>
+	/// <param name="levelId">The id of the level to get the data for.</param>
+	/// <returns>Null if there is no static save data for the level, otherwise it returns the appropriate static data.</returns>
+	public PuzzleStaticSaveData GetPuzzleStaticDataForLevel(string levelId)
 	{
 		if (!PuzzleStaticDataExistsForLevel(levelId))
 		{
 			return null;
 		}
 
-		return _staticSaveDatas[levelId].WriteToJsonString();
+		return _staticSaveDatas[levelId];
 	}
 
-	public void SavePuzzleStaticDataForLevel(string levelId, string staticDataJson)
+	/// <summary>
+	/// Sets the static data of a puzzle to save data.
+	/// </summary>
+	/// <param name="levelId">The id of the level whose static data is being saved.</param>
+	/// <param name="staticData">The data to be saved.</param>
+	public void SavePuzzleStaticDataForLevel(string levelId, PuzzleStaticSaveData staticData)
 	{
 		if (PuzzleStaticDataExistsForLevel(levelId))
 		{
-			_staticSaveDatas[levelId].ReadFromJsonString(staticDataJson);
+			_staticSaveDatas[levelId] = staticData;
 		}
 		else
 		{
-			PuzzleStaticSaveData staticData = new PuzzleStaticSaveData();
-			staticData.ReadFromJsonString(staticDataJson);
 			_staticSaveDatas.Add(levelId, staticData);
 		}
 
 		WriteOutStaticData();
 	}
 
-	public string GetPuzzleDynamicDataForLevel(string levelId)
+	/// <summary>
+	/// Gets the dynamic save data for a level, if in the save data.
+	/// </summary>
+	/// <param name="levelId">The id of the level to get the data for.</param>
+	/// <returns>Null if there is no dynamic save data for the level, otherwise it returns the appropriate dynamic data.</returns>
+	public PuzzleDynamicSaveData GetPuzzleDynamicDataForLevel(string levelId)
 	{
 		if (!PuzzleDynamicDataExistsForLevel(levelId))
 		{
 			return null;
 		}
 
-		return _dynamicSaveDatas[levelId].WriteToJsonString();
+		return _dynamicSaveDatas[levelId];
 	}
 
-	public void SavePuzzleDynamicDataForLevel(string levelId, string dynamicDataJson)
+	/// <summary>
+	/// Sets the dynamic data of a puzzle to save data.
+	/// </summary>
+	/// <param name="levelId">The id of the level whose dynamic data is being saved.</param>
+	/// <param name="dynamicData">The data to be saved.</param>
+	public void SavePuzzleDynamicDataForLevel(string levelId, PuzzleDynamicSaveData dynamicData)
 	{
 		if (PuzzleDynamicDataExistsForLevel(levelId))
 		{
-			_dynamicSaveDatas[levelId].ReadFromJsonString(dynamicDataJson);
+			_dynamicSaveDatas[levelId] = dynamicData;
 		}
 		else
 		{
-			PuzzleDynamicSaveData dynamicData = new PuzzleDynamicSaveData();
-			dynamicData.ReadFromJsonString(dynamicDataJson);
 			_dynamicSaveDatas.Add(levelId, dynamicData);
 		}
 
 		WriteOutDynamicData();
 	}
 
+	/// <summary>
+	/// Removes a puzzle's dynamic and static data from the save data. Namely used when a level has been completed and it no longer needs its in progress data.
+	/// </summary>
+	/// <param name="levelId">The id of the level to remove.</param>
 	public void RemovePuzzleSaveDataForLevel(string levelId)
 	{
 		bool removed = false;
@@ -150,12 +135,31 @@ public class SaveDataManager : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Resets all save data to be empty.
+	/// </summary>
 	public void ClearAllSaveData()
 	{
 		_completionData.ResetData();
 		_staticSaveDatas.Clear();
 		_dynamicSaveDatas.Clear();
 		PlayerPrefs.DeleteAll();
+	}
+
+	private void ReadInDynamicData()
+	{
+		if (PlayerPrefs.HasKey(DYNAMIC_DATA_KEY))
+		{
+			string dynamicDataString = PlayerPrefs.GetString(DYNAMIC_DATA_KEY);
+			JSONArray array = JSONNode.Parse(dynamicDataString).AsArray;
+			for (int i = 0; i < array.Count; i++)
+			{
+				string puzzleId = array[i][PUZZLE_ID_KEY].Value;
+				PuzzleDynamicSaveData data = new PuzzleDynamicSaveData();
+				data.ReadFromJsonString(array[i][DATA_KEY].Value);
+				_dynamicSaveDatas.Add(puzzleId, data);
+			}
+		}
 	}
 
 	private void WriteOutDynamicData()
@@ -175,6 +179,23 @@ public class SaveDataManager : MonoBehaviour
 		PlayerPrefs.Save();
 	}
 
+	private void ReadInStaticData()
+	{
+		if (PlayerPrefs.HasKey(STATIC_DATA_KEY))
+		{
+			string staticDataString = PlayerPrefs.GetString(STATIC_DATA_KEY);
+			JSONArray array = JSONNode.Parse(staticDataString).AsArray;
+			for (int i = 0; i < array.Count; i++)
+			{
+				string puzzleId = array[i][PUZZLE_ID_KEY].Value;
+				PuzzleStaticSaveData data = new PuzzleStaticSaveData();
+				string dataString = array[i][DATA_KEY].Value;
+				data.ReadFromJsonString(dataString);
+				_staticSaveDatas.Add(puzzleId, data);
+			}
+		}
+	}
+
 	private void WriteOutStaticData()
 	{
 		JSONArray array = new JSONArray();
@@ -190,6 +211,15 @@ public class SaveDataManager : MonoBehaviour
 		array.WriteToStringBuilder(builder, 0, 0, JSONTextMode.Compact);
 		PlayerPrefs.SetString(STATIC_DATA_KEY, builder.ToString());
 		PlayerPrefs.Save();
+	}
+
+	private void ReadInCompletionData()
+	{
+		if (PlayerPrefs.HasKey(SOLVED_PUZZLES_KEY))
+		{
+			string completionDataString = PlayerPrefs.GetString(SOLVED_PUZZLES_KEY);
+			_completionData.ReadFromJSONString(completionDataString);
+		}
 	}
 
 	private void WriteOutCompletionData()
