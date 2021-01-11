@@ -149,12 +149,14 @@ public class SaveDataManager : MonoBehaviour
 		File.Delete(Application.persistentDataPath + "/" + DYNAMIC_SAVE_FILE);
 	}
 
+	#region Data Loading/Saving
+
 	private void ReadInDynamicData()
 	{
 		string filepath = Application.persistentDataPath + "/" + DYNAMIC_SAVE_FILE;
 		if (File.Exists(filepath))
 		{
-			string dynamicDataString = File.ReadAllText(filepath);
+			string dynamicDataString = DecryptString(File.ReadAllText(filepath));
 			JSONArray array = JSONNode.Parse(dynamicDataString).AsArray;
 			for (int i = 0; i < array.Count; i++)
 			{
@@ -179,9 +181,9 @@ public class SaveDataManager : MonoBehaviour
 
 		StringBuilder builder = new StringBuilder();
 		array.WriteToStringBuilder(builder, 0, 0, JSONTextMode.Compact);
-
+		string encryptedData = EncryptString(builder.ToString());
 		string filepath = Application.persistentDataPath + "/" + DYNAMIC_SAVE_FILE;
-		File.WriteAllText(filepath, builder.ToString());
+		File.WriteAllText(filepath, encryptedData);
 	}
 
 	private void ReadInStaticData()
@@ -189,7 +191,7 @@ public class SaveDataManager : MonoBehaviour
 		string filepath = Application.persistentDataPath + "/" + STATIC_SAVE_FILE;
 		if (File.Exists(filepath))
 		{
-			string staticDataString = File.ReadAllText(filepath);
+			string staticDataString = DecryptString(File.ReadAllText(filepath));
 			JSONArray array = JSONNode.Parse(staticDataString).AsArray;
 			for (int i = 0; i < array.Count; i++)
 			{
@@ -215,8 +217,9 @@ public class SaveDataManager : MonoBehaviour
 
 		StringBuilder builder = new StringBuilder();
 		array.WriteToStringBuilder(builder, 0, 0, JSONTextMode.Compact);
+		string encryptedData = EncryptString(builder.ToString());
 		string filepath = Application.persistentDataPath + "/" + STATIC_SAVE_FILE;
-		File.WriteAllText(filepath, builder.ToString());
+		File.WriteAllText(filepath, encryptedData);
 	}
 
 	private void ReadInCompletionData()
@@ -224,14 +227,55 @@ public class SaveDataManager : MonoBehaviour
 		string filepath = Application.persistentDataPath + "/" + COMPLETION_SAVE_FILE;
 		if (File.Exists(filepath))
 		{
-			string completionDataString = File.ReadAllText(filepath);
+			string completionDataString = DecryptString(File.ReadAllText(filepath));
 			_completionData.ReadFromJSONString(completionDataString);
 		}
 	}
 
 	private void WriteOutCompletionData()
 	{
+		string encryptedData = EncryptString(_completionData.WriteToJSONString());
 		string filepath = Application.persistentDataPath + "/" + COMPLETION_SAVE_FILE;
-		File.WriteAllText(filepath, _completionData.WriteToJSONString());
+		File.WriteAllText(filepath, encryptedData);
 	}
+
+	#endregion
+
+	#region Encryption/Decryption
+
+	/*
+	 * Realistically any save data not stored on a server is not particularily difficult to decrypt if an attacker is interested enough (especially since this code is on a public github).
+	 * Making the save files completely secure is not really feasable. So I am just applying a couple basic techniques (base 64ing the json data and then xoring the base 64 string), which 
+	 * combined with having a bit of obfustication of the files themselves should at least deter most casual attempts.
+	 */
+
+	private string EncryptString(string plainText)
+	{
+		byte[] plainTextBytes = Encoding.UTF8.GetBytes(plainText);
+		string base64String = System.Convert.ToBase64String(plainTextBytes);
+		return XOREncryptDecrypt(base64String);
+	}
+
+	private string DecryptString(string encryptedString)
+	{
+		string unXORedString = XOREncryptDecrypt(encryptedString);
+		byte[] encodedBytes = System.Convert.FromBase64String(unXORedString);
+		return Encoding.UTF8.GetString(encodedBytes);
+	}
+
+	private string XOREncryptDecrypt(string stringToTransform)
+	{
+		char xorKey = 'b';
+
+		StringBuilder processor = new StringBuilder(stringToTransform.Length);
+		for (int i = 0; i < stringToTransform.Length; i++)
+		{
+			char c = (char)(stringToTransform[i] ^ xorKey);
+			processor.Append(c);
+		}
+
+		return processor.ToString();
+	}
+
+	#endregion
 }
