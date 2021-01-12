@@ -44,7 +44,7 @@ public class PuzzleScreen : MonoBehaviour
 
 	public void Start()
 	{
-		GameManager.Instance.AudioManager.PlayBGM(AudioManager.MENU_BGM, 0.5f);
+		GameManager.Instance.AudioManager.PlayBGM(AudioManager.GAME_BGM, 0.5f);
 
 		_backButton.SetActive(true);
 		_uiParticleObject.SetActive(false);
@@ -361,7 +361,7 @@ public class PuzzleScreen : MonoBehaviour
 		{
 			for (int i = 0; i < _stars.Count; i++)
 			{
-				_stars[i].TransitionToEndState();
+				_stars[i].SwitchToEndState();
 			}
 
 			_puzzleNameText.text = _activePuzzle.PuzzleName;
