@@ -18,7 +18,7 @@ public class TitleScreen : MonoBehaviour
 
 	public void Start()
 	{
-		GameManager.Instance.AudioManager.PlayBGM(AudioManager.GAME_BGM, 0.5f);
+		GameManager.Instance.AudioManager.PlayBGM(AudioManager.MENU_BGM, 0.5f);
 
 		_tapToContinueText.text = GameManager.Instance.StringManager.GetStringForKey("title_tap_to_continue");
 

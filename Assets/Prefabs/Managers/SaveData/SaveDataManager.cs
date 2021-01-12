@@ -22,7 +22,7 @@ public class SaveDataManager : MonoBehaviour
 	public bool PuzzleStaticDataExistsForLevel(string levelId) => _staticSaveDatas.ContainsKey(levelId);
 	public bool PuzzleDynamicDataExistsForLevel(string levelId) => _dynamicSaveDatas.ContainsKey(levelId);
 
-	private void Start()
+	private void Awake()
 	{
 		ReadInCompletionData();
 		ReadInStaticData();

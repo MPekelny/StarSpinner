@@ -60,7 +60,7 @@ public class PuzzleSpinner : PoolableObject
 
 		foreach (Star star in _referenceStars)
 		{
-			star.SetAsLockedColor();
+			star.SwitchToLockedState();
 		}
 	}
 

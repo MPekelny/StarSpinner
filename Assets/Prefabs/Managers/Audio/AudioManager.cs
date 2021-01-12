@@ -78,7 +78,7 @@ public class AudioManager : MonoBehaviour
 		}
 	}
 
-    void Start()
+    void Awake()
     {
 		PutAudioDataIntoDictionaries();
 		LoadAudioSettings();

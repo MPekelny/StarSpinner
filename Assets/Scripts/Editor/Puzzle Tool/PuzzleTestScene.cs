@@ -122,7 +122,7 @@ public class PuzzleTestScene : MonoBehaviour
 					{
 						for (int j = 0; j < _stars.Count; j++)
 						{
-							_stars[j].TransitionToEndState();
+							_stars[j].SwitchToEndState();
 						}
 
 						_nameText.gameObject.SetActive(true);
