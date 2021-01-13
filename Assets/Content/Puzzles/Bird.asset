@@ -30,8 +30,6 @@ MonoBehaviour:
     _finalColor: {r: 1, g: 0.9766561, b: 0.0047169924, a: 1}
   - _position: {x: 272, y: 203.4, z: 0}
     _finalColor: {r: 1, g: 0.9766561, b: 0.0047169924, a: 1}
-  - _position: {x: 210.1, y: 218.2, z: 0}
-    _finalColor: {r: 1, g: 1, b: 1, a: 1}
   - _position: {x: 248.2, y: 186.2, z: 0}
     _finalColor: {r: 0.6320754, g: 0.08050018, b: 0.08050018, a: 1}
   - _position: {x: 226.5, y: 162.1, z: 0}

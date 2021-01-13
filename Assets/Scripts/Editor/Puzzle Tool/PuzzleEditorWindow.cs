@@ -1,8 +1,4 @@
-﻿using SimpleJSON;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -12,6 +8,8 @@ namespace EditorWindowStuff
 	public class PuzzleEditorWindow : EditorWindow
 	{
 		private const float SIDE_SECTION_WIDTH = 300f;
+		private const float STAR_ARROW_SMALL_ADJUSTMENT = 1f;
+		private const float STAR_ARROW_LARGE_ADJUSTMENT = 5f;
 		public enum EditingMode
 		{
 			Add,
@@ -39,6 +37,8 @@ namespace EditorWindowStuff
 		private PuzzleEditorStar _selectedStar = null;
 		private PuzzleEditorStar _starBeingDragged = null;
 		private Vector2 _draggedStarStartPosition = Vector2.zero;
+		private bool _forceHideHighlighter = false;
+		private bool _shiftHeld = false;
 
 		private string _switchingScene = null;
 		private string _previousScene = null;
@@ -324,7 +324,11 @@ namespace EditorWindowStuff
 
 		private void DrawSelectModeSection()
 		{
-			GUILayout.Label("Select Mode: Clicking on on a star on the canvas will select it or another area to unselect any star. While a star is selected you can drag it to move it or change its colour or press the delete key to remove it.\n\nNote: if you drag a star too close to another, it will return to the spot it was at before when you release the drag.", EditorStyles.wordWrappedLabel, GUILayout.Width(SIDE_SECTION_WIDTH));
+			GUILayout.Label("Select Mode: Clicking on on a star on the canvas will select it or another area to unselect any star. While a star is selected you can drag it to move it or change its colour or press the delete key to remove it.", EditorStyles.wordWrappedLabel, GUILayout.Width(SIDE_SECTION_WIDTH));
+			GUILayout.Space(10f);
+			GUILayout.Label("Additionally, if you hold shift with a star selected when you click on a spot, the selected star will be moved to that spot if it will not overlap with another.", EditorStyles.wordWrappedLabel, GUILayout.Width(SIDE_SECTION_WIDTH));
+			GUILayout.Space(10f);
+			GUILayout.Label("Note: if you drag a star too close to another, it will return to the spot it was at before when you release the drag.", EditorStyles.wordWrappedLabel, GUILayout.Width(SIDE_SECTION_WIDTH));
 			if (_selectedStar != null)
 			{
 				GUILayout.BeginHorizontal();
@@ -343,6 +347,14 @@ namespace EditorWindowStuff
 				}
 
 				GUILayout.EndHorizontal();
+			}
+
+			GUILayout.Space(10f);
+
+			string hideHighlighterButtonText = _forceHideHighlighter ? "Show Star Highlighter" : "Hide Star Highlighter";
+			if (GUILayout.Button(hideHighlighterButtonText, GUILayout.Width(SIDE_SECTION_WIDTH)))
+			{
+				_forceHideHighlighter = !_forceHideHighlighter;
 			}
 		}
 
@@ -372,6 +384,11 @@ namespace EditorWindowStuff
 
 				case EventType.KeyDown:
 					HandleKeyDown();
+					Event.current.Use();
+					break;
+
+				case EventType.KeyUp:
+					HandleKeyUp();
 					Event.current.Use();
 					break;
 
@@ -422,23 +439,42 @@ namespace EditorWindowStuff
 			{
 				if (_windowData.StarArea.Contains(Event.current.mousePosition))
 				{
-					// If we have a selected star, we want to first check if the click is close (but not necessarily in the star) to be considered still selected.
-					bool stillSelected = false;
-					if (_selectedStar != null)
+					// If shift is held, and there is a star selected, instead of doing any unselecting, move the star to where you clicked.
+					if (_shiftHeld && _selectedStar != null)
 					{
-						stillSelected = _selectedStar.WithinRangeOfPoint(Event.current.mousePosition, _starHighlighterImage.Width / 2f);
-					}
+						bool validPosition = _windowData.StarCollisionGrid.GetStarAtPoint(Event.current.mousePosition) == null;
+						if (validPosition)
+						{
+							_starBeingDragged = _selectedStar;
+							_draggedStarStartPosition = _starBeingDragged.EditorPosition;
+							_windowData.StarCollisionGrid.PullStarFromGridAtPoint(_starBeingDragged.EditorPosition);
 
-					if (!stillSelected)
-					{
-						_selectedStar = _windowData.StarCollisionGrid.GetStarAtPoint(Event.current.mousePosition);
+							Vector2 clickedPos = Event.current.mousePosition;
+							clickedPos.x = Mathf.Clamp(clickedPos.x, _windowData.StarArea.xMin, _windowData.StarArea.xMax);
+							clickedPos.y = Mathf.Clamp(clickedPos.y, _windowData.StarArea.yMin, _windowData.StarArea.yMax); 
+							_starBeingDragged.SetPositionsUsingEditorPosiiton(clickedPos);
+						}
 					}
-
-					_starBeingDragged = _selectedStar;
-					if (_starBeingDragged != null)
+					else
 					{
-						_draggedStarStartPosition = _starBeingDragged.EditorPosition;
-						_windowData.StarCollisionGrid.PullStarFromGridAtPoint(_starBeingDragged.EditorPosition);
+						// If we have a selected star, we want to first check if the click is close (but not necessarily in the star) to be considered still selected.
+						bool stillSelected = false;
+						if (_selectedStar != null)
+						{
+							stillSelected = _selectedStar.WithinRangeOfPoint(Event.current.mousePosition, _starHighlighterImage.Width / 2f);
+						}
+
+						if (!stillSelected)
+						{
+							_selectedStar = _windowData.StarCollisionGrid.GetStarAtPoint(Event.current.mousePosition);
+						}
+
+						_starBeingDragged = _selectedStar;
+						if (_starBeingDragged != null)
+						{
+							_draggedStarStartPosition = _starBeingDragged.EditorPosition;
+							_windowData.StarCollisionGrid.PullStarFromGridAtPoint(_starBeingDragged.EditorPosition);
+						}
 					}
 				}
 			}
@@ -502,6 +538,18 @@ namespace EditorWindowStuff
 					_selectedStar = null;
 				}
 			}
+			else if (Event.current.keyCode == KeyCode.LeftShift || Event.current.keyCode == KeyCode.RightShift)
+			{
+				_shiftHeld = true;
+			}
+		}
+
+		private void HandleKeyUp()
+		{
+			if (Event.current.keyCode == KeyCode.LeftShift || Event.current.keyCode == KeyCode.RightShift)
+			{
+				_shiftHeld = false;
+			}
 		}
 
 		#endregion
@@ -522,7 +570,10 @@ namespace EditorWindowStuff
 				_starHighlighterImage.Visible = false;
 			}
 
-			_starHighlighterImage.Draw();
+			if (!_forceHideHighlighter)
+			{
+				_starHighlighterImage.Draw();
+			}
 
 			foreach (PuzzleEditorStar star in _windowData.Stars)
 			{

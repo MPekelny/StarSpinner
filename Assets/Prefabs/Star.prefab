@@ -88,13 +88,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f07cdead80f2c004c98a220ade0ec254, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _activeColorLow: {r: 0.9110863, g: 0.9150943, b: 0.082013145, a: 1}
+  _activeColorLow: {r: 0.9978418, g: 1, b: 0.5424528, a: 1}
   _activeColorHigh: {r: 1, g: 1, b: 1, a: 1}
-  _activeColorTransitionTime: 3
+  _activeColorTransitionTime: 2.53
   _activeScaleLow: 0.85
   _activeScaleHigh: 1.15
   _activeScaleTransitionTime: 1
-  _startColor: {r: 1, g: 1, b: 1, a: 1}
   _lockedColor: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 1}
   _endTransitionDuration: 0.5
   _starImage: {fileID: 4540626280132475772}
