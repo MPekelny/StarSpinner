@@ -20,8 +20,6 @@ MonoBehaviour:
     type: 3}
   _numSpinners: 4
   _starDatas:
-  - _position: {x: -243.2, y: -108.6, z: 0}
-    _finalColor: {r: 1, g: 1, b: 1, a: 1}
   - _position: {x: -256.6, y: -242.9, z: 0}
     _finalColor: {r: 0.26032394, g: 0.29954138, b: 0.735849, a: 1}
   - _position: {x: -269.8, y: -213.6, z: 0}

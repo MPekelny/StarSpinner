@@ -93,7 +93,13 @@ public class PuzzleData : ScriptableObject
 		}
 		else
 		{
-			_historyDatas.Add(new HistoryData(numSpinnersForVersion, numStarsAddedForVersion, starsDeletedForVersion));
+			// If the number of spinners is the same as the previous version and there were no stars added or removed, do not add anthing to the history data.
+			if (_historyDatas[_historyDatas.Count - 1].NumSpinners != numSpinnersForVersion ||
+				numStarsAddedForVersion != 0 ||
+				starsDeletedForVersion.Count > 0)
+			{
+				_historyDatas.Add(new HistoryData(numSpinnersForVersion, numStarsAddedForVersion, starsDeletedForVersion));
+			}
 		}
 
 		_currentVersionNumber = _historyDatas.Count - 1;

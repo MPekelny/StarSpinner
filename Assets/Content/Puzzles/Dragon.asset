@@ -238,9 +238,7 @@ MonoBehaviour:
     _finalColor: {r: 0.048363637, g: 0.990566, b: 0.0046724924, a: 1}
   - _position: {x: 6, y: -155, z: 0}
     _finalColor: {r: 0.048363637, g: 0.990566, b: 0.0046724924, a: 1}
-  - _position: {x: -257, y: -27, z: 0}
-    _finalColor: {r: 1, g: 1, b: 1, a: 1}
-  - _position: {x: -237, y: -17, z: 0}
+  - _position: {x: -250, y: -26, z: 0}
     _finalColor: {r: 1, g: 1, b: 1, a: 1}
   _historyDatas:
   - _numSpinners: 4
