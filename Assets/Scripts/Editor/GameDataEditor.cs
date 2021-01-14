@@ -58,7 +58,13 @@ public class GameDataEditor : Editor
 				}
 			}
 
-			puzzleData = puzzleData.OrderBy(o => o.NumSpinners).ToList();
+			// Generate the complexity rating for each puzzle now so it is not necessary to do so each iteration of the sort.
+			foreach (PuzzleData data in puzzleData)
+            {
+				data.GenerateComplexityRating();
+            }
+
+			puzzleData.Sort(PuzzleComparison);
 
 			gameData.SetSortedPuzzleDatas(puzzleData);
 			EditorUtility.SetDirty(target);
@@ -68,6 +74,36 @@ public class GameDataEditor : Editor
 			Debug.Log("Puzzle List sorted and verified.");
 		}
 	}
+
+	/// <summary>
+	/// The method for sorting puzzles. It attempts to organize the puzzles so that they go from the least complicated puzzles to most complicated.
+	/// The main factor is the number of spinners the puzzle has, more spinner means greater complexity. If two puzzles have the same number of spinners,
+	/// other factors determine relative complexity (which will be put into a complexity number in the puzzle datas so that number does not have to be reobtained each sort iteration).
+	/// </summary>
+	private int PuzzleComparison(PuzzleData a, PuzzleData b)
+    {
+		if (a.NumSpinners < b.NumSpinners)
+        {
+			return -1;
+        }
+		else if (a.NumSpinners > b.NumSpinners)
+        {
+			return 1;
+        }
+		else
+        {
+			if (a.ComplexityRating < b.ComplexityRating)
+			{
+				return -1;
+			}
+			else if (a.ComplexityRating > b.ComplexityRating)
+            {
+				return 1;
+            }
+        }
+
+		return 0;
+    }
 
 	private void LogInvalidPuzzle(PuzzleData data, string reason)
 	{
