@@ -235,9 +235,9 @@ namespace EditorWindowStuff
 				}
 
 				string folderPath = node[PUZZLE_FOLDER_KEY].Value;
-				if (!string.IsNullOrEmpty(imagePath) && folderPath != "null" && Directory.Exists(folderPath))
+				if (!string.IsNullOrEmpty(folderPath) && folderPath != "null" && Directory.Exists(folderPath))
 				{
-					FolderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(Path.GetDirectoryName(folderPath));
+					FolderForPuzzleFile = AssetDatabase.LoadAssetAtPath<Object>(folderPath);
 				}
 
 				string solvedPath = node[PUZZLE_SOLVED_IMAGE_KEY].Value;
