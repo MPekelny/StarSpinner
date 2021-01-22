@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892684d5f13da8e429e8b10d1c8d7be2, type: 3}
+  m_Name: Diamond
+  m_EditorClassIdentifier: 
+  _puzzleImageReferencePath: Assets/Content/Puzzles/References/Diamond.png
+  _currentVersionNumber: 0
+  _puzzleUniqueId: diamond_01
+  _puzzleName: Diamond
+  _puzzleSolvedSprite: {fileID: 21300000, guid: 420171da6862bb24ba30b9fe83812894,
+    type: 3}
+  _numSpinners: 3
+  _starDatas:
+  - _position: {x: -3, y: -237, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -325, y: 107, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -186, y: 239, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 183, y: 240, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 323, y: 108, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -288, y: 139, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -220, y: 208, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -256, y: 169, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 216, y: 207, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 285, y: 144, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 250, y: 175, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -132, y: 240, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 129, y: 240, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -72, y: 238, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 65, y: 240, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -4, y: 239, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -291, y: 69, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -47, y: -193, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -256, y: 32, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -92, y: -145, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -218, y: -9, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -133, y: -101, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: -174, y: -56, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 36, y: -192, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 290, y: 72, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 79, y: -146, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 246, y: 28, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 123, y: -101, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 202, y: -20, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  - _position: {x: 166, y: -56, z: 0}
+    _finalColor: {r: 0.3254717, g: 0.80171126, b: 1, a: 1}
+  _historyDatas:
+  - _numSpinners: 3
+    _numStarsAdded: 0
+    _starsDeleted: 
