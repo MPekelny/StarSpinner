@@ -109,7 +109,13 @@ namespace EditorWindowStuff
 			}
 
 			string imagePath = StarAreaReferenceImage.Texture != null ? AssetDatabase.GetAssetPath(StarAreaReferenceImage.Texture) : "";
-			puzzleData.SetDataFromEditorTool(PuzzleId, PuzzleName, NumPuzzleSpinners, PuzzleSolvedImage, Stars, imagePath);
+			List<PuzzleData.StarData> editorStars = new List<PuzzleData.StarData>();
+			foreach (PuzzleEditorStar star in Stars)
+            {
+				editorStars.Add(new PuzzleData.StarData(star.GamePosition, star.EndColour));
+            }
+
+			puzzleData.SetDataFromEditorTool(PuzzleId, PuzzleName, NumPuzzleSpinners, PuzzleSolvedImage, editorStars, imagePath);
 			if (resetHistory)
 			{
 				puzzleData.RestartHistory(NumPuzzleSpinners);
@@ -210,9 +216,7 @@ namespace EditorWindowStuff
 
 			node[PUZZLE_ACTION_QUEUE_KEY] = ActionQueue.GetQueueDataAsNode();
 
-			StringBuilder builder = new StringBuilder();
-			node.WriteToStringBuilder(builder, 0, 0, JSONTextMode.Compact);
-			EditorPrefs.SetString(DATA_BEING_EDITED_PREFS_KEY, builder.ToString());
+			EditorPrefs.SetString(DATA_BEING_EDITED_PREFS_KEY, node.ToString());
 		}
 
 		/// <summary>

@@ -146,18 +146,15 @@ public class PuzzleData : ScriptableObject
 	public List<HistoryData> HistoryDatas => _historyDatas;
 
 #if UNITY_EDITOR
-	public void SetDataFromEditorTool(string puzzleId, string puzzleName, int numSpinners, Sprite puzzleSolvedTexture, List<EditorWindowStuff.PuzzleEditorStar> editorStarDatas, string puzzleImageReferencePath)
-	{
+
+	public void SetDataFromEditorTool(string puzzleId, string puzzleName, int numSpinners, Sprite puzzleSolvedTexture, List<StarData> editorStarDatas, string puzzleImageReferencePath)
+    {
 		_puzzleUniqueId = puzzleId;
 		_puzzleName = puzzleName;
 		_numSpinners = numSpinners;
 		_puzzleSolvedSprite = puzzleSolvedTexture;
 		_puzzleImageReferencePath = puzzleImageReferencePath;
-		_starDatas = new StarData[editorStarDatas.Count];
-		for (int i = 0; i < editorStarDatas.Count; i++)
-		{
-			_starDatas[i] = new StarData(editorStarDatas[i].GamePosition, editorStarDatas[i].EndColour);
-		}
+		_starDatas = editorStarDatas.ToArray();
 	}
 
 	public void AddHistoryData(int numSpinnersForVersion, int numStarsAddedForVersion, List<int> starsDeletedForVersion)
