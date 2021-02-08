@@ -1,0 +1,134 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892684d5f13da8e429e8b10d1c8d7be2, type: 3}
+  m_Name: Highheel
+  m_EditorClassIdentifier: 
+  _puzzleImageReferencePath: Assets/Content/Puzzles/References/HighHeel.png
+  _currentVersionNumber: 0
+  _puzzleUniqueId: highheel_01
+  _puzzleName: Highheel
+  _puzzleSolvedSprite: {fileID: 21300000, guid: ab951f95af531db4e936d969159e975c,
+    type: 3}
+  _numSpinners: 4
+  _starDatas:
+  - _position: {x: -201, y: -61, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -205, y: -208, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -245, y: -210, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -226, y: -221, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -203, y: -178, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -207, y: -103, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -207, y: -139, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -246, y: -175, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -247, y: -132, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -245, y: -91, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -250, y: -37, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -253, y: 14, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -207, y: 323, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -313, y: 175, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -304, y: 220, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -249, y: 299, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -287, y: 253, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -269, y: 274, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -308, y: 133, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -276, y: 54, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -294, y: 94, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -137, y: -259, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 299, y: -320, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 312, y: -294, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -149, y: -220, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -186, y: -105, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -161, y: -177, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -174, y: -141, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -100, y: -276, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 247, y: -322, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -59, y: -291, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 191, y: -324, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -12, y: -302, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 138, y: -322, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 34, y: -311, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 84, y: -321, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -171, y: 311, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 286, y: -261, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -142, y: 294, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 256, y: -234, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -108, y: 266, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 224, y: -207, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -82, y: 234, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 193, y: -179, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -65, y: 193, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 154, y: -142, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -44, y: 149, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 126, y: -109, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -22, y: 105, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 94, y: -81, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: -2, y: 68, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 66, y: -46, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 20, y: 28, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  - _position: {x: 40, y: -11, z: 0}
+    _finalColor: {r: 1, g: 0, b: 0, a: 1}
+  _historyDatas:
+  - _numSpinners: 4
+    _numStarsAdded: 0
+    _starsDeleted: 

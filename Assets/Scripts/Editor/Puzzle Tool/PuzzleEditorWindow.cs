@@ -231,6 +231,10 @@ namespace EditorWindowStuff
 			GUILayout.Label("Spinners for Puzzle:", GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
 			_windowData.NumPuzzleSpinners = EditorGUILayout.IntSlider(_windowData.NumPuzzleSpinners, PuzzleData.MIN_NUM_SPINNERS, PuzzleData.MAX_NUM_SPINNERS, GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
 			GUILayout.EndHorizontal();
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("Number of Stars in Puzzle:", GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
+			GUILayout.Label(_windowData.Stars.Count.ToString(), GUILayout.Width(SIDE_SECTION_WIDTH / 2f));
+			GUILayout.EndHorizontal();
 			_windowData.PuzzleSolvedImage = (Sprite)EditorGUILayout.ObjectField("Level Button Solved Image:", _windowData.PuzzleSolvedImage, typeof(Sprite), false, GUILayout.Width(SIDE_SECTION_WIDTH));
 		}
 
@@ -274,7 +278,7 @@ namespace EditorWindowStuff
 				if (GUILayout.Button("Test Puzzle", GUILayout.Width(SIDE_SECTION_WIDTH)))
 				{
 					_previousScene = EditorSceneManager.GetActiveScene().path;
-					_switchingScene = "Assets/Scripts/Editor/Puzzle Tool/PuzzleTestScene.unity";
+					_switchingScene = "Assets/Scenes/PuzzleTestScene.unity";
 					EditorSceneManager.OpenScene(_switchingScene);
 				}
 			}

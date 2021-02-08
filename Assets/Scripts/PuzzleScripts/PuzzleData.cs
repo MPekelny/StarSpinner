@@ -50,6 +50,83 @@ public class PuzzleData : ScriptableObject
 #if UNITY_EDITOR
 	[SerializeField] private string _puzzleImageReferencePath = "";
 	public string PuzzleImageReferencePath => _puzzleImageReferencePath;
+
+	public float ComplexityRating { get; private set; }
+	public void GenerateComplexityRating()
+    {
+		/* From what I have observed, things that make a puzzle more difficult aside from the number of spinners are:
+		 *	1. Having more stars (pretty self explanitory).
+		 *	2. Having more stars that are closer to the center of the puzzle (the closer to the center a star is, the less it moves when a spinner rotates, making it harder to unscramble a puzzle if it has many stars close to the center).
+		 *	3. Having stars being very close to its nearest neighbors (while spinning around spinners really close stars can overlap, making it trickier to figure out the correct position).
+		 * 
+		 * There may be other factors than these that could be used to determine complexity of a puzzle, but I can't think of any right now.
+		 * So, will take the number of stars, average distance of stars from the center and average distance of stars from each other, and then multipply each number by some sort of factor so that
+		 * the star number is the strongest factor, the distance from the stars to its closest 4 neighbors is the second biggest factor and the distance from center number is the least strong factor.
+		 * 
+		 * The various numbers I chose for this are rather arbritrary, but it does sseem to be sorting the puzzles roughly in the way I want them to be, so I am going to go with them.
+		 */
+
+		float starFactorMultiplier = 6f;
+		float starFactor = (float)StarDatas.Length * starFactorMultiplier;
+
+		float totalDistances = 0f;
+		foreach (StarData star in StarDatas)
+        {
+			totalDistances += star.Position.magnitude;
+        }
+
+		float centerSubtractFrom = 400f;
+		float centerFactorMultiplier = 2f;
+		float centerDistanceFactor = (centerSubtractFrom - (totalDistances / (float)StarDatas.Length)) * centerFactorMultiplier;
+
+		float totalAverageInterDistances = 0f;
+		for (int i = 0; i < StarDatas.Length; i++)
+        {
+			float closestNeighbor = 0f;
+			float secondClosestNeighbor = 0f;
+			float thirdClosestNeighbor = 0f;
+			float fourthClosestNeighbor = 0f;
+			for (int j = 0; j < StarDatas.Length; j++)
+            {
+				if (i == j) continue;
+
+				float starDist = (StarDatas[i].Position - StarDatas[j].Position).magnitude;
+				if (starDist > closestNeighbor)
+                {
+					fourthClosestNeighbor = thirdClosestNeighbor;
+					thirdClosestNeighbor = secondClosestNeighbor;
+					secondClosestNeighbor = closestNeighbor;
+					closestNeighbor = starDist;
+                }
+				else if (starDist > secondClosestNeighbor)
+                {
+					fourthClosestNeighbor = thirdClosestNeighbor;
+					thirdClosestNeighbor = secondClosestNeighbor;
+					secondClosestNeighbor = starDist;
+				}
+				else if (starDist > thirdClosestNeighbor)
+                {
+					fourthClosestNeighbor = thirdClosestNeighbor;
+					thirdClosestNeighbor = starDist;
+				}
+				else if (starDist > fourthClosestNeighbor)
+                {
+					fourthClosestNeighbor = starDist;
+                }
+            }
+
+			totalAverageInterDistances = (closestNeighbor + secondClosestNeighbor + thirdClosestNeighbor + fourthClosestNeighbor) / 4f;
+        }
+
+		// The average distance for this will often be something like between 5 and 15 and I want lower numbers to have higher weight, so for this, the number will be subtracted from a large number (with a multiplier so
+		// the size affects things more), and then apply the multiplier to the result.
+		float subtractFromNumber = 150f;
+		float decreaseMultiplier = 3f;
+		float interFactorMultiplier = 4f;
+		float interDistanceFactor = (subtractFromNumber - ((totalAverageInterDistances / (float)StarDatas.Length) * decreaseMultiplier)) * interFactorMultiplier;
+
+		ComplexityRating = starFactor + centerDistanceFactor + interDistanceFactor;
+    }
 #endif
 
 	[SerializeField] private int _currentVersionNumber = 0;
@@ -69,18 +146,15 @@ public class PuzzleData : ScriptableObject
 	public List<HistoryData> HistoryDatas => _historyDatas;
 
 #if UNITY_EDITOR
-	public void SetDataFromEditorTool(string puzzleId, string puzzleName, int numSpinners, Sprite puzzleSolvedTexture, List<EditorWindowStuff.PuzzleEditorStar> editorStarDatas, string puzzleImageReferencePath)
-	{
+
+	public void SetDataFromEditorTool(string puzzleId, string puzzleName, int numSpinners, Sprite puzzleSolvedTexture, List<StarData> editorStarDatas, string puzzleImageReferencePath)
+    {
 		_puzzleUniqueId = puzzleId;
 		_puzzleName = puzzleName;
 		_numSpinners = numSpinners;
 		_puzzleSolvedSprite = puzzleSolvedTexture;
 		_puzzleImageReferencePath = puzzleImageReferencePath;
-		_starDatas = new StarData[editorStarDatas.Count];
-		for (int i = 0; i < editorStarDatas.Count; i++)
-		{
-			_starDatas[i] = new StarData(editorStarDatas[i].GamePosition, editorStarDatas[i].EndColour);
-		}
+		_starDatas = editorStarDatas.ToArray();
 	}
 
 	public void AddHistoryData(int numSpinnersForVersion, int numStarsAddedForVersion, List<int> starsDeletedForVersion)
