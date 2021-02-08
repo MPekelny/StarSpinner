@@ -4,10 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
-using EditorWindowStuff;
 
 public class PuzzleTestScene : MonoBehaviour
 {
+	public const string DATA_BEING_EDITED_PREFS_KEY = "puzzle_data_being_edited";
+	public const string PUZZLE_ID_KEY = "puzzle_id";
+	public const string PUZZLE_NAME_KEY = "puzzle_name";
+	public const string PUZZLE_NUM_SPINNERS_KEY = "puzzle_num_spinners";
+	public const string PUZZLE_STAR_POSITION_X_KEY = "pos_x";
+	public const string PUZZLE_STAR_POSITION_Y_KEY = "pos_y";
+	public const string PUZZLE_STAR_COLOR_R_KEY = "color_r";
+	public const string PUZZLE_STAR_COLOR_G_KEY = "color_g";
+	public const string PUZZLE_STAR_COLOR_B_KEY = "color_b";
+	public const string PUZZLE_STARS_KEY = "stars";
+
 	// This version just needs to display stars and spinners, not most of the extra stuff the regular puzzle scene does, and this is all for testing anyways, so just going to
 	// instantiate/destroy the prefabs instead of going through the object pooler.
 	[SerializeField] private Star _starPrefab = null;
@@ -31,18 +41,18 @@ public class PuzzleTestScene : MonoBehaviour
 		_checker = new PuzzleSolutionChecker(10f);
 		_nameText.gameObject.SetActive(false);
 
-		if (EditorPrefs.HasKey(PuzzleEditorWindowData.DATA_BEING_EDITED_PREFS_KEY))
+		if (EditorPrefs.HasKey(DATA_BEING_EDITED_PREFS_KEY))
 		{
-			JSONNode node = JSONObject.Parse(EditorPrefs.GetString(PuzzleEditorWindowData.DATA_BEING_EDITED_PREFS_KEY));
-			_puzzleName = node[PuzzleEditorWindowData.PUZZLE_NAME_KEY].Value;
-			_numSpinnersForTesting = node[PuzzleEditorWindowData.PUZZLE_NUM_SPINNERS_KEY].AsInt;
+			JSONNode node = JSONObject.Parse(EditorPrefs.GetString(DATA_BEING_EDITED_PREFS_KEY));
+			_puzzleName = node[PUZZLE_NAME_KEY].Value;
+			_numSpinnersForTesting = node[PUZZLE_NUM_SPINNERS_KEY].AsInt;
 
-			JSONArray stars = node[PuzzleEditorWindowData.PUZZLE_STARS_KEY].AsArray;
+			JSONArray stars = node[PUZZLE_STARS_KEY].AsArray;
 			for (int i = 0; i < stars.Count; i++)
 			{
 				JSONNode starNode = stars[i];
-				Vector2 pos = new Vector2(starNode[PuzzleEditorWindowData.PUZZLE_STAR_POSITION_X_KEY], starNode[PuzzleEditorWindowData.PUZZLE_STAR_POSITION_Y_KEY]);
-				Color color = new Color(starNode[PuzzleEditorWindowData.PUZZLE_STAR_COLOR_R_KEY], starNode[PuzzleEditorWindowData.PUZZLE_STAR_COLOR_G_KEY], starNode[PuzzleEditorWindowData.PUZZLE_STAR_COLOR_B_KEY]);
+				Vector2 pos = new Vector2(starNode[PUZZLE_STAR_POSITION_X_KEY], starNode[PUZZLE_STAR_POSITION_Y_KEY]);
+				Color color = new Color(starNode[PUZZLE_STAR_COLOR_R_KEY], starNode[PUZZLE_STAR_COLOR_G_KEY], starNode[PUZZLE_STAR_COLOR_B_KEY]);
 				_testingStars.Add(new PuzzleData.StarData(pos, color));
 			}
 

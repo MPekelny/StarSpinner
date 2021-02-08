@@ -12,16 +12,6 @@ namespace EditorWindowStuff
 	public class PuzzleEditorWindowData
 	{
 		public const int MIN_STARS_IN_PUZZLE = 15;
-		public const string DATA_BEING_EDITED_PREFS_KEY = "puzzle_data_being_edited";
-		public const string PUZZLE_ID_KEY = "puzzle_id";
-		public const string PUZZLE_NAME_KEY = "puzzle_name";
-		public const string PUZZLE_NUM_SPINNERS_KEY = "puzzle_num_spinners";
-		public const string PUZZLE_STAR_POSITION_X_KEY = "pos_x";
-		public const string PUZZLE_STAR_POSITION_Y_KEY = "pos_y";
-		public const string PUZZLE_STAR_COLOR_R_KEY = "color_r";
-		public const string PUZZLE_STAR_COLOR_G_KEY = "color_g";
-		public const string PUZZLE_STAR_COLOR_B_KEY = "color_b";
-		public const string PUZZLE_STARS_KEY = "stars";
 		private const string DEFAULT_FOLDER_PATH = "Assets/Content/Puzzles";
 		private const string PUZZLE_IMAGE_REF_KEY = "puzzle_image_ref";
 		private const string PUZZLE_FOLDER_KEY = "puzzle_folder";
@@ -194,9 +184,9 @@ namespace EditorWindowStuff
 		public void PutDataIntoEditorPrefs()
 		{
 			JSONNode node = new JSONObject();
-			node[PUZZLE_ID_KEY] = PuzzleId;
-			node[PUZZLE_NAME_KEY] = PuzzleName;
-			node[PUZZLE_NUM_SPINNERS_KEY] = NumPuzzleSpinners;
+			node[PuzzleTestScene.PUZZLE_ID_KEY] = PuzzleId;
+			node[PuzzleTestScene.PUZZLE_NAME_KEY] = PuzzleName;
+			node[PuzzleTestScene.PUZZLE_NUM_SPINNERS_KEY] = NumPuzzleSpinners;
 			node[PUZZLE_IMAGE_REF_KEY] = StarAreaReferenceImage.Texture == null ? "null" : AssetDatabase.GetAssetPath(StarAreaReferenceImage.Texture);
 			node[PUZZLE_FOLDER_KEY] = AssetDatabase.GetAssetPath(FolderForPuzzleFile);
 			node[PUZZLE_FILE_KEY] = PuzzleFileName;
@@ -205,18 +195,18 @@ namespace EditorWindowStuff
 			foreach (PuzzleEditorStar star in Stars)
 			{
 				JSONObject starData = new JSONObject();
-				starData[PUZZLE_STAR_COLOR_R_KEY] = star.EndColour.r;
-				starData[PUZZLE_STAR_COLOR_G_KEY] = star.EndColour.g;
-				starData[PUZZLE_STAR_COLOR_B_KEY] = star.EndColour.b;
-				starData[PUZZLE_STAR_POSITION_X_KEY] = star.GamePosition.x;
-				starData[PUZZLE_STAR_POSITION_Y_KEY] = star.GamePosition.y;
+				starData[PuzzleTestScene.PUZZLE_STAR_COLOR_R_KEY] = star.EndColour.r;
+				starData[PuzzleTestScene.PUZZLE_STAR_COLOR_G_KEY] = star.EndColour.g;
+				starData[PuzzleTestScene.PUZZLE_STAR_COLOR_B_KEY] = star.EndColour.b;
+				starData[PuzzleTestScene.PUZZLE_STAR_POSITION_X_KEY] = star.GamePosition.x;
+				starData[PuzzleTestScene.PUZZLE_STAR_POSITION_Y_KEY] = star.GamePosition.y;
 
-				node[PUZZLE_STARS_KEY][-1] = starData;
+				node[PuzzleTestScene.PUZZLE_STARS_KEY][-1] = starData;
 			}
 
 			node[PUZZLE_ACTION_QUEUE_KEY] = ActionQueue.GetQueueDataAsNode();
 
-			EditorPrefs.SetString(DATA_BEING_EDITED_PREFS_KEY, node.ToString());
+			EditorPrefs.SetString(PuzzleTestScene.DATA_BEING_EDITED_PREFS_KEY, node.ToString());
 		}
 
 		/// <summary>
@@ -224,13 +214,13 @@ namespace EditorWindowStuff
 		/// </summary>
 		public void GetDataFromEditorPrefs()
 		{
-			if (EditorPrefs.HasKey(DATA_BEING_EDITED_PREFS_KEY))
+			if (EditorPrefs.HasKey(PuzzleTestScene.DATA_BEING_EDITED_PREFS_KEY))
 			{
-				string json = EditorPrefs.GetString(DATA_BEING_EDITED_PREFS_KEY);
+				string json = EditorPrefs.GetString(PuzzleTestScene.DATA_BEING_EDITED_PREFS_KEY);
 				JSONNode node = JSONNode.Parse(json);
-				PuzzleId = node[PUZZLE_ID_KEY].Value;
-				PuzzleName = node[PUZZLE_NAME_KEY].Value;
-				NumPuzzleSpinners = node[PUZZLE_NUM_SPINNERS_KEY].AsInt;
+				PuzzleId = node[PuzzleTestScene.PUZZLE_ID_KEY].Value;
+				PuzzleName = node[PuzzleTestScene.PUZZLE_NAME_KEY].Value;
+				NumPuzzleSpinners = node[PuzzleTestScene.PUZZLE_NUM_SPINNERS_KEY].AsInt;
 				string imagePath = node[PUZZLE_IMAGE_REF_KEY].Value;
 				if (!string.IsNullOrEmpty(imagePath) && imagePath != "null" && File.Exists(imagePath))
 				{
@@ -252,15 +242,15 @@ namespace EditorWindowStuff
 				
 				PuzzleFileName = node[PUZZLE_FILE_KEY].Value;
 
-				JSONArray starArray = node[PUZZLE_STARS_KEY].AsArray;
+				JSONArray starArray = node[PuzzleTestScene.PUZZLE_STARS_KEY].AsArray;
 				for (int i = 0; i < starArray.Count; i++)
 				{
 					JSONNode starNode = starArray[i];
-					float colR = starNode[PUZZLE_STAR_COLOR_R_KEY];
-					float colG = starNode[PUZZLE_STAR_COLOR_G_KEY];
-					float colB = starNode[PUZZLE_STAR_COLOR_B_KEY];
-					float posX = starNode[PUZZLE_STAR_POSITION_X_KEY];
-					float posY = starNode[PUZZLE_STAR_POSITION_Y_KEY];
+					float colR = starNode[PuzzleTestScene.PUZZLE_STAR_COLOR_R_KEY];
+					float colG = starNode[PuzzleTestScene.PUZZLE_STAR_COLOR_G_KEY];
+					float colB = starNode[PuzzleTestScene.PUZZLE_STAR_COLOR_B_KEY];
+					float posX = starNode[PuzzleTestScene.PUZZLE_STAR_POSITION_X_KEY];
+					float posY = starNode[PuzzleTestScene.PUZZLE_STAR_POSITION_Y_KEY];
 
 					Color starColor = new Color(colR, colG, colB);
 					Vector2 pos = new Vector2(posX, posY);
@@ -275,7 +265,7 @@ namespace EditorWindowStuff
 
 				ActionQueue.SetDataFromNode(node[PUZZLE_ACTION_QUEUE_KEY], Stars, StarCollisionGrid);
 
-				EditorPrefs.DeleteKey(DATA_BEING_EDITED_PREFS_KEY);
+				EditorPrefs.DeleteKey(PuzzleTestScene.DATA_BEING_EDITED_PREFS_KEY);
 			}
 		}
 	}

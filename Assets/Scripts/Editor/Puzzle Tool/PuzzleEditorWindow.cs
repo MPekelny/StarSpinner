@@ -278,7 +278,7 @@ namespace EditorWindowStuff
 				if (GUILayout.Button("Test Puzzle", GUILayout.Width(SIDE_SECTION_WIDTH)))
 				{
 					_previousScene = EditorSceneManager.GetActiveScene().path;
-					_switchingScene = "Assets/Scripts/Editor/Puzzle Tool/PuzzleTestScene.unity";
+					_switchingScene = "Assets/Scenes/PuzzleTestScene.unity";
 					EditorSceneManager.OpenScene(_switchingScene);
 				}
 			}
