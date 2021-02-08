@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _puzzleImageReferencePath: Assets/Content/Puzzles/References/AlarmClock.png
   _currentVersionNumber: 0
-  _puzzleUniqueId: clock_01
+  _puzzleUniqueId: alarm_clock_01
   _puzzleName: Alarm Clock
   _puzzleSolvedSprite: {fileID: 21300000, guid: c0505140d03ce9e45a2f17382243aa18,
     type: 3}

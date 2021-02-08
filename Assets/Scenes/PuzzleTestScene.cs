@@ -41,6 +41,7 @@ public class PuzzleTestScene : MonoBehaviour
 		_checker = new PuzzleSolutionChecker(10f);
 		_nameText.gameObject.SetActive(false);
 
+#if UNITY_EDITOR
 		if (EditorPrefs.HasKey(DATA_BEING_EDITED_PREFS_KEY))
 		{
 			JSONNode node = JSONObject.Parse(EditorPrefs.GetString(DATA_BEING_EDITED_PREFS_KEY));
@@ -58,6 +59,7 @@ public class PuzzleTestScene : MonoBehaviour
 
 			GenerateTest();
 		}
+#endif
 	}
 
 	private void GenerateTest()
