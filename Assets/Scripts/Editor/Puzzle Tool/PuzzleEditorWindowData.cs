@@ -12,7 +12,6 @@ namespace EditorWindowStuff
 	public class PuzzleEditorWindowData
 	{
 		public const int MIN_STARS_IN_PUZZLE = 15;
-		private const string DEFAULT_FOLDER_PATH = "Assets/Content/Puzzles";
 		public const string DATA_BEING_EDITED_PREFS_KEY = "puzzle_data_being_edited";
 		public const string PUZZLE_ID_KEY = "puzzle_id";
 		public const string PUZZLE_NAME_KEY = "puzzle_name";
@@ -23,6 +22,7 @@ namespace EditorWindowStuff
 		public const string PUZZLE_STAR_COLOR_G_KEY = "color_g";
 		public const string PUZZLE_STAR_COLOR_B_KEY = "color_b";
 		public const string PUZZLE_STARS_KEY = "stars";
+		private const string DEFAULT_FOLDER_PATH = "Assets/Content/Puzzles";
 		private const string PUZZLE_IMAGE_REF_KEY = "puzzle_image_ref";
 		private const string PUZZLE_FOLDER_KEY = "puzzle_folder";
 		private const string PUZZLE_FILE_KEY = "puzzle_file";
